@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
-    targetRevision: HEAD
+    targetRevision: main
     path: gitops/infra
   destination:
     server: 'https://kubernetes.default.svc'
