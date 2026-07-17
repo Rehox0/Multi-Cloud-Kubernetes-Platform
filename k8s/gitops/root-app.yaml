@@ -7,8 +7,8 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
-    targetRevision: HEAD
-    path: gitops/infra
+    targetRevision: testing
+    path: k8s/gitops/infra
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
