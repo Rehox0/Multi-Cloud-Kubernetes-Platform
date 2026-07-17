@@ -27,6 +27,11 @@ variable "eks_nodes_sg_id" {
   description = "ID Security Groups for nodes, provided by the security_groups module"
 }
 
+variable "eks_cluster_sg_id" {
+  type        = string
+  description = "ID Security Groups for cluster, provided by the security_groups module"
+}
+
 variable "node_role_arn" {
   type        = string
   description = "ARN of the IAM role for worker nodes provided by the IAM module"

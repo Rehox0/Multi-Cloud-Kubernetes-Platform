@@ -18,6 +18,16 @@ resource "aws_security_group" "eks_nodes" {
   })
 }
 
+# Empty Security Group for EKS Cluster
+resource "aws_security_group" "eks_cluster" {
+  name   = "${var.project_name}-eks-cluster-sg"
+  vpc_id = var.vpc_id
+
+  tags = merge(var.common_tags, {
+    Name = "${var.project_name}-eks-cluster-sg"
+  })
+}
+
 # Empty Security Group for RDS PostgreSQL
 resource "aws_security_group" "rds" {
   name   = "${var.project_name}-rds-sg"

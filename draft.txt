@@ -1,0 +1,2 @@
+deleted helm from tf to manage it from argoCD
+
