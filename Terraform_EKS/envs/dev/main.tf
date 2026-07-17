@@ -24,6 +24,7 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
 
   eks_nodes_sg_id      = module.security_groups.eks_nodes_sg_id
+  eks_cluster_sg_id    = module.security_groups.eks_cluster_sg_id
   node_instance_types  = ["t3.small"]
   node_desired_size    = 2
   node_min_size        = 1
@@ -67,23 +68,24 @@ module "iam" {
   common_tags = local.tags
 }
 
-module "helm_charts" {
-  source = "../../helm"
+# Helm charts module is commented out because its moved to ArgoCD. The module is still available in the repo for reference and can be used if needed.
+# module "helm_charts" {
+#   source = "../../helm"
 
-  aws_region             = var.aws_region
-  vpc_id                 = module.vpc.vpc_id
-  cluster_name           = module.eks.cluster_name
-  cluster_endpoint       = module.eks.cluster_endpoint
-  cluster_ca_certificate = module.eks.cluster_certificate_authority_data
+#   aws_region             = var.aws_region
+#   vpc_id                 = module.vpc.vpc_id
+#   cluster_name           = module.eks.cluster_name
+#   cluster_endpoint       = module.eks.cluster_endpoint
+#   cluster_ca_certificate = module.eks.cluster_certificate_authority_data
 
-  alb_controller_role_arn      = module.iam.alb_controller_role_arn
-  cilium_role_arn              = module.iam.cilium_operator_role_arn
-  eks_nodes_sg_id              = module.eks.node_security_group_id
-  alb_controller_chart_version = var.alb_controller_chart_version
-  cilium_chart_version         = var.cilium_chart_version
+#   alb_controller_role_arn      = module.iam.alb_controller_role_arn
+#   cilium_role_arn              = module.iam.cilium_operator_role_arn
+#   eks_nodes_sg_id              = module.eks.node_security_group_id
+#   alb_controller_chart_version = var.alb_controller_chart_version
+#   cilium_chart_version         = var.cilium_chart_version
 
-  depends_on = [module.eks]
-}
+#   depends_on = [module.eks]
+# }
 
 module "management" {
   source = "../../modules/management"

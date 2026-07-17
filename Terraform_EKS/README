@@ -18,22 +18,19 @@ The same bucket name **MUST** appear in two places:
 
 ## Setup steps:
 1. Go to `.bootstrap/` and run `terraform apply`.
-2. Return to the root directory and run `terraform init`.
+2. Go to  `envs/dev/` and run `terraform apply`.
+3. Go to AWS and SSM into mgmt-asg EC2 and run
+ 
+```
+aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
 
-## Private-only cluster defaults
-- EKS API endpoint is private-only (`endpoint_public_access = false`).
-- ALB exposure is internal-only by convention and restricted to internal CIDR ranges passed in `alb_ingress_cidr_blocks`.
-- Terraform apply for environments should run from the management EC2 in VPC (or through SSM).
+helm repo add argoproj https://argoproj.github.io/argo-helm
+helm repo update
 
-
-## GitHub Actions + OIDC (Bootstrap-managed)
-
-Required variables in `.bootstrap`:
-
-```hcl
-github_owner      = "OWNER_OR_ORG"
-github_repository = "REPO_NAME"
-github_token      = "ghp_xxx..." # token with rights to manage environment secrets
+helm upgrade --install argocd argoproj/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  --set configs.params.server\.insecure=true
 ```
 
 ### Run workflow
@@ -45,6 +42,22 @@ Use `Terraform OIDC + SSM` workflow (`workflow_dispatch`) and choose:
 
 The workflow assumes role via OIDC, finds `mgmt-asg` instance, then runs Terraform remotely over SSM in:
 - `Terraform_EKS/envs/<environment>`
+
+## GitHub Actions + OIDC (Bootstrap-managed)
+
+Required variables in `.bootstrap`:
+
+```hcl
+github_owner      = "OWNER_OR_ORG"
+github_repository = "REPO_NAME"
+github_token      = "ghp_xxx..." # token with rights to manage environment secrets
+```
+
+
+## Private-only cluster defaults
+- EKS API endpoint is private-only (`endpoint_public_access = false`).
+- ALB exposure is internal-only by convention and restricted to internal CIDR ranges passed in `alb_ingress_cidr_blocks`.
+- Terraform apply for environments should run from the management EC2 in VPC (or through SSM).
 
 
 The Draft:
