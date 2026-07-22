@@ -1,6 +1,6 @@
 resource "aws_launch_template" "management" {
   name_prefix   = "mgmt-template-"
-  image_id      = data.aws_ami.amazon_linux_2023.id
+  image_id      = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
 
   iam_instance_profile {

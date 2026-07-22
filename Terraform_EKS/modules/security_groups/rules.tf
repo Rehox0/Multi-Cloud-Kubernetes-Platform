@@ -113,6 +113,16 @@ resource "aws_security_group_rule" "alb_egress_all" {
   security_group_id = aws_security_group.alb.id
 }
 
+resource "aws_security_group_rule" "nodes_internal_all" {
+  type                     = "ingress"
+  description              = "Allow nodes and pod ENIs to communicate with each other"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.eks_nodes.id
+  source_security_group_id = aws_security_group.eks_nodes.id
+}
+
 resource "aws_security_group_rule" "nodes_egress_all" {
   type              = "egress"
   from_port         = 0

@@ -35,6 +35,11 @@ helm upgrade --install argocd argoproj/argo-cd \
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 cd allegro-analytics-eks/k8s/gitops
 kubectl apply -f root-app.yaml
+
+alias k=kubectl
+sudo dnf install bash-completion
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
 ```
 
 ### Run workflow
