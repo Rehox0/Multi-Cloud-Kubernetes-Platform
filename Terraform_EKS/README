@@ -32,7 +32,7 @@ helm upgrade --install argocd argoproj/argo-cd \
   --create-namespace \
   --set configs.params.server\.insecure=true
 
-git clone https://github.com/Rehox0/allegro-analytics-eks.git
+sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 cd allegro-analytics-eks/k8s/gitops
 kubectl apply -f root-app.yaml
 ```

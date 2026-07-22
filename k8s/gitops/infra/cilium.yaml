@@ -19,3 +19,16 @@ spec:
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/spec/containers/0/env
+    - group: cert-manager.io
+      kind: Certificate
+      jsonPointers:
+        - /spec/duration
