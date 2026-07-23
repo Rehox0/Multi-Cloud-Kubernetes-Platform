@@ -23,6 +23,7 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
 
   eks_nodes_sg_id      = module.security_groups.eks_nodes_sg_id
+  eks_cluster_sg_id    = module.security_groups.eks_cluster_sg_id
   node_instance_types  = ["t3.small"]
   node_desired_size    = 2
   node_min_size        = 1
@@ -42,7 +43,6 @@ module "security_groups" {
   project_name            = var.project_name
   vpc_id                  = module.vpc.vpc_id
   common_tags             = local.tags
-  eks_cluster_sg_id       = module.eks.cluster_primary_security_group_id
   alb_ingress_cidr_blocks = var.alb_ingress_cidr_blocks
 }
 

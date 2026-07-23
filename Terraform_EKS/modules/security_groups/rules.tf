@@ -32,7 +32,7 @@ resource "aws_security_group_rule" "cluster_to_nodes" {
   to_port                  = 443
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_nodes.id
-  source_security_group_id = var.eks_cluster_sg_id
+  source_security_group_id = aws_security_group.eks_cluster.id
 }
 
 resource "aws_security_group_rule" "nodes_to_cluster_api" {
@@ -41,7 +41,7 @@ resource "aws_security_group_rule" "nodes_to_cluster_api" {
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  security_group_id        = var.eks_cluster_sg_id
+  security_group_id        = aws_security_group.eks_cluster.id
   source_security_group_id = aws_security_group.eks_nodes.id
 }
 
@@ -52,7 +52,7 @@ resource "aws_security_group_rule" "cluster_to_nodes_kubelet" {
   to_port                  = 65535
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_nodes.id
-  source_security_group_id = var.eks_cluster_sg_id
+  source_security_group_id = aws_security_group.eks_cluster.id
 }
 
 resource "aws_security_group_rule" "management_to_eks_api_nodes_sg" {
@@ -71,7 +71,7 @@ resource "aws_security_group_rule" "management_to_eks_api_cluster_sg" {
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  security_group_id        = var.eks_cluster_sg_id
+  security_group_id        = aws_security_group.eks_cluster.id
   source_security_group_id = aws_security_group.management.id
 }
 
@@ -139,7 +139,7 @@ resource "aws_security_group_rule" "nodes_cilium_health_tcp" {
   to_port                  = 4240
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_nodes.id
-  source_security_group_id = var.eks_cluster_sg_id
+  source_security_group_id = aws_security_group.eks_cluster.id
 }
 
 resource "aws_security_group_rule" "nodes_icmp_from_cluster" {
@@ -149,7 +149,7 @@ resource "aws_security_group_rule" "nodes_icmp_from_cluster" {
   to_port                  = -1
   protocol                 = "icmp"
   security_group_id        = aws_security_group.eks_nodes.id
-  source_security_group_id = var.eks_cluster_sg_id
+  source_security_group_id = aws_security_group.eks_cluster.id
 }
 
 resource "aws_security_group_rule" "management_egress_all" {

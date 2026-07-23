@@ -44,7 +44,6 @@ module "security_groups" {
   project_name            = var.project_name
   vpc_id                  = module.vpc.vpc_id
   common_tags             = local.tags
-  eks_cluster_sg_id       = module.eks.cluster_primary_security_group_id
   alb_ingress_cidr_blocks = var.alb_ingress_cidr_blocks
 }
 
