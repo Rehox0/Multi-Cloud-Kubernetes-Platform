@@ -64,6 +64,25 @@ variable "cluster_version" {
   default     = "1.35"
 }
 
+variable "cluster_addons" {
+  type = map(any)
+  description = "Map of EKS cluster addons to install. Each key is the addon name, and the value is an object with the following attributes:"
+  default = {
+    vpc-cni = {
+      most_recent = true
+      before_compute = true 
+    }
+    kube-proxy = {
+      most_recent = true
+      before_compute = true
+    }
+    coredns = {
+      most_recent = true
+      before_compute = true
+    }
+  }
+  }
+
 variable "node_desired_size" { type = number }
 variable "node_min_size" { type = number }
 variable "node_max_size" { type = number }
