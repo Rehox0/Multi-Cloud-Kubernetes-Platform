@@ -16,6 +16,9 @@ spec:
         ipam:
           mode: eni
         egressMasqueradeInterfaces: eth+
+        cni:
+          chainingMode: aws-cni
+          exclusive: false
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system

@@ -19,10 +19,18 @@ The same bucket name **MUST** appear in two places:
 ## Setup steps:
 1. Go to `.bootstrap/` and run `terraform apply`.
 2. Go to  `envs/dev/` and run `terraform apply`.
-3. Go to AWS and SSM into mgmt-asg EC2 and run
+3. Go to AWS and SSM into mgmt-asg EC2 and configure it:
  
 ```
+sudo apt update && sudo apt install -y curl unzip
+sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo unzip awscliv2.zip
+sudo ./aws/install
 aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
+
+sudo curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+sudo chmod 700 get_helm.sh
+sudo ./get_helm.sh
 
 helm repo add argoproj https://argoproj.github.io/argo-helm
 helm repo update
@@ -32,14 +40,27 @@ helm upgrade --install argocd argoproj/argo-cd \
   --create-namespace \
   --set configs.params.server\.insecure=true
 
+sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo chmod +x kubectl
+sudo sudo mv kubectl /usr/local/bin/
+
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
-cd allegro-analytics-eks/k8s/gitops
+#cd allegro-analytics-eks/k8s
 kubectl apply -f root-app.yaml
 
 alias k=kubectl
-sudo dnf install bash-completion
-source <(kubectl completion bash)
+sudo apt install bash-completion
 echo "source <(kubectl completion bash)" >> ~/.bashrc
+echo "alias k=kubectl" >> ~/.bashrc
+echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
+echo "source <(helm completion bash)" >> ~/.bashrc
+sudo chsh -s /bin/bash ssm-user
+source ~/.bashrc
+
+kubectl edit configmap cilium-config -n kube-system
+routing-mode: native
+# delete tunnel-protocol:
+
 ```
 
 ### Run workflow
