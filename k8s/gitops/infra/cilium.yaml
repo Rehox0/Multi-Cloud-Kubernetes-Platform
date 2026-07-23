@@ -19,6 +19,7 @@ spec:
         cni:
           chainingMode: aws-cni
           exclusive: false
+        routing-mode: native
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
