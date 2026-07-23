@@ -7,9 +7,22 @@ HELM_VERSION="${helm_version}"
 HELM_SHA256="${helm_sha256}"
 TERRAFORM_VERSION="${terraform_version}"
 TERRAFORM_SHA256="${terraform_sha256}"
-BOOTSTRAP_TMP_DIR="/home/ec2-user/bootstrap-tmp"
 
-dnf install -y unzip git
+if id -u ubuntu >/dev/null 2>&1; then
+  SSH_USER="ubuntu"
+elif id -u ec2-user >/dev/null 2>&1; then
+  SSH_USER="ec2-user"
+else
+  SSH_USER="root"
+fi
+
+SSH_HOME="/home/$${SSH_USER}"
+BOOTSTRAP_TMP_DIR="$${SSH_HOME}/bootstrap-tmp"
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y unzip git curl ca-certificates gnupg lsb-release
+
 mkdir -p "$${BOOTSTRAP_TMP_DIR}"
 echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
@@ -27,8 +40,8 @@ echo "$${TERRAFORM_SHA256}  $${BOOTSTRAP_TMP_DIR}/terraform.zip" | sha256sum -c 
 unzip -q "$${BOOTSTRAP_TMP_DIR}/terraform.zip" -d "$${BOOTSTRAP_TMP_DIR}/terraform"
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/terraform/terraform" /usr/local/bin/terraform
 
-# Install SSH public keys for ec2-user so access survives ASG instance rotation.
-AUTHORIZED_KEYS_FILE="/home/ec2-user/.ssh/authorized_keys"
+# Install SSH public keys for the management user so access survives ASG instance rotation.
+AUTHORIZED_KEYS_FILE="$${SSH_HOME}/.ssh/authorized_keys"
 TMP_KEYS_FILE="$${BOOTSTRAP_TMP_DIR}/management_ssh_keys"
 : > "$${TMP_KEYS_FILE}"
 
@@ -39,25 +52,25 @@ EOF_KEY
 %{ endfor ~}
 
 if [ -s "$${TMP_KEYS_FILE}" ]; then
-  install -d -m 0700 -o ec2-user -g ec2-user /home/ec2-user/.ssh
+  install -d -m 0700 -o "$${SSH_USER}" -g "$${SSH_USER}" "$${SSH_HOME}/.ssh"
   touch "$${AUTHORIZED_KEYS_FILE}"
-  chown ec2-user:ec2-user "$${AUTHORIZED_KEYS_FILE}"
+  chown "$${SSH_USER}:$${SSH_USER}" "$${AUTHORIZED_KEYS_FILE}"
   chmod 0600 "$${AUTHORIZED_KEYS_FILE}"
   cat "$${TMP_KEYS_FILE}" >> "$${AUTHORIZED_KEYS_FILE}"
   sort -u "$${AUTHORIZED_KEYS_FILE}" -o "$${AUTHORIZED_KEYS_FILE}"
-  chown ec2-user:ec2-user "$${AUTHORIZED_KEYS_FILE}"
+  chown "$${SSH_USER}:$${SSH_USER}" "$${AUTHORIZED_KEYS_FILE}"
   chmod 0600 "$${AUTHORIZED_KEYS_FILE}"
 fi
 
 cat > /etc/profile.d/eks-kubeconfig.sh <<'EOF_KUBECONFIG'
 #!/bin/bash
 
-# Run only for interactive shells opened by ec2-user.
+# Run only for interactive shells opened by the management user.
 if [[ $- != *i* ]]; then
   return 0
 fi
 
-if [ "$${USER:-}" != "ec2-user" ]; then
+if [ "$${USER:-}" != "ubuntu" ] && [ "$${USER:-}" != "ec2-user" ]; then
   return 0
 fi
 
