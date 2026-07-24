@@ -39,15 +39,6 @@ sudo unzip awscliv2.zip && sudo ./aws/install
 
 aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
 
-# kubectl
-sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# Helm
-sudo curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-sudo chmod 700 get_helm.sh
-sudo ./get_helm.sh
-
 # Cilium
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
 CLI_ARCH=amd64
@@ -71,8 +62,9 @@ helm install cilium cilium/cilium --version 1.17.4 \
   --set k8sServiceHost=xxxxxxx.yyy.eu-north-1.eks.amazonaws.com\
   --set k8sServicePort=443
 
-### 5. Delete AWS VPC CNI
-kubectl delete daemonset aws-node -n kube-system
+### 5. After running Cilium - Delete AWS VPC CNI
+kubectl delete ds aws-node -n kube-system
+kubectl delete ds kube-proxy -n kube-system
 
 #### Comment "cluster_addons" in "module/eks/variables.tf"
     # vpc-cni = {
