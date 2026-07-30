@@ -58,18 +58,6 @@ variable "helm_sha256" {
   default     = "759c656fbd9c11e6a47784ecbeac6ad1eb16a9e76d202e51163ab78504848862"
 }
 
-variable "terraform_version" {
-  type        = string
-  description = "Pinned Terraform version installed on the management host"
-  default     = "1.14.0"
-}
-
-variable "terraform_sha256" {
-  type        = string
-  description = "SHA256 checksum for the pinned Terraform archive"
-  default     = "33ac217458ba8b44ce2813553083bc132c9a07e41a79c2e3627977682d283093"
-}
-
 variable "management_ssh_public_keys" {
   type        = list(string)
   description = "Public SSH keys injected into management host authorized_keys"

@@ -5,8 +5,6 @@ KUBECTL_VERSION="${kubectl_version}"
 KUBECTL_SHA256="${kubectl_sha256}"
 HELM_VERSION="${helm_version}"
 HELM_SHA256="${helm_sha256}"
-TERRAFORM_VERSION="${terraform_version}"
-TERRAFORM_SHA256="${terraform_sha256}"
 
 if id -u ubuntu >/dev/null 2>&1; then
   SSH_USER="ubuntu"
@@ -40,11 +38,6 @@ curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "https://get.helm.sh/helm-$${HEL
 echo "$${HELM_SHA256}  $${BOOTSTRAP_TMP_DIR}/helm.tar.gz" | sha256sum -c -
 tar -xzf "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" -C "$${BOOTSTRAP_TMP_DIR}"
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/linux-amd64/helm" /usr/local/bin/helm
-
-curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/terraform.zip" "https://releases.hashicorp.com/terraform/$${TERRAFORM_VERSION}/terraform_$${TERRAFORM_VERSION}_linux_amd64.zip"
-echo "$${TERRAFORM_SHA256}  $${BOOTSTRAP_TMP_DIR}/terraform.zip" | sha256sum -c -
-unzip -q "$${BOOTSTRAP_TMP_DIR}/terraform.zip" -d "$${BOOTSTRAP_TMP_DIR}/terraform"
-install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/terraform/terraform" /usr/local/bin/terraform
 
 # Install SSH public keys for the management user so access survives ASG instance rotation.
 AUTHORIZED_KEYS_FILE="$${SSH_HOME}/.ssh/authorized_keys"
