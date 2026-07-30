@@ -21,7 +21,13 @@ BOOTSTRAP_TMP_DIR="$${SSH_HOME}/bootstrap-tmp"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y unzip git curl ca-certificates gnupg lsb-release
+# include bash-completion so kubectl/helm completion works for interactive shells
+apt-get install -y unzip git curl ca-certificates gnupg lsb-release bash-completion
+
+# Install AWS CLI v2 for the management host
+curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+unzip -q "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" -d "$${BOOTSTRAP_TMP_DIR}/awscliv2"
+./"$${BOOTSTRAP_TMP_DIR}/awscliv2/aws/install" -i /usr/local/aws-cli -b /usr/local/bin
 
 mkdir -p "$${BOOTSTRAP_TMP_DIR}"
 echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
@@ -94,5 +100,34 @@ fi
 EOF_KUBECONFIG
 
 chmod 0755 /etc/profile.d/eks-kubeconfig.sh
+
+# Add kubectl/helm autocompletion and convenience aliases to the management user's .bashrc
+BASHRC="$${SSH_HOME}/.bashrc"
+cat <<'EOF_BASHRC' >> "$${BASHRC}"
+# kubectl & helm autocompletion and alias (added by cloud-init)
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+elif [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+fi
+
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion bash)
+  alias k=kubectl
+  complete -o default -F __start_kubectl k
+fi
+
+if command -v helm >/dev/null 2>&1; then
+  source <(helm completion bash)
+fi
+EOF_BASHRC
+
+chown "$${SSH_USER}:$${SSH_USER}" "$${BASHRC}" || true
+chmod 0644 "$${BASHRC}" || true
+
+# Ensure ssm-user uses bash if the account exists
+if id -u ssm-user >/dev/null 2>&1; then
+  chsh -s /bin/bash ssm-user || true
+fi
 
 rm -rf "$${BOOTSTRAP_TMP_DIR}/kubectl" "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "$${BOOTSTRAP_TMP_DIR}/linux-amd64" "$${BOOTSTRAP_TMP_DIR}/terraform.zip" "$${BOOTSTRAP_TMP_DIR}/terraform" "$${TMP_KEYS_FILE}"

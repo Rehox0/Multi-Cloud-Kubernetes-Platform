@@ -39,7 +39,7 @@ variable "node_role_arn" {
 
 variable "node_capacity_type" {
   type    = string
-  default = "SPOT"
+  default = "ON_DEMAND"
 }
 
 variable "node_instance_types" {

@@ -132,14 +132,14 @@ resource "aws_security_group_rule" "nodes_egress_all" {
   security_group_id = aws_security_group.eks_nodes.id
 }
 
-resource "aws_security_group_rule" "nodes_cilium_health_tcp" {
+resource "aws_security_group_rule" "nodes_cilium_health_internal" {
   type                     = "ingress"
   description              = "Allow Cilium health checks between nodes"
   from_port                = 4240
   to_port                  = 4240
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_nodes.id
-  source_security_group_id = aws_security_group.eks_cluster.id
+  source_security_group_id = aws_security_group.eks_nodes.id
 }
 
 resource "aws_security_group_rule" "nodes_icmp_from_cluster" {
@@ -159,4 +159,13 @@ resource "aws_security_group_rule" "management_egress_all" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.management.id
+}
+
+resource "aws_security_group_rule" "cluster_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_cluster.id
 }

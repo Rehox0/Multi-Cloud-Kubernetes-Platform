@@ -142,3 +142,4 @@ resource "aws_eks_access_policy_association" "console_user_admin" {
 
   depends_on = [aws_eks_access_entry.console_user_admin]
 }
+
