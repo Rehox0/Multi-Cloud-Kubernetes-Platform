@@ -27,6 +27,17 @@ curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/a
 unzip -q "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" -d "$${BOOTSTRAP_TMP_DIR}/awscliv2"
 ./"$${BOOTSTRAP_TMP_DIR}/awscliv2/aws/install" -i /usr/local/aws-cli -b /usr/local/bin
 
+# Disable Source/Destination Check for the management node so it can forward traffic when needed.
+INSTANCE_ID="$(curl -fsS --retry 3 http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || true)"
+if [ -n "$${INSTANCE_ID}" ] && command -v aws >/dev/null 2>&1; then
+  aws ec2 modify-instance-attribute \
+    --region "${aws_region}" \
+    --instance-id "$${INSTANCE_ID}" \
+    --no-source-dest-check >/dev/null 2>&1 || echo "[bootstrap] failed to disable Source/Destination Check for instance $${INSTANCE_ID}"
+else
+  echo "[bootstrap] instance metadata or AWS CLI unavailable; skipping Source/Destination Check change"
+fi
+
 mkdir -p "$${BOOTSTRAP_TMP_DIR}"
 echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 

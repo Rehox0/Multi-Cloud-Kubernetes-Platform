@@ -69,7 +69,7 @@ module "iam" {
 
 module "management" {
   source = "../../modules/management"
-
+  
   subnet_ids            = module.vpc.private_subnets
   instance_profile_name = module.iam.management_instance_profile_name
   management_sg_id      = module.security_groups.management_sg_id
