@@ -4,9 +4,9 @@ module "vpc" {
 
   project_name         = var.project_name
   vpc_cidr             = "10.0.0.0/16"
-  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24"]
-  availability_zones   = ["${var.aws_region}a", "${var.aws_region}b"]
+  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
+  availability_zones   = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
 
   cluster_name = local.cluster_name
   common_tags  = local.tags
@@ -26,9 +26,9 @@ module "eks" {
   eks_nodes_sg_id      = module.security_groups.eks_nodes_sg_id
   eks_cluster_sg_id    = module.security_groups.eks_cluster_sg_id
   node_instance_types  = ["t3.small"]
-  node_desired_size    = 2
-  node_min_size        = 1
-  node_max_size        = 3
+  node_desired_size    = 3
+  node_min_size        = 3
+  node_max_size        = 6
   node_max_unavailable = 1
   node_labels = {
     env = "dev"
