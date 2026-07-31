@@ -8,17 +8,12 @@ metadata:
     argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
 spec:
   project: infra-project
-
   source:
     chart: kyverno
-    repoURL: https://kyverno.github.io/kyverno/
+    repoURL: 'https://kyverno.github.io/kyverno/'
     targetRevision: 3.8.2
-    helm:
-      values: |
-        crds:
-          install: true
   destination:
-    server: https://kubernetes.default.svc
+    server: 'https://kubernetes.default.svc'
     namespace: kyverno
   syncPolicy:
     automated:
