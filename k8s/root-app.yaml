@@ -3,8 +3,6 @@ kind: AppProject
 metadata:
   name: infra-project
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
 spec:
   description: "Application project for ArgoCD"
   sourceRepos:
@@ -12,7 +10,7 @@ spec:
   destinations:
     - namespace: '*'
       server: '*'
-      
+
 ---
 
 apiVersion: argoproj.io/v1alpha1
