@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
     targetRevision: testing
-    path: path/do/polityk
+    path: k8s/gitops/infra/kyverno/policy.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
