@@ -15,8 +15,10 @@ else
   SSH_HOME="/root"
 fi
 
-SSH_HOME="/home/$${SSH_USER}"
 BOOTSTRAP_TMP_DIR="$${SSH_HOME}/bootstrap-tmp"
+
+mkdir -p "$${BOOTSTRAP_TMP_DIR}"
+echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
@@ -38,9 +40,6 @@ if [ -n "$${INSTANCE_ID}" ] && command -v aws >/dev/null 2>&1; then
 else
   echo "[bootstrap] instance metadata or AWS CLI unavailable; skipping Source/Destination Check change"
 fi
-
-mkdir -p "$${BOOTSTRAP_TMP_DIR}"
-echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/kubectl" "https://dl.k8s.io/release/$${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 echo "$${KUBECTL_SHA256}  $${BOOTSTRAP_TMP_DIR}/kubectl" | sha256sum -c -
