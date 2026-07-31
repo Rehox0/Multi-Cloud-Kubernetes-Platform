@@ -65,9 +65,9 @@ resource "aws_eks_access_policy_association" "console_user_admin" {
   depends_on = [aws_eks_access_entry.console_user_admin]
 }
 
-resource "aws_iam_policy" "ec2_modify_eni" {
-  name        = "EC2ModifyNetworkInterfaceAttribute"
-  description = "Allow to modify source_dest_check on ENI interfaces"
+resource "aws_iam_role_policy" "management_eni_policy" {
+  name = "eks-management-eni-policy"
+  role = aws_iam_role.management_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -75,11 +75,11 @@ resource "aws_iam_policy" "ec2_modify_eni" {
       {
         Effect   = "Allow"
         Action   = [
-          "ec2:ModifyNetworkInterfaceAttribute"
+          "ec2:ModifyNetworkInterfaceAttribute",
+          "ec2:DescribeNetworkInterfaces"
         ]
         Resource = "*"
       }
     ]
   })
 }
-
