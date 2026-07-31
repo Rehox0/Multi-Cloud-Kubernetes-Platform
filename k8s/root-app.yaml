@@ -6,6 +6,7 @@ metadata:
 spec:
   description: "Application project for ArgoCD"
   sourceRepos:
+    - 'https://kyverno.github.io/kyverno/'
     - 'https://github.com/Rehox0/allegro-analytics-eks.git'
   destinations:
     - namespace: '*'
