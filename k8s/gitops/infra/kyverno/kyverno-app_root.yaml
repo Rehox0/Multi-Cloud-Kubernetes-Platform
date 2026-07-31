@@ -11,6 +11,10 @@ spec:
     chart: kyverno
     repoURL: https://kyverno.github.io/kyverno/
     targetRevision: 3.8.2
+    helm:
+      values: |
+        crds:
+          install: true
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno
@@ -20,3 +24,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
