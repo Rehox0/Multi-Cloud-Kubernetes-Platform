@@ -1,10 +1,27 @@
 apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra-project
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: "Application project for ArgoCD"
+  sourceRepos:
+    - 'https://github.com/Rehox0/allegro-analytics-eks.git'
+  destinations:
+    - namespace: '*'
+      server: '*'
+      
+---
+
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: infra-addons
   namespace: argocd
 spec:
-  project: project
+  project: infra-project
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
     targetRevision: testing
