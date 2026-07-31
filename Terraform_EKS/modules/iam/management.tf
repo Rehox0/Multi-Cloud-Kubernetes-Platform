@@ -65,6 +65,84 @@ resource "aws_eks_access_policy_association" "console_user_admin" {
   depends_on = [aws_eks_access_entry.console_user_admin]
 }
 
+resource "aws_iam_role_policy" "management_terraform_backend" {
+  name = "eks-management-terraform-backend-access"
+  role = aws_iam_role.management_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "TerraformStateBucketList"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+        ]
+        Resource = "arn:aws:s3:::allegro-analytics-eks-tfstate-2026"
+      },
+      {
+        Sid    = "TerraformStateObjectAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+        ]
+        Resource = "arn:aws:s3:::allegro-analytics-eks-tfstate-2026/envs/*/eks/terraform.tfstate"
+      },
+      {
+        Sid    = "TerraformStateLockAccess"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:DescribeTable",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem",
+        ]
+        Resource = "arn:aws:dynamodb:eu-north-1:*:table/terraform-state-lock"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "management_terraform_apply" {
+  name = "eks-management-terraform-apply-access"
+  role = aws_iam_role.management_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "TerraformApplyCoreServices"
+        Effect = "Allow"
+        Action = [
+          "ec2:Describe*",
+          "eks:Describe*",
+          "eks:List*",
+          "eks:AccessKubernetesApi",
+          "eks:UpdateClusterConfig",
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "iam:Get*",
+          "iam:List*",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecrets",
+          "secretsmanager:GetResourcePolicy",
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeLaunchConfigurations",
+          "autoscaling:DescribeTags",
+        ]
+        Resource = "*"
+      },
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "management_eni_policy" {
   name = "eks-management-eni-policy"
   role = aws_iam_role.management_role.id
