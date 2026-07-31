@@ -22,35 +22,36 @@ echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-# include bash-completion so kubectl/helm completion works for interactive shells
 apt-get install -y unzip git curl ca-certificates gnupg lsb-release bash-completion
 
-# Install AWS CLI v2 for the management host
+# Install AWS CLI v2
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
 unzip -q "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" -d "$${BOOTSTRAP_TMP_DIR}/awscliv2"
 ./"$${BOOTSTRAP_TMP_DIR}/awscliv2/aws/install" -i /usr/local/aws-cli -b /usr/local/bin
 
-# Disable Source/Destination Check for the management node so it can forward traffic when needed.
-INSTANCE_ID="$(curl -fsS --retry 3 http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || true)"
+# Disable Source/Destination Check
+TOKEN=$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+INSTANCE_ID=$(curl -fsS -H "X-aws-ec2-metadata-token: $${TOKEN}" http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || true)
+
 if [ -n "$${INSTANCE_ID}" ] && command -v aws >/dev/null 2>&1; then
   aws ec2 modify-instance-attribute \
     --region "${aws_region}" \
     --instance-id "$${INSTANCE_ID}" \
-    --no-source-dest-check >/dev/null 2>&1 || echo "[bootstrap] failed to disable Source/Destination Check for instance $${INSTANCE_ID}"
-else
-  echo "[bootstrap] instance metadata or AWS CLI unavailable; skipping Source/Destination Check change"
+    --no-source-dest-check >/dev/null 2>&1 || echo "[bootstrap] failed to disable Source/Destination Check"
 fi
 
+#kubectl installation
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/kubectl" "https://dl.k8s.io/release/$${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 echo "$${KUBECTL_SHA256}  $${BOOTSTRAP_TMP_DIR}/kubectl" | sha256sum -c -
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/kubectl" /usr/local/bin/kubectl
 
+#helm installation
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz"
 echo "$${HELM_SHA256}  $${BOOTSTRAP_TMP_DIR}/helm.tar.gz" | sha256sum -c -
 tar -xzf "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" -C "$${BOOTSTRAP_TMP_DIR}"
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/linux-amd64/helm" /usr/local/bin/helm
 
-# Install SSH public keys for the management user so access survives ASG instance rotation.
+# Install SSH keys
 AUTHORIZED_KEYS_FILE="$${SSH_HOME}/.ssh/authorized_keys"
 TMP_KEYS_FILE="$${BOOTSTRAP_TMP_DIR}/management_ssh_keys"
 : > "$${TMP_KEYS_FILE}"
@@ -72,66 +73,35 @@ if [ -s "$${TMP_KEYS_FILE}" ]; then
   chmod 0600 "$${AUTHORIZED_KEYS_FILE}"
 fi
 
+#kubeconfig EKS
 cat > /etc/profile.d/eks-kubeconfig.sh <<'EOF_KUBECONFIG'
 #!/bin/bash
-
-# Run only for interactive shells opened by the management user.
-if [[ $- != *i* ]]; then
-  return 0
-fi
-
-if [ "$${USER:-}" != "ubuntu" ] && [ "$${USER:-}" != "ec2-user" ]; then
-  return 0
-fi
-
-if ! command -v aws >/dev/null 2>&1 || ! command -v kubectl >/dev/null 2>&1; then
-  return 0
-fi
+if [[ $- != *i* ]]; then return 0; fi
+if [ "$${USER:-}" != "ubuntu" ]; then return 0; fi
+if ! command -v aws >/dev/null 2>&1 || ! command -v kubectl >/dev/null 2>&1; then return 0; fi
 
 EKS_REGION="${aws_region}"
 EKS_CLUSTER_NAME="${cluster_name}"
 
-if kubectl --request-timeout=5s version >/dev/null 2>&1; then
-  return 0
-fi
+if kubectl --request-timeout=5s version >/dev/null 2>&1; then return 0; fi
 
-echo "[eks-kubeconfig] kubeconfig unavailable, refreshing context for '$${EKS_CLUSTER_NAME}' ($${EKS_REGION})..."
-if aws eks update-kubeconfig --region "$${EKS_REGION}" --name "$${EKS_CLUSTER_NAME}" >/dev/null 2>&1; then
-  echo "[eks-kubeconfig] kubeconfig refreshed."
-else
-  echo "[eks-kubeconfig] failed to refresh kubeconfig. Verify AWS credentials/permissions and network access to EKS endpoint."
-fi
+echo "[eks-kubeconfig] refreshing context for '$${EKS_CLUSTER_NAME}'..."
+aws eks update-kubeconfig --region "$${EKS_REGION}" --name "$${EKS_CLUSTER_NAME}" >/dev/null 2>&1 || true
 EOF_KUBECONFIG
 
 chmod 0755 /etc/profile.d/eks-kubeconfig.sh
 
-# Add kubectl/helm autocompletion and convenience aliases to the management user's .bashrc
+# Autocompletion .bashrc
 BASHRC="$${SSH_HOME}/.bashrc"
 cat <<'EOF_BASHRC' >> "$${BASHRC}"
-# kubectl & helm autocompletion and alias (added by cloud-init)
-if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-elif [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-fi
-
-if command -v kubectl >/dev/null 2>&1; then
-  source <(kubectl completion bash)
-  alias k=kubectl
-  complete -o default -F __start_kubectl k
-fi
-
-if command -v helm >/dev/null 2>&1; then
-  source <(helm completion bash)
-fi
+if [ -f /usr/share/bash-completion/bash_completion ]; then . /usr/share/bash-completion/bash_completion; fi
+if command -v kubectl >/dev/null 2>&1; then source <(kubectl completion bash); alias k=kubectl; complete -o default -F __start_kubectl k; fi
+if command -v helm >/dev/null 2>&1; then source <(helm completion bash); fi
 EOF_BASHRC
 
 chown "$${SSH_USER}:$${SSH_USER}" "$${BASHRC}" || true
 chmod 0644 "$${BASHRC}" || true
 
-# Ensure ssm-user uses bash if the account exists
-if id -u ssm-user >/dev/null 2>&1; then
-  chsh -s /bin/bash ssm-user || true
-fi
+if id -u ssm-user >/dev/null 2>&1; then chsh -s /bin/bash ssm-user || true; fi
 
-rm -rf "$${BOOTSTRAP_TMP_DIR}/kubectl" "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "$${BOOTSTRAP_TMP_DIR}/linux-amd64" "$${BOOTSTRAP_TMP_DIR}/terraform.zip" "$${BOOTSTRAP_TMP_DIR}/terraform" "$${TMP_KEYS_FILE}"
+rm -rf "$${BOOTSTRAP_TMP_DIR}"
