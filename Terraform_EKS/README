@@ -22,29 +22,6 @@ The same bucket name **MUST** appear in two places:
 ### 3. Go to AWS and SSM into mgmt-asg EC2 and configure it:
  
 ```
-# Autocomplete
-<!-- sudo apt install bash-completion
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-echo "alias k=kubectl" >> ~/.bashrc
-echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
-echo "source <(helm completion bash)" >> ~/.bashrc
-sudo chsh -s /bin/bash ssm-user
-source ~/.bashrc
-
-if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-elif [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-fi -->
-
-<!-- # AWS CLI v2
-sudo apt update && sudo apt install -y curl unzip
-sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-sudo unzip awscliv2.zip && sudo ./aws/install -->
-
-
-
-
 #Update kubeconfig
 aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
 
@@ -94,7 +71,6 @@ helm upgrade --install argocd argoproj/argo-cd \
   --set configs.params.server\.insecure=true
 
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
-#cd allegro-analytics-eks/k8s
 kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 
 ```
