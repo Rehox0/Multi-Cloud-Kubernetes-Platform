@@ -4,7 +4,7 @@ metadata:
   name: infra-addons
   namespace: argocd
 spec:
-  project: default
+  project: project
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
     targetRevision: testing

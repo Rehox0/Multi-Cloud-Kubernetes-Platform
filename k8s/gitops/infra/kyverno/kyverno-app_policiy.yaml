@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  project: default
+  project: project
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
     targetRevision: testing
