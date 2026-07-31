@@ -6,12 +6,13 @@ KUBECTL_SHA256="${kubectl_sha256}"
 HELM_VERSION="${helm_version}"
 HELM_SHA256="${helm_sha256}"
 
+
 if id -u ubuntu >/dev/null 2>&1; then
   SSH_USER="ubuntu"
-elif id -u ec2-user >/dev/null 2>&1; then
-  SSH_USER="ec2-user"
+  SSH_HOME="/home/ubuntu"
 else
   SSH_USER="root"
+  SSH_HOME="/root"
 fi
 
 SSH_HOME="/home/$${SSH_USER}"
