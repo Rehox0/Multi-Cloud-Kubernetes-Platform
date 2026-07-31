@@ -7,9 +7,11 @@
 Building to gain hands-on experience with:
 
 - EKS + Terraform
-- Helm charts
-- Prometheus + Grafana
 - ArgoCD
+- Prometheus + Grafana
+- Karpenter
+- Kyverno
+- Helm charts
 - IRSA (IAM Roles for Service Accounts)
 
 ---
