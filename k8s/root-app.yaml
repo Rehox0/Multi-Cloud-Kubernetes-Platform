@@ -29,9 +29,7 @@ spec:
   source:
     repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
     targetRevision: testing
-    path: k8s/gitops
-    directory:
-      recurse: true
+    path: k8s/gitops/apps/kyverno
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
