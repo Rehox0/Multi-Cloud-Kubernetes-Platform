@@ -18,3 +18,11 @@ resource "aws_eks_cluster" "main" {
   # Logs for CKS
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
+
+resource "aws_eks_addon" "main" {
+  for_each = var.cluster_addons
+
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = each.key
+
+}

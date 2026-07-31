@@ -1,6 +1,6 @@
 resource "aws_launch_template" "management" {
   name_prefix   = "mgmt-template-"
-  image_id      = data.aws_ami.amazon_linux_2023.id
+  image_id      = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
 
   iam_instance_profile {
@@ -17,8 +17,6 @@ resource "aws_launch_template" "management" {
     kubectl_sha256    = var.kubectl_sha256
     helm_version      = var.helm_version
     helm_sha256       = var.helm_sha256
-    terraform_version = var.terraform_version
-    terraform_sha256  = var.terraform_sha256
     ssh_public_keys   = var.ssh_public_keys
     aws_region        = var.aws_region
     cluster_name      = var.cluster_name

@@ -39,7 +39,7 @@ variable "node_role_arn" {
 
 variable "node_capacity_type" {
   type    = string
-  default = "SPOT"
+  default = "ON_DEMAND"
 }
 
 variable "node_instance_types" {
@@ -62,6 +62,25 @@ variable "cluster_version" {
   type        = string
   description = "EKS control plane version"
   default     = "1.35"
+}
+
+variable "cluster_addons" {
+  type        = map(any)
+  description = "Map of EKS cluster addons to install. Each key is the addon name, and the value is an object with the following attributes:"
+  default = {
+    vpc-cni = {
+      most_recent    = true
+      before_compute = true
+    }
+    kube-proxy = {
+      most_recent    = true
+      before_compute = true
+    }
+    coredns = {
+      most_recent    = true
+      before_compute = true
+    }
+  }
 }
 
 variable "node_desired_size" { type = number }

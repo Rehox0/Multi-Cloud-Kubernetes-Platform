@@ -5,30 +5,54 @@ KUBECTL_VERSION="${kubectl_version}"
 KUBECTL_SHA256="${kubectl_sha256}"
 HELM_VERSION="${helm_version}"
 HELM_SHA256="${helm_sha256}"
-TERRAFORM_VERSION="${terraform_version}"
-TERRAFORM_SHA256="${terraform_sha256}"
-BOOTSTRAP_TMP_DIR="/home/ec2-user/bootstrap-tmp"
 
-dnf install -y unzip git
+
+if id -u ubuntu >/dev/null 2>&1; then
+  SSH_USER="ubuntu"
+  SSH_HOME="/home/ubuntu"
+else
+  SSH_USER="root"
+  SSH_HOME="/root"
+fi
+
+BOOTSTRAP_TMP_DIR="$${SSH_HOME}/bootstrap-tmp"
+
 mkdir -p "$${BOOTSTRAP_TMP_DIR}"
 echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y unzip git curl ca-certificates gnupg lsb-release bash-completion
+
+# Install AWS CLI v2
+curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+unzip -q "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" -d "$${BOOTSTRAP_TMP_DIR}/awscliv2"
+./"$${BOOTSTRAP_TMP_DIR}/awscliv2/aws/install" -i /usr/local/aws-cli -b /usr/local/bin
+
+# Disable Source/Destination Check
+TOKEN=$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+INSTANCE_ID=$(curl -fsS -H "X-aws-ec2-metadata-token: $${TOKEN}" http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || true)
+
+if [ -n "$${INSTANCE_ID}" ] && command -v aws >/dev/null 2>&1; then
+  aws ec2 modify-instance-attribute \
+    --region "${aws_region}" \
+    --instance-id "$${INSTANCE_ID}" \
+    --no-source-dest-check >/dev/null 2>&1 || echo "[bootstrap] failed to disable Source/Destination Check"
+fi
+
+#kubectl installation
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/kubectl" "https://dl.k8s.io/release/$${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 echo "$${KUBECTL_SHA256}  $${BOOTSTRAP_TMP_DIR}/kubectl" | sha256sum -c -
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/kubectl" /usr/local/bin/kubectl
 
+#helm installation
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz"
 echo "$${HELM_SHA256}  $${BOOTSTRAP_TMP_DIR}/helm.tar.gz" | sha256sum -c -
 tar -xzf "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" -C "$${BOOTSTRAP_TMP_DIR}"
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/linux-amd64/helm" /usr/local/bin/helm
 
-curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/terraform.zip" "https://releases.hashicorp.com/terraform/$${TERRAFORM_VERSION}/terraform_$${TERRAFORM_VERSION}_linux_amd64.zip"
-echo "$${TERRAFORM_SHA256}  $${BOOTSTRAP_TMP_DIR}/terraform.zip" | sha256sum -c -
-unzip -q "$${BOOTSTRAP_TMP_DIR}/terraform.zip" -d "$${BOOTSTRAP_TMP_DIR}/terraform"
-install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/terraform/terraform" /usr/local/bin/terraform
-
-# Install SSH public keys for ec2-user so access survives ASG instance rotation.
-AUTHORIZED_KEYS_FILE="/home/ec2-user/.ssh/authorized_keys"
+# Install SSH keys
+AUTHORIZED_KEYS_FILE="$${SSH_HOME}/.ssh/authorized_keys"
 TMP_KEYS_FILE="$${BOOTSTRAP_TMP_DIR}/management_ssh_keys"
 : > "$${TMP_KEYS_FILE}"
 
@@ -39,47 +63,45 @@ EOF_KEY
 %{ endfor ~}
 
 if [ -s "$${TMP_KEYS_FILE}" ]; then
-  install -d -m 0700 -o ec2-user -g ec2-user /home/ec2-user/.ssh
+  install -d -m 0700 -o "$${SSH_USER}" -g "$${SSH_USER}" "$${SSH_HOME}/.ssh"
   touch "$${AUTHORIZED_KEYS_FILE}"
-  chown ec2-user:ec2-user "$${AUTHORIZED_KEYS_FILE}"
+  chown "$${SSH_USER}:$${SSH_USER}" "$${AUTHORIZED_KEYS_FILE}"
   chmod 0600 "$${AUTHORIZED_KEYS_FILE}"
   cat "$${TMP_KEYS_FILE}" >> "$${AUTHORIZED_KEYS_FILE}"
   sort -u "$${AUTHORIZED_KEYS_FILE}" -o "$${AUTHORIZED_KEYS_FILE}"
-  chown ec2-user:ec2-user "$${AUTHORIZED_KEYS_FILE}"
+  chown "$${SSH_USER}:$${SSH_USER}" "$${AUTHORIZED_KEYS_FILE}"
   chmod 0600 "$${AUTHORIZED_KEYS_FILE}"
 fi
 
+#kubeconfig EKS
 cat > /etc/profile.d/eks-kubeconfig.sh <<'EOF_KUBECONFIG'
 #!/bin/bash
-
-# Run only for interactive shells opened by ec2-user.
-if [[ $- != *i* ]]; then
-  return 0
-fi
-
-if [ "$${USER:-}" != "ec2-user" ]; then
-  return 0
-fi
-
-if ! command -v aws >/dev/null 2>&1 || ! command -v kubectl >/dev/null 2>&1; then
-  return 0
-fi
+if [[ $- != *i* ]]; then return 0; fi
+if [ "$${USER:-}" != "ubuntu" ]; then return 0; fi
+if ! command -v aws >/dev/null 2>&1 || ! command -v kubectl >/dev/null 2>&1; then return 0; fi
 
 EKS_REGION="${aws_region}"
 EKS_CLUSTER_NAME="${cluster_name}"
 
-if kubectl --request-timeout=5s version >/dev/null 2>&1; then
-  return 0
-fi
+if kubectl --request-timeout=5s version >/dev/null 2>&1; then return 0; fi
 
-echo "[eks-kubeconfig] kubeconfig unavailable, refreshing context for '$${EKS_CLUSTER_NAME}' ($${EKS_REGION})..."
-if aws eks update-kubeconfig --region "$${EKS_REGION}" --name "$${EKS_CLUSTER_NAME}" >/dev/null 2>&1; then
-  echo "[eks-kubeconfig] kubeconfig refreshed."
-else
-  echo "[eks-kubeconfig] failed to refresh kubeconfig. Verify AWS credentials/permissions and network access to EKS endpoint."
-fi
+echo "[eks-kubeconfig] refreshing context for '$${EKS_CLUSTER_NAME}'..."
+aws eks update-kubeconfig --region "$${EKS_REGION}" --name "$${EKS_CLUSTER_NAME}" >/dev/null 2>&1 || true
 EOF_KUBECONFIG
 
 chmod 0755 /etc/profile.d/eks-kubeconfig.sh
 
-rm -rf "$${BOOTSTRAP_TMP_DIR}/kubectl" "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "$${BOOTSTRAP_TMP_DIR}/linux-amd64" "$${BOOTSTRAP_TMP_DIR}/terraform.zip" "$${BOOTSTRAP_TMP_DIR}/terraform" "$${TMP_KEYS_FILE}"
+# Autocompletion .bashrc
+BASHRC="$${SSH_HOME}/.bashrc"
+cat <<'EOF_BASHRC' >> "$${BASHRC}"
+if [ -f /usr/share/bash-completion/bash_completion ]; then . /usr/share/bash-completion/bash_completion; fi
+if command -v kubectl >/dev/null 2>&1; then source <(kubectl completion bash); alias k=kubectl; complete -o default -F __start_kubectl k; fi
+if command -v helm >/dev/null 2>&1; then source <(helm completion bash); fi
+EOF_BASHRC
+
+chown "$${SSH_USER}:$${SSH_USER}" "$${BASHRC}" || true
+chmod 0644 "$${BASHRC}" || true
+
+if id -u ssm-user >/dev/null 2>&1; then chsh -s /bin/bash ssm-user || true; fi
+
+rm -rf "$${BOOTSTRAP_TMP_DIR}"

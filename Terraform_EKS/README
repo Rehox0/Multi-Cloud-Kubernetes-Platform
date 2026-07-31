@@ -17,12 +17,50 @@ The same bucket name **MUST** appear in two places:
 ---
 
 ## Setup steps:
-1. Go to `.bootstrap/` and run `terraform apply`.
-2. Go to  `envs/dev/` and run `terraform apply`.
-3. Go to AWS and SSM into mgmt-asg EC2 and run
+### 1. Go to `.bootstrap/` and run `terraform apply`.
+### 2. Go to  `envs/dev/` and run `terraform apply`.
+### 3. Go to AWS and SSM into mgmt-asg EC2 and configure it:
  
 ```
+#Update kubeconfig
 aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
+
+# Cilium
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+
+### 4. Install Cilium
+kubectl cluster-info
+<!-- remove the “https://”  -->
+helm repo add cilium https://helm.cilium.io/
+helm install cilium cilium/cilium --version 1.17.4 \
+  --namespace kube-system \
+  --set eni.enabled=true \
+  --set ipam.mode=eni \
+  --set egressMasqueradeInterfaces=eth+ \
+  --set routingMode=native\
+  --set kubeProxyReplacement=true\
+  --set k8sServiceHost=xxxxxxx.yyy.eu-north-1.eks.amazonaws.com\
+  --set k8sServicePort=443
+
+### 5. After running Cilium - Delete AWS VPC CNI
+kubectl delete ds aws-node -n kube-system
+kubectl delete ds kube-proxy -n kube-system
+
+#### Comment "cluster_addons" in "module/eks/variables.tf"
+    # vpc-cni = {
+    #   most_recent = true
+    #   before_compute = true 
+    # }
+    # kube-proxy = {
+    #   most_recent = true
+    #   before_compute = true
+    # }
 
 helm repo add argoproj https://argoproj.github.io/argo-helm
 helm repo update
@@ -32,10 +70,17 @@ helm upgrade --install argocd argoproj/argo-cd \
   --create-namespace \
   --set configs.params.server\.insecure=true
 
-git clone https://github.com/Rehox0/allegro-analytics-eks.git
-cd allegro-analytics-eks/k8s/gitops
-kubectl apply -f root-app.yaml
+sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
+kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
+
 ```
+---
+
+
+
+
+
+
 
 ### Run workflow
 Use `Terraform OIDC + SSM` workflow (`workflow_dispatch`) and choose:
