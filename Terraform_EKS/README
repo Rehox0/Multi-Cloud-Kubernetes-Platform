@@ -42,10 +42,10 @@ helm install cilium cilium/cilium --version 1.17.4 \
   --namespace kube-system \
   --set eni.enabled=true \
   --set ipam.mode=eni \
-  --set egressMasqueradeInterfaces=eth+ \
+  --set egressMasqueradeInterfaces="ens+" \
   --set routingMode=native\
   --set kubeProxyReplacement=true\
-  --set k8sServiceHost=xxxxxxx.yyy.eu-north-1.eks.amazonaws.com\
+  --set k8sServiceHost=xxxxxxxxxxxxxxx.gr7.eu-north-1.eks.amazonaws.com\
   --set k8sServicePort=443
 
 ### 5. After running Cilium - Delete AWS VPC CNI
@@ -76,8 +76,15 @@ kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 ```
 ---
 
+##ArgoCD UI
+Locally run:
+aws ssm start-session \
+  --target i-xxxxxxxxxxxxx \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
-
+On mgmt:
+kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 
 
