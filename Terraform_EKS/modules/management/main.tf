@@ -30,8 +30,21 @@ resource "aws_autoscaling_group" "management" {
   min_size            = 1
   vpc_zone_identifier = var.subnet_ids
 
-  launch_template {
-    id      = aws_launch_template.management.id
-    version = "$Latest"
-  }
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 100
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.management.id
+        version            = "$Latest"
+      }
+      override {
+        instance_type = "t3.micro"
+      }
+      override {
+        instance_type = "t3a.micro"
+      }
 }
