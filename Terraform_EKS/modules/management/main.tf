@@ -47,4 +47,6 @@ resource "aws_autoscaling_group" "management" {
       override {
         instance_type = "t3a.micro"
       }
+    } 
+  } 
 }
