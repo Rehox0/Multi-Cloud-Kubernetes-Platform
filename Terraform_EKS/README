@@ -64,7 +64,6 @@ kubectl delete ds kube-proxy -n kube-system
 
 helm repo add argoproj https://argoproj.github.io/argo-helm
 helm repo update
-
 helm upgrade --install argocd argoproj/argo-cd \
   --namespace argocd \
   --create-namespace \
