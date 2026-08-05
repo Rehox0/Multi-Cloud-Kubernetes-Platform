@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: TODO/portfolio-frontend:latest
+          image: rehox0/portfolio-frontend:latest
           ports:
             - containerPort: 80

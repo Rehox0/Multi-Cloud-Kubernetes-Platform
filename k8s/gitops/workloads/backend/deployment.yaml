@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: backend
-          image: TODO/portfolio-backend:latest
+          image: rehox0/portfolio-backend:latest
           ports:
             - containerPort: 8000
