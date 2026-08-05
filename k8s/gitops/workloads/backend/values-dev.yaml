@@ -1,0 +1,17 @@
+replicaCount: 3
+
+image:
+  repository: rehox0/portfolio-backend
+  tag: latest
+
+serviceAccount:
+  create: true
+  name: backend
+  roleArn: "allegro-analytics-eks-dev-backend-irsa-role"
+
+env:
+  debug: "True"
+  allowedHosts: "*"
+
+secret:
+  name: backend-secret

@@ -1,0 +1,17 @@
+replicaCount: 3
+
+image:
+  repository: TODO/portfolio-backend
+  tag: v1.0.0
+
+serviceAccount:
+  create: true
+  name: backend
+  roleArn: "arn:aws:iam::222222222222:role/infra-project-prod-backend-irsa-role"
+
+env:
+  debug: "False"
+  allowedHosts: "api.mydomain.com"
+
+secret:
+  name: backend-secret

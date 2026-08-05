@@ -1,0 +1,17 @@
+replicaCount: 1
+
+image:
+  repository: rehox0/portfolio-backend
+  tag: latest
+
+serviceAccount:
+  create: true
+  name: backend
+  roleArn: "arn:aws:iam::111111111111:role/infra-project-dev-backend-irsa-role"
+
+env:
+  debug: "True"
+  allowedHosts: "*"
+
+secret:
+  name: backend-secret

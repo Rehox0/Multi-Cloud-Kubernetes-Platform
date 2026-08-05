@@ -13,7 +13,7 @@ resource "aws_iam_role" "backend_irsa" {
 
       Condition = {
         StringEquals = {
-          "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:backend:backend"
+          "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:backend-ns:backend"
         }
       }
     }]
