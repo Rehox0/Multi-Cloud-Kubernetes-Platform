@@ -15,3 +15,7 @@ env:
 
 secret:
   name: backend-secret
+
+service:
+  type: ClusterIP
+  port: 8000
