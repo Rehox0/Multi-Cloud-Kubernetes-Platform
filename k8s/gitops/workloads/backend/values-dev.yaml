@@ -19,3 +19,15 @@ secret:
 service:
   type: ClusterIP
   port: 8000
+  targetPort: 8000
+
+networkPolicy:
+  enabled: true
+
+externalSecret:
+  refreshInterval: "1h"
+  remoteKey: "infra-project"
+  targetName: "backend-secret"
+  secretStoreRef:
+    name: "aws-secretsmanager"
+    kind: "ClusterSecretStore"
