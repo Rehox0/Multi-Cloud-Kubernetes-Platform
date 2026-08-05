@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio App</title>
+</head>
+<body>
+    <h1>My Application</h1>
+    <button onclick="fetchData('video')">Video</button>
+    <button onclick="fetchData('shop')">Shop</button>
+    <button onclick="fetchData('payments')">Payments</button>
+    
+    <pre id="result">Click a button to fetch data...</pre>
+
+    <script>
+        function fetchData(endpoint) {
+            fetch(`/api/${endpoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>

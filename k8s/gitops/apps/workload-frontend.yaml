@@ -15,7 +15,7 @@ spec:
       recurse: true
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: workload-frontend-ns
+    namespace: frontend-ns
   syncPolicy:
     automated:
       prune: true
