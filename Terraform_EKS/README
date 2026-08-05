@@ -22,35 +22,20 @@ The same bucket name **MUST** appear in two places:
 ### 3. Go to AWS and SSM into mgmt-asg EC2 and configure it:
  
 ```
-#Update kubeconfig
-aws eks update-kubeconfig --name allegro-analytics-eks-dev-eks-cluster --region eu-north-1
+# Autocomplete
+sudo apt install bash-completion
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+echo "alias k=kubectl" >> ~/.bashrc
+echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
+echo "source <(helm completion bash)" >> ~/.bashrc
+sudo chsh -s /bin/bash ssm-user
+source ~/.bashrc
 
-# Cilium
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=amd64
-if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
-### 4. Install Cilium
-kubectl cluster-info
-<!-- remove the “https://”  -->
-helm repo add cilium https://helm.cilium.io/
-helm install cilium cilium/cilium --version 1.17.4 \
-  --namespace kube-system \
-  --set eni.enabled=true \
-  --set ipam.mode=eni \
-  --set egressMasqueradeInterfaces="ens+" \
-  --set routingMode=native\
-  --set kubeProxyReplacement=true\
-  --set k8sServiceHost=xxxxxxxxxxxxxxx.gr7.eu-north-1.eks.amazonaws.com\
-  --set k8sServicePort=443
-
-### 5. After running Cilium - Delete AWS VPC CNI
+### 5. After running Cilium - Delete AWS VPC CNI. Next restart DNS
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
+kubectl rollout restart deployment coredns -n kube-system
 
 #### Comment "cluster_addons" in "module/eks/variables.tf"
     # vpc-cni = {
@@ -62,13 +47,6 @@ kubectl delete ds kube-proxy -n kube-system
     #   before_compute = true
     # }
 
-helm repo add argoproj https://argoproj.github.io/argo-helm
-helm repo update
-helm upgrade --install argocd argoproj/argo-cd \
-  --namespace argocd \
-  --create-namespace \
-  --set configs.params.server\.insecure=true
-
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 
@@ -78,7 +56,7 @@ kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 ##ArgoCD UI
 Locally run:
 aws ssm start-session \
-  --target i-xxxxxxxxxxxxx \
+  --target i-07875f7af9a2f872a \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
@@ -87,8 +65,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 
 
-
-### Run workflow
+<!-- ### Run workflow
 Use `Terraform OIDC + SSM` workflow (`workflow_dispatch`) and choose:
 - `environment`: `dev|prod`
 - `operation`: `plan|apply|destroy` (`destroy` allowed only for `dev`)
@@ -121,4 +98,4 @@ rsync -avzL --delete --progress --exclude '.terraform' --exclude '.git' --exclud
 
 
 WARNING!!
-Local device are UNABLE to see the resources in EKS cluster. Therefore, there may be a drift in the `terraform plan`
+Local device are UNABLE to see the resources in EKS cluster. Therefore, there may be a drift in the `terraform plan` -->
