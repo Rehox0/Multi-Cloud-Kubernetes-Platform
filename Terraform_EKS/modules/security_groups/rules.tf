@@ -169,3 +169,13 @@ resource "aws_security_group_rule" "cluster_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.eks_cluster.id
 }
+
+resource "aws_security_group_rule" "endpoints_from_cilium_https" {
+  type                     = "ingress"
+  description              = "Allow Cilium ENIs to access interface endpoints"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  source_security_group_id = aws_security_group.cilium_enis.id
+}

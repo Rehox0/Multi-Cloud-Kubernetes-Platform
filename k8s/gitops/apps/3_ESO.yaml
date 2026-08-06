@@ -14,8 +14,6 @@ spec:
     helm:
       values: |
         installCRDs: true
-        webhook:
-          create: false
   destination:
     server: https://kubernetes.default.svc
     namespace: external-secrets

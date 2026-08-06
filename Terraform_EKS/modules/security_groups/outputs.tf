@@ -13,3 +13,7 @@ output "endpoints_sg_id" {
 output "management_sg_id" {
   value = aws_security_group.management.id
 }
+
+output "cilium_enis_sg_id" {
+  value = aws_security_group.cilium_enis.id
+}

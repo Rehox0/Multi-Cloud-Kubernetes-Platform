@@ -83,12 +83,18 @@ rm cilium-linux-$${CLI_ARCH}.tar.gz{,.sha256sum}
 helm repo add cilium https://helm.cilium.io/
 helm repo update cilium
 export KUBECONFIG=/root/.kube/config
+PROJECT_NAME=$${CLUSTER_NAME%-eks-cluster}
+CILIUM_SG_ID=$(aws ec2 describe-security-groups \
+    --filters "Name=tag:Name,Values=$${PROJECT_NAME}-cilium-enis-sg" \
+    --query "SecurityGroups[0].GroupId" \
+    --output text)
 
 helm upgrade --install cilium cilium/cilium \
   --version 1.17.4 \
   --namespace kube-system \
   --set eni.enabled=true \
   --set ipam.mode=eni \
+  --set eni.securityGroups="{$${CILIUM_SG_ID}}" \
   --set egressMasqueradeInterfaces="ens+" \
   --set routingMode=native\
   --set kubeProxyReplacement=true\
