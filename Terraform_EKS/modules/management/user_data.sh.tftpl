@@ -22,7 +22,7 @@ echo "[bootstrap] using disk workspace: $${BOOTSTRAP_TMP_DIR}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y unzip git curl ca-certificates gnupg lsb-release bash-completion
+apt-get install -y unzip git curl ca-certificates gnupg lsb-release
 
 # Install AWS CLI v2
 curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
@@ -104,16 +104,41 @@ helm upgrade --install argocd argoproj/argo-cd \
   --set configs.params.server\.insecure=true
 
 # Autocompletion .bashrc
-BASHRC="$${SSH_HOME}/.bashrc"
-cat <<'EOF_BASHRC' >> "$${BASHRC}"
-if [ -f /usr/share/bash-completion/bash_completion ]; then . /usr/share/bash-completion/bash_completion; fi
-if command -v kubectl >/dev/null 2>&1; then source <(kubectl completion bash); alias k=kubectl; complete -o default -F __start_kubectl k; fi
-if command -v helm >/dev/null 2>&1; then source <(helm completion bash); fi
-EOF_BASHRC
+apt-get install -y bash-completion
 
-chown "$${SSH_USER}:$${SSH_USER}" "$${BASHRC}" || true
-chmod 0644 "$${BASHRC}" || true
+cat <<'EOF_BASH' > /etc/profile.d/kubernetes_completion.sh
+if [ -n "$BASH_VERSION" ]; then
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    fi
+    if command -v kubectl >/dev/null 2>&1; then
+        source <(kubectl completion bash)
+        alias k=kubectl
+        complete -o default -F __start_kubectl k
+    fi
+    if command -v helm >/dev/null 2>&1; then
+        source <(helm completion bash)
+    fi
+fi
+EOF_BASH
+chmod 0644 /etc/profile.d/kubernetes_completion.sh
 
-if id -u ssm-user >/dev/null 2>&1; then chsh -s /bin/bash ssm-user || true; fi
+# 2 Creating ssm-user if it does not exist, and setting its shell to bash
+if ! id -u ssm-user >/dev/null 2>&1; then
+    useradd -m -s /bin/bash ssm-user
+else
+    chsh -s /bin/bash ssm-user || true
+fi
+
+# 3. Copying kubeconfig to the home directories of ubuntu and ssm-user, if they exist
+for USER_HOME in "/home/ubuntu" "/home/ssm-user"; do
+    if [ -d "$USER_HOME" ]; then
+        TARGET_USER=$(basename "$USER_HOME")
+        mkdir -p "$USER_HOME/.kube"
+        cp /root/.kube/config "$USER_HOME/.kube/config"
+        chown -R "$TARGET_USER:$TARGET_USER" "$USER_HOME/.kube"
+        chmod 600 "$USER_HOME/.kube/config"
+    fi
+done
 
 rm -rf "$${BOOTSTRAP_TMP_DIR}"
