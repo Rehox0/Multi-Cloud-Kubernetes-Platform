@@ -31,3 +31,7 @@ externalSecret:
   secretStoreRef:
     name: "aws-secretsmanager"
     kind: "ClusterSecretStore"
+
+provider:
+  aws:
+    region: eu-north-1
