@@ -112,22 +112,22 @@ helm upgrade --install argocd argoproj/argo-cd \
 # Autocompletion .bashrc
 apt-get install -y bash-completion
 
-cat <<'EOF_BASH' > /etc/profile.d/kubernetes_completion.sh
-if [ -n "$BASH_VERSION" ]; then
-    if [ -f /usr/share/bash-completion/bash_completion ]; then
-        . /usr/share/bash-completion/bash_completion
-    fi
-    if command -v kubectl >/dev/null 2>&1; then
-        source <(kubectl completion bash)
-        alias k=kubectl
-        complete -o default -F __start_kubectl k
-    fi
-    if command -v helm >/dev/null 2>&1; then
-        source <(helm completion bash)
-    fi
+cat <<'EOF_BASH' >> /etc/bash.bashrc
+
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+fi
+
+if command -v kubectl >/dev/null 2>&1; then
+    source <(kubectl completion bash)
+    alias k=kubectl
+    complete -o default -F __start_kubectl k
+fi
+
+if command -v helm >/dev/null 2>&1; then
+    source <(helm completion bash)
 fi
 EOF_BASH
-chmod 0644 /etc/profile.d/kubernetes_completion.sh
 
 # 2 Creating ssm-user if it does not exist, and setting its shell to bash
 if ! id -u ssm-user >/dev/null 2>&1; then

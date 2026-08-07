@@ -61,7 +61,7 @@ module "iam" {
   project_name                   = var.project_name
   cluster_name                   = module.eks.cluster_name
   eks_oidc_url                   = module.eks.eks_oidc_url
-  secret_arn                     = data.aws_secretsmanager_secret.manual_secrets.arn
+  secret_arn                     = data.aws_secretsmanager_secret.infra_project.arn
   eks_console_user_principal_arn = var.eks_console_user_principal_arn
 
   common_tags = local.tags

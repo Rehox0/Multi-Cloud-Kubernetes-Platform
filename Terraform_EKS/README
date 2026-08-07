@@ -22,16 +22,6 @@ The same bucket name **MUST** appear in two places:
 ### 3. Go to AWS and SSM into mgmt-asg EC2 and configure it:
  
 ```
-# Autocomplete
-sudo apt install bash-completion
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-echo "alias k=kubectl" >> ~/.bashrc
-echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
-echo "source <(helm completion bash)" >> ~/.bashrc
-sudo chsh -s /bin/bash ssm-user
-source ~/.bashrc
-
-
 ### 5. After running Cilium - Delete AWS VPC CNI. Next restart DNS and ArgoCD (critical for refresh config)
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
@@ -48,14 +38,15 @@ kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 ##ArgoCD UI
 Locally run:
 aws ssm start-session \
-  --target i-037297bf1dcceb559 \
+  --target i-03cd1441508c50060 \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
 On mgmt:
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 <!-- password fot ArgoCD UI
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d -->
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
+-->
 
 
 

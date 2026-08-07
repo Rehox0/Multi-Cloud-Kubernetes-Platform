@@ -179,3 +179,13 @@ resource "aws_security_group_rule" "endpoints_from_cilium_https" {
   security_group_id        = aws_security_group.vpc_endpoints.id
   source_security_group_id = aws_security_group.cilium_enis.id
 }
+
+resource "aws_security_group_rule" "endpoints_from_cluster_https" {
+  type                     = "ingress"
+  description              = "Allow EKS cluster SG to access interface VPC endpoints over HTTPS"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  source_security_group_id = aws_security_group.eks_cluster.id
+}
