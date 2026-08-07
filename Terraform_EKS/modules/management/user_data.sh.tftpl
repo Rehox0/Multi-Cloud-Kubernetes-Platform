@@ -136,6 +136,10 @@ else
     chsh -s /bin/bash ssm-user || true
 fi
 
+mkdir -p /etc/sudoers.d
+echo "ssm-user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ssm-agent-users
+chmod 0440 /etc/sudoers.d/ssm-agent-users
+
 # 3. Copying kubeconfig to the home directories of ubuntu and ssm-user, if they exist
 for USER_HOME in "/home/ubuntu" "/home/ssm-user"; do
     if [ -d "$USER_HOME" ]; then
