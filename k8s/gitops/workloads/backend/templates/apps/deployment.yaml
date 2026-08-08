@@ -18,7 +18,7 @@ spec:
         - name: backend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.service.containerPort }}
           env:
             - name: DEBUG
               value: {{ .Values.env.debug | quote }}

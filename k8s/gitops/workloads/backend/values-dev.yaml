@@ -17,6 +17,7 @@ secret:
   name: backend-secret
 
 service:
+  containerPort: 8000
   ports:
   - protocol: TCP
     port: 8000
