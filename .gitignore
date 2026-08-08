@@ -16,3 +16,8 @@ crash.log
 .env
 .env.*
 !.env.example
+*.local.conf
+
+.git
+__pycache__
+*.pyc

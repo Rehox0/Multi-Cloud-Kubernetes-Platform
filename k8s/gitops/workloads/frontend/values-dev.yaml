@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: rehox0/portfolio-frontend
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+
+gateway:
+  enabled: true
+  name: main-gateway
+  namespace: gateway-system
+  host: "my-domain.com"

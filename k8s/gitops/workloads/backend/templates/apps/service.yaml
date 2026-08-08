@@ -7,6 +7,10 @@ spec:
   selector:
     app: {{ .Release.Name }}
   ports:
-    - protocol: TCP
-      port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
+    {{- range .Values.service.ports }}
+        - name: {{ .protocol | lower }}
+          protocol: {{ .protocol }}
+          port: {{ .port }}
+          targetPort: {{ .targetPort }}
+        {{- end }}
+      

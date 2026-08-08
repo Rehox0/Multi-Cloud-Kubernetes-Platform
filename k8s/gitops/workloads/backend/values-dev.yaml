@@ -17,9 +17,14 @@ secret:
   name: backend-secret
 
 service:
-  type: ClusterIP
-  port: 8000
-  targetPort: 8000
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  - protocol: UDP
+    port: 9999
+    targetPort: 9999
+
 
 networkPolicy:
   enabled: true

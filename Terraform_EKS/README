@@ -26,6 +26,7 @@ The same bucket name **MUST** appear in two places:
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
 kubectl rollout restart deployment coredns -n kube-system
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/experimental-install.yaml
 kubectl rollout restart -n argocd deployment 
 
 
@@ -38,7 +39,7 @@ kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
 ##ArgoCD UI
 Locally run:
 aws ssm start-session \
-  --target i-03cd1441508c50060 \
+  --target i-075d2dedec41288bd \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
