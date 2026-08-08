@@ -1,7 +1,7 @@
 resource "aws_launch_template" "management" {
   name_prefix   = "mgmt-template-"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = "t3.small"
 
   iam_instance_profile {
     name = var.instance_profile_name
@@ -26,7 +26,7 @@ resource "aws_launch_template" "management" {
 resource "aws_autoscaling_group" "management" {
   name                = "mgmt-asg"
   desired_capacity    = 1
-  max_size            = 1
+  max_size            = 2
   min_size            = 1
   vpc_zone_identifier = var.subnet_ids
 

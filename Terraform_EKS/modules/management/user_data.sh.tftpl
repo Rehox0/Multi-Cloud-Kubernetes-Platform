@@ -89,10 +89,11 @@ helm upgrade --install cilium cilium/cilium \
   --namespace kube-system \
   --set eni.enabled=true \
   --set ipam.mode=eni \
-  --set egressMasqueradeInterfaces="ens+" \
   --set routingMode=native \
   --set kubeProxyReplacement=true \
+  --set egressMasqueradeInterfaces="ens+" \
   --set gatewayAPI.enabled=true \
+  --set gatewayAPI.externalTrafficPolicy=Cluster \
   --set k8sServiceHost=$${CLUSTER_INFO}\
   --set k8sServicePort=443
 
