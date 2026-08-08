@@ -45,6 +45,7 @@ module "security_groups" {
   vpc_id                  = module.vpc.vpc_id
   common_tags             = local.tags
   alb_ingress_cidr_blocks = var.alb_ingress_cidr_blocks
+  pod_security_group_id   = module.eks.pod_security_group_id
 }
 
 module "vpc_endpoints" {

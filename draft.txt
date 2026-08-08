@@ -225,4 +225,4 @@ Przyczyna blokady
 
 Pody wysyłają ruch bezpośrednio pod własnymi IP, przez co pakiet do interfejsu VPC Endpointa dociera z identyfikatorem Security Group przypisanym do Podów / ruchu klastra (sg-085e462b302b47fca).
 
-Security Group przypisany do VPC Endpointów STS (sg-03ee5f8c0790c08ba) nie posiada reguły wjazdowej (Inbound Rule) zezwalającej na ruch z tej grupy!
+Security Group przypisany do VPC Endpointów STS (sg-03ee5f8c0790c08ba) nie posiada (Inbound Rule) zezwalającej na ruch z tej grupy!

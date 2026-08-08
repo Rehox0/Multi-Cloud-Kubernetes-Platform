@@ -170,16 +170,6 @@ resource "aws_security_group_rule" "cluster_egress_all" {
   security_group_id = aws_security_group.eks_cluster.id
 }
 
-resource "aws_security_group_rule" "endpoints_from_cilium_https" {
-  type                     = "ingress"
-  description              = "Allow Cilium ENIs to access interface endpoints"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.vpc_endpoints.id
-  source_security_group_id = aws_security_group.cilium_enis.id
-}
-
 resource "aws_security_group_rule" "endpoints_from_cluster_https" {
   type                     = "ingress"
   description              = "Allow EKS cluster SG to access interface VPC endpoints over HTTPS"
@@ -188,4 +178,13 @@ resource "aws_security_group_rule" "endpoints_from_cluster_https" {
   protocol                 = "tcp"
   security_group_id        = aws_security_group.vpc_endpoints.id
   source_security_group_id = aws_security_group.eks_cluster.id
+}
+resource "aws_security_group_rule" "endpoints_from_pod_traffic" {
+  type                     = "ingress"
+  description              = "Allow EKS Primary Cluster SG (Pod traffic) to access VPC endpoints"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  source_security_group_id = var.pod_security_group_id
 }

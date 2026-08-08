@@ -67,13 +67,3 @@ resource "aws_security_group" "management" {
     Name = "${var.project_name}-management-sg"
   })
 }
-
-# Empty Security Group for cilium ENIs
-resource "aws_security_group" "cilium_enis" {
-  name   = "${var.project_name}-cilium-enis"
-  vpc_id = var.vpc_id
-
-  tags = merge(var.common_tags, {
-    Name = "${var.project_name}-cilium-enis-sg"
-  })
-}
