@@ -11,6 +11,7 @@ spec:
     chart: external-secrets
     repoURL: https://charts.external-secrets.io
     targetRevision: 2.8.0
+    path: k8s/gitops/infra/ESO/
     helm:
       values: |
         installCRDs: true
