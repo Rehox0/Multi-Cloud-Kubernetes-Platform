@@ -7,8 +7,6 @@ spec:
   parentRefs:
     - name: {{ .Values.gateway.name }}
       namespace: {{ .Values.gateway.namespace }}
-  hostnames:
-    - {{ .Values.gateway.host | quote }}
   rules:
     - matches:
         - path:
