@@ -4,3 +4,7 @@ gatewayClassName: cilium
 
 allowedRoutes:
     from: All
+    
+service:
+    ports:
+        http: 80
