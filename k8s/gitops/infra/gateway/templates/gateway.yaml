@@ -1,0 +1,27 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.Name }}
+  namespace: {{ .Values.Namespace }}
+spec:
+  gatewayClassName: {{ .Values.gatewayClassName }}
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: {{ .Values.allowedRoutes.from }}
+    {{- if .Values.tls.enabled }}
+        - name: https
+          protocol: HTTPS
+          port: {{ .Values.service.ports.https }}
+          allowedRoutes:
+            namespaces:
+              from: {{ .Values.allowedRoutes.from }}
+          tls:
+            mode: Terminate
+            certificateRefs:
+              - kind: Secret
+                name: {{ .Values.tls.secretName }}
+        {{- end }}
