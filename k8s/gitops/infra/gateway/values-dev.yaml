@@ -1,4 +1,5 @@
 name: main-gateway
+namespace: gateway-ns
 gatewayClassName: cilium
 
 allowedRoutes:
@@ -7,3 +8,8 @@ allowedRoutes:
 service:
     ports:
         http: 80
+        https: 443
+
+tls:
+  enabled: false
+  secretName: ""
