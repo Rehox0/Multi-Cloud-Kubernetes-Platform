@@ -13,3 +13,7 @@ gateway:
   name: main-gateway
   namespace: gateway-system
   host: "my-domain.com"
+
+serviceAccount:
+  create: true
+  name: frontend

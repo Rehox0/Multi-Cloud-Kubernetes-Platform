@@ -62,3 +62,11 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
     #   most_recent = true
     #   before_compute = true
     # }
+
+<!-- sudo apt install bash-completion
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+echo "alias k=kubectl" >> ~/.bashrc
+echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
+echo "source <(helm completion bash)" >> ~/.bashrc
+sudo chsh -s /bin/bash ssm-user
+source ~/.bashrc -->
