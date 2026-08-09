@@ -17,6 +17,8 @@ secret:
   name: backend-secret
 
 service:
+  type: ClusterIP
+  port: 80
   containerPort: 8000
   ports:
   - protocol: TCP
