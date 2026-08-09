@@ -28,6 +28,8 @@ kubectl delete ds kube-proxy -n kube-system
 kubectl rollout restart deployment coredns -n kube-system
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/experimental-install.yaml
+
+
 kubectl rollout restart -n argocd deployment 
 
 

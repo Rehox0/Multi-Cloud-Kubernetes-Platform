@@ -31,7 +31,7 @@ networkPolicy:
   enabled: true
 
 externalSecret:
-  refreshInterval: "1h"
+  refreshInterval: "1m"
   remoteKey: "infra-project"
   targetName: "backend-secret"
   secretStoreRef:
