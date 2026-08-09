@@ -10,7 +10,7 @@ spec:
 
   source:
     repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
-    targetRevision: main
+    targetRevision: testing
     path: k8s/gitops/infra/esss
 
   destination:
