@@ -89,6 +89,7 @@ helm upgrade --install cilium cilium/cilium \
   --namespace kube-system \
   --set eni.enabled=true \
   --set ipam.mode=eni \
+  --set preAllocate=1 \
   --set routingMode=native \
   --set kubeProxyReplacement=true \
   --set egressMasqueradeInterfaces="ens+" \
