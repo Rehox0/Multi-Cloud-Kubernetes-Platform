@@ -25,6 +25,12 @@ service:
   - protocol: UDP
     port: 9999
     targetPort: 9999
+  
+gateway:
+  enabled: true
+  name: main-gateway
+  namespace: gateway-ns
+  host: "my-domain.com"
 
 
 networkPolicy:
