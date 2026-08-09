@@ -1,10 +1,9 @@
-namespace: gateway-ns
 name: main-gateway
 gatewayClassName: cilium
 
 allowedRoutes:
     from: All
-    
+
 service:
     ports:
         http: 80
