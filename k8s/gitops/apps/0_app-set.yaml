@@ -15,7 +15,7 @@ spec:
           # ============================================================
 
           - name: eso-operator
-            path: k8s/gitops/infra/eso/operator/eso-operator.yaml
+            path: k8s/gitops/infra/eso/operator
             sync-group: "1"
             namespace: external-secrets
 
@@ -25,7 +25,7 @@ spec:
           # ============================================================
 
           - name: eso-secret-storage
-            path: k8s/gitops/infra/eso/cluster_secret_store/eso-backend-secret-dev.yaml
+            path: k8s/gitops/infra/eso/cluster_secret_store
             sync-group: "2"
             namespace: external-secrets
 
@@ -50,12 +50,12 @@ spec:
             namespace: gateway-ns
 
           - name: kyverno-system
-            path: k8s/gitops/infra/kyverno/system/kyverno-system.yaml
+            path: k8s/gitops/infra/kyverno/system
             sync-group: "3"
             namespace: kyverno
 
           - name: kyverno-policies
-            path: k8s/gitops/infra/kyverno/system/kyverno-policies.yaml
+            path: k8s/gitops/infra/kyverno/policy/app
             sync-group: "3"
             namespace: kyverno
 
