@@ -1,4 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra-project
+  namespace: argocd
+spec:
+  description: "Application project for ArgoCD"
+  sourceRepos:
+    - 'https://kyverno.github.io/kyverno/'
+    - 'https://charts.external-secrets.io'
+    - 'https://github.com/Rehox0/allegro-analytics-eks.git'
+  destinations:
+    - namespace: '*'
+      server: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+---
+
+apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: infra-addons
