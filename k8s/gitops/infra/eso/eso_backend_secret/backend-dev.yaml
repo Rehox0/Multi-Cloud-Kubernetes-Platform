@@ -3,8 +3,6 @@ kind: ExternalSecret
 metadata:
   name: eso-backend-secret-dev
   namespace: backend-ns
-  annotations:
-    argocd.argoproj.io/sync-wave: "4"
 spec:
   refreshInterval: 1h
   secretStoreRef:
@@ -19,3 +17,6 @@ spec:
     remoteRef:
       key: infra-project
       property: SECRET_KEY
+      conversionStrategy: Default
+      decodingStrategy: None
+      metadataPolicy: None
