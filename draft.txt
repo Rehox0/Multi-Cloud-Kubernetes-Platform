@@ -230,5 +230,8 @@ problems durning project:
       tried to change to t3.medium. -> error with autoscaling group. T3.medium nie mozna postawic na free tier.
       3 nodes × 3 ENI × 4 IP = 36 IP (t3.small)
       Proba zwiekszenia ilosci nodow
+6. Problem z gateway
+      po instalacji gateway nalezy zrestartowac cilium
+      
       
       

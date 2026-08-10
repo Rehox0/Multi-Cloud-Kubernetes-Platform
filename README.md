@@ -14,4 +14,24 @@ Building to gain hands-on experience with:
 - Helm charts
 - IRSA (IAM Roles for Service Accounts)
 
+
+
+Current flow:
+Jumpbox
+  │
+  ├── helm install ArgoCD
+  │
+  ├── git clone
+  │
+  └── kubectl apply root-app.yaml
+              │
+              ▼
+           ROOT_APP
+              │
+              ├── apps/kyverno.yaml
+              ├── apps/eso.yaml
+              ├── apps/...
+              │
+              ▼
+           infra/...
 ---

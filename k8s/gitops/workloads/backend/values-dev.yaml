@@ -13,8 +13,8 @@ env:
   debug: "True"
   allowedHosts: "*"
 
-secret:
-  name: backend-secret
+externalSecret:
+  targetName: backend-secret
 
 service:
   type: ClusterIP

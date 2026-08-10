@@ -26,30 +26,33 @@ The same bucket name **MUST** appear in two places:
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
 kubectl rollout restart deployment coredns -n kube-system
+
+kubectl rollout restart -n argocd deployment 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/experimental-install.yaml
 
-
-kubectl rollout restart -n argocd deployment 
-
-
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
+k rollout restart statefulset -n argocd argocd-application-controller
 
+
+after some time - restart deploy ESO!
+
+after ESO healthy -> restart backend
 ```
 ---
 
 ##ArgoCD UI
 Locally run:
 aws ssm start-session \
-  --target i-075d2dedec41288bd \
+  --target i-0afeb2d24d336e065 \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
 On mgmt:
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 <!-- password fot ArgoCD UI
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
+  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
 -->
 
 
