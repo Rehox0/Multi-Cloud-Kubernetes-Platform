@@ -34,4 +34,15 @@ Jumpbox
               │
               ▼
            infra/...
+
+
+GitOps flow:
+
+eso-operator
+    ↓
+eso-secret-store
+    ↓
+eso-backend-secret-dev
+    ↓
+workload-backend-dev
 ---

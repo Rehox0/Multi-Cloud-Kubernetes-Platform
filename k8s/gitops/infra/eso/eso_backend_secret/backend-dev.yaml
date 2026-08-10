@@ -12,6 +12,8 @@ spec:
     kind: ClusterSecretStore
   target:
     name: eso-backend-secret-dev
+    creationPolicy: Owner
+    deletionPolicy: Retain
   data:
   - secretKey: SECRET_KEY
     remoteRef:
