@@ -232,6 +232,11 @@ problems durning project:
       Proba zwiekszenia ilosci nodow
 6. Problem z gateway
       po instalacji gateway nalezy zrestartowac cilium
+7. Problem z dependency w ArgoCD
+      Jak rozwiazac problem?
+      cronjob?
+      webhook?
+      wlasny controller?
       
       
       

@@ -1,0 +1,121 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infra-addons
+  namespace: argocd
+
+spec:
+  generators:
+    - list:
+        elements:
+
+          # ============================================================
+          # GROUP 1
+          # ESO operator
+          # ============================================================
+
+          - name: eso-operator
+            path: k8s/gitops/infra/eso/operator/eso-operator.yaml
+            sync-group: "1"
+            namespace: external-secrets
+
+          # ============================================================
+          # GROUP 2
+          # ClusterSecretStore-backend-dev
+          # ============================================================
+
+          - name: eso-secret-storage
+            path: k8s/gitops/infra/eso/cluster_secret_store/eso-backend-secret-dev.yaml
+            sync-group: "2"
+            namespace: external-secrets
+
+          # ============================================================
+          # GROUP 3
+          # Workloads / remaining infrastructure
+          # ============================================================
+
+          - name: workload-backend-dev
+            path: k8s/gitops/workloads/backend/app
+            sync-group: "3"
+            namespace: backend-ns
+
+          - name: workload-frontend-dev
+            path: k8s/gitops/workloads/frontend/app
+            sync-group: "4"
+            namespace: frontend-ns
+
+          - name: gateway
+            path: k8s/gitops/infra/gateway/app
+            sync-group: "3"
+            namespace: gateway-ns
+
+          - name: kyverno-system
+            path: k8s/gitops/infra/kyverno/system/kyverno-system.yaml
+            sync-group: "3"
+            namespace: kyverno
+
+          - name: kyverno-policies
+            path: k8s/gitops/infra/kyverno/system/kyverno-policies.yaml
+            sync-group: "3"
+            namespace: kyverno
+
+
+  # ================================================================
+  # RollingSync
+  # ================================================================
+
+  strategy:
+    type: RollingSync
+
+    rollingSync:
+      steps:
+      # GROUP 1
+      - matchExpressions:
+          - key: infra.project.dev/sync-group
+            operator: In
+            values:
+              - "1"
+
+      # GROUP 2
+      - matchExpressions:
+          - key: infra.project.dev/sync-group
+            operator: In
+            values:
+              - "2"
+
+      # GROUP 3
+      - matchExpressions:
+          - key: infra.project.dev/sync-group
+            operator: In
+            values:
+              - "3"
+
+
+  # ================================================================
+  # Application template
+  # ================================================================
+
+  template:
+
+    metadata:
+      name: '{{name}}'
+
+      labels:
+        infra.project.dev/sync-group: '{{sync-group}}'
+
+    spec:
+
+      project: infra-project
+
+      source:
+        repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+        targetRevision: testing
+        path: '{{path}}'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+
+      syncPolicy:
+        syncOptions:
+          - ServerSideApply=true

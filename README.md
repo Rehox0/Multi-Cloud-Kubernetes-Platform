@@ -36,13 +36,41 @@ Jumpbox
            infra/...
 
 
-GitOps flow:
+GitOps goal:
 
-eso-operator
-    ↓
-eso-secret-store
-    ↓
-eso-backend-secret-dev
-    ↓
-workload-backend-dev
+                        Argo CD
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ root-app    │
+                    └──────┬──────┘
+                           │
+             ┌─────────────┴─────────────┐
+             ▼                           ▼
+      ┌─────────────┐             different components
+      │ eso-operator│             
+      └──────┬──────┘
+             │
+             │ Healthy
+             ▼
+      ┌──────────────┐
+      │ ESO dependency│
+      │  gate(backend)│
+      └──────┬───────┘
+             │
+             │ unlock
+             ▼
+      ┌─────────────────┐
+      │eso-secret-storage│
+      └────────┬────────┘
+               │
+               │ ClusterSecretStore Ready
+               ▼
+      ┌─────────────────┐
+      │ ExternalSecret  │
+      └────────┬────────┘
+               │
+               │ SecretSynced
+               ▼
+           backend
 ---
