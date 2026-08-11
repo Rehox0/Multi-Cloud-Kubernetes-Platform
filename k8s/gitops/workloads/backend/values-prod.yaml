@@ -12,6 +12,3 @@ serviceAccount:
 env:
   debug: "False"
   allowedHosts: "api.mydomain.com"
-
-secret:
-  name: backend-secret
