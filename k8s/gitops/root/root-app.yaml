@@ -30,20 +30,6 @@ spec:
         elements:
 
           # ============================================================
-          # GROUP 1
-          # ESO operator
-          # ============================================================
-
-          - name: eso-operator
-            helmRepo: 'https://charts.external-secrets.io'
-            helmChart: external-secrets
-            helmVersion: 'v2.8.0'
-            namespace: external-secrets
-            syncGroup: "1"
-            helmValues: |
-              installCRDs: true
-
-          # ============================================================
           # GROUP 2
           # ClusterSecretStore-backend-dev
           # ============================================================
@@ -51,6 +37,7 @@ spec:
           - name: eso-secret-storage
             path: k8s/gitops/infra/eso/cluster_secret_store
             syncGroup: "2"
+            namespace: external-secrets
 
           # ============================================================
           # GROUP 3
@@ -60,18 +47,13 @@ spec:
           - name: workload-backend-dev
             path: k8s/gitops/workloads/backend/app
             syncGroup: "3"
+            namespace: backend-ns
 
           - name: gateway
             path: k8s/gitops/infra/gateway/app
             syncGroup: "3"
+            namespace: gateway-ns
 
-          - name: kyverno-system
-            helmRepo: 'https://kyverno.github.io/kyverno/'
-            helmChart: kyverno
-            helmVersion: 3.8.2
-            path: k8s/gitops/infra/kyverno/system
-            syncGroup: "3"
-            namespace: kyverno
 
           - name: kyverno-policies
             repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
@@ -91,6 +73,72 @@ spec:
             path: k8s/gitops/workloads/frontend/app
             syncGroup: "4"
             namespace: frontend-ns
+
+        template:
+          metadata:
+            name: '{{name}}'
+            labels:
+              infra.project.dev/sync-group: '{{syncGroup}}'
+          spec:
+            project: infra-project
+            source:
+              repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+              targetRevision: testing
+              path: '{{path}}'
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: '{{namespace}}'
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
+
+    # -----------------------------------------------------------------
+    # GENERATOR 2
+    # -----------------------------------------------------------------
+    - list:
+        elements:
+          - name: eso-operator
+            repoURL: 'https://charts.external-secrets.io'
+            chart: external-secrets
+            targetRevision: '0.14.2'
+            syncGroup: "1"
+            namespace: external-secrets
+
+          - name: kyverno-system
+            repoURL: 'https://kyverno.github.io/kyverno/'
+            chart: kyverno
+            targetRevision: '3.2.5'
+            syncGroup: "3"
+            namespace: kyverno
+
+        template:
+          metadata:
+            name: '{{name}}'
+            labels:
+              infra.project.dev/sync-group: '{{syncGroup}}'
+          spec:
+            project: infra-project
+            source:
+              repoURL: '{{repoURL}}'
+              chart: '{{chart}}'
+              targetRevision: '{{targetRevision}}'
+              helm:
+                values: |
+                  installCRDs: true
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: '{{namespace}}'
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
   # ================================================================
   # RollingSync
   # ================================================================
@@ -119,40 +167,3 @@ spec:
           - key: infra.project.dev/sync-group
             operator: In
             values: ["4"]
-
-  # ================================================================
-  # Application template
-  # ================================================================
-
-  template:
-    metadata:
-      name: '{{name}}'
-      labels:
-        infra.project.dev/sync-group: '{{syncGroup}}'
-    spec:
-      project: infra-project
-      source:
-        repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
-        targetRevision: testing
-        path: '{{path}}'
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: '{{namespace}}'
-      syncPolicy:
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-  templatePatch: |
-      {{- if .helmChart }}
-      spec:
-        source:
-          repoURL: {{ .helmRepo }}
-          chart: {{ .helmChart }}
-          targetRevision: {{ .helmVersion }}
-          path: ""
-          helm:
-            values: |
-              installCRDs: true
-        destination:
-          namespace: {{ .namespace }}
-      {{- end }}
