@@ -59,11 +59,6 @@ spec:
             sync-group: "3"
             namespace: backend-ns
 
-          - name: workload-frontend-dev
-            path: k8s/gitops/workloads/frontend/app
-            sync-group: "4"
-            namespace: frontend-ns
-
           - name: gateway
             path: k8s/gitops/infra/gateway/app
             sync-group: "3"
@@ -79,14 +74,21 @@ spec:
             sync-group: "3"
             namespace: kyverno
 
+          # ============================================================
+          # GROUP 4
+          # Workloads / testing
+          # ============================================================
 
+          - name: workload-frontend-dev
+            path: k8s/gitops/workloads/frontend/app
+            sync-group: "4"
+            namespace: frontend-ns
   # ================================================================
   # RollingSync
   # ================================================================
 
   strategy:
     type: RollingSync
-
     rollingSync:
       steps:
       # GROUP 1
@@ -95,47 +97,44 @@ spec:
             operator: In
             values:
               - "1"
-
       # GROUP 2
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
             values:
               - "2"
-
       # GROUP 3
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
             values:
               - "3"
-
+      # GROUP 4
+      - matchExpressions:
+          - key: infra.project.dev/sync-group
+            operator: In
+            values:
+              - "4"
 
   # ================================================================
   # Application template
   # ================================================================
 
   template:
-
     metadata:
       name: '{{name}}'
-
       labels:
         infra.project.dev/sync-group: '{{sync-group}}'
-
     spec:
-
       project: infra-project
-
       source:
         repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
         targetRevision: testing
         path: '{{path}}'
-
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
-
       syncPolicy:
         syncOptions:
+          - CreateNamespace=true
           - ServerSideApply=true

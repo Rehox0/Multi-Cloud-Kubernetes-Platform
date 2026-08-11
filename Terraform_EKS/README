@@ -45,7 +45,7 @@ after ESO healthy -> restart backend
 ##ArgoCD UI
 Locally run:
 aws ssm start-session \
-  --target i-0afeb2d24d336e065 \
+  --target i-07a82ad6d86672710 \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 
