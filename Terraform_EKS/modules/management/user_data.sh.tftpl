@@ -98,17 +98,6 @@ helm upgrade --install cilium cilium/cilium \
   --set k8sServiceHost=$${CLUSTER_INFO}\
   --set k8sServicePort=443
 
-# ArgoCD installation via helm
-git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
-
-helm repo add argoproj https://argoproj.github.io/argo-helm
-helm repo update
-helm upgrade --install argocd argoproj/argo-cd \
-  --namespace argocd \
-  --create-namespace \
-  --set configs.params.server\.insecure=true \
-  -f ~/allegro-analytics-eks/k8s/gitops/infra/argocd/values.yaml
-  
 
 # Autocompletion .bashrc
 apt-get install -y bash-completion

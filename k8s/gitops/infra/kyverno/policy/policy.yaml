@@ -27,5 +27,5 @@ spec:
       validate:
         cel:
           expressions:
-            - expression: object.spec.?project.orValue('') != 'default'
+            - expression: object.spec.project != 'default'
               message: The default project may not be used in an Application.

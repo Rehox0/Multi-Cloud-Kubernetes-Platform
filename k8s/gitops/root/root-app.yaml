@@ -37,60 +37,43 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: default
-
   generators:
+
+    # ============================================================
+    # GENERATOR 1 — aplikacje z Git repo
+    # ============================================================
     - list:
         elements:
-          # ============================================================
-          # GROUP 1
-          # ============================================================
+
           - name: backend-identity
             path: k8s/gitops/infra/identity/backend
             syncGroup: "1"
             namespace: backend-ns
-
-          # ============================================================
-          # GROUP 2
-          # ClusterSecretStore-backend-dev
-          # ============================================================
 
           - name: eso-backend-secret
             path: k8s/gitops/infra/eso/backend_secret
             syncGroup: "2"
             namespace: external-secrets
 
-          # ============================================================
-          # GROUP 3
-          # Workloads / remaining infrastructure
-          # ============================================================
-
           - name: workload-backend-dev
-            path: k8s/gitops/workloads/backend/app
+            path: k8s/gitops/workloads/backend
+            valuesFile: values-dev.yaml
             syncGroup: "3"
             namespace: backend-ns
 
           - name: gateway
-            path: k8s/gitops/infra/gateway/app
+            path: k8s/gitops/infra/gateway
             syncGroup: "3"
             namespace: gateway-ns
 
-
           - name: kyverno-policies
-            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
-            targetRevision: testing
-            path: k8s/gitops/infra/kyverno/policy/app
+            path: k8s/gitops/infra/kyverno/policy
             syncGroup: "3"
             namespace: kyverno
 
-          # ============================================================
-          # GROUP 4
-          # Workloads / testing
-          # ============================================================
-
           - name: workload-frontend-dev
-            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
-            targetRevision: testing
-            path: k8s/gitops/workloads/frontend/app
+            path: k8s/gitops/workloads/frontend
+            valuesFile: values-dev.yaml
             syncGroup: "4"
             namespace: frontend-ns
 
@@ -102,9 +85,12 @@ spec:
           spec:
             project: infra-project
             source:
-              repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+              repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
               targetRevision: testing
               path: '{{path}}'
+              helm:
+                valueFiles:
+                  - '{{valuesFile}}'
             destination:
               server: https://kubernetes.default.svc
               namespace: '{{namespace}}'
@@ -116,42 +102,49 @@ spec:
                 - CreateNamespace=true
                 - ServerSideApply=true
 
-    # -----------------------------------------------------------------
-    # GENERATOR 2
-    # -----------------------------------------------------------------
+
+    # ============================================================
+    # GENERATOR 2 — Helm applications
+    # ============================================================
     - list:
         elements:
+
           - name: eso-operator
-            repoURL: 'https://charts.external-secrets.io'
-            chart: external-secrets
-            targetRevision: '2.8.0'
             syncGroup: "1"
             namespace: external-secrets
+            repoURL: https://charts.external-secrets.io
+            chart: external-secrets
+            targetRevision: "2.8.0"
 
           - name: kyverno-system
-            repoURL: 'https://kyverno.github.io/kyverno/'
-            chart: kyverno
-            targetRevision: '3.8.2'
             syncGroup: "1"
             namespace: kyverno
+            repoURL: https://kyverno.github.io/kyverno/
+            chart: kyverno
+            targetRevision: "3.8.2"
 
         template:
           metadata:
             name: '{{name}}'
             labels:
               infra.project.dev/sync-group: '{{syncGroup}}'
+
           spec:
             project: infra-project
+
             source:
               repoURL: '{{repoURL}}'
               chart: '{{chart}}'
               targetRevision: '{{targetRevision}}'
+
               helm:
                 values: |
                   installCRDs: true
+
             destination:
               server: https://kubernetes.default.svc
               namespace: '{{namespace}}'
+
             syncPolicy:
               automated:
                 prune: true
@@ -159,6 +152,7 @@ spec:
               syncOptions:
                 - CreateNamespace=true
                 - ServerSideApply=true
+
   # ================================================================
   # RollingSync
   # ================================================================
