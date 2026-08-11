@@ -25,14 +25,14 @@ The same bucket name **MUST** appear in two places:
 ### 5. After running Cilium - Delete AWS VPC CNI. Next restart DNS and ArgoCD (critical for refresh config)
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
-kubectl rollout restart deployment coredns -n kube-system
-
-kubectl rollout restart -n argocd deployment 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/experimental-install.yaml
 
+kubectl rollout restart deployment coredns -n kube-system
+
 sudo git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
-kubectl apply -f ~/allegro-analytics-eks/k8s/root-app.yaml
+kubectl apply -f ~/allegro-analytics-eks/k8s/gitops/root/root-app.yaml
+kubectl rollout restart -n argocd deployment 
 k rollout restart statefulset -n argocd argocd-application-controller
 
 
