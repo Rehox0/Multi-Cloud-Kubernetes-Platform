@@ -48,7 +48,7 @@ spec:
           # ============================================================
 
           - name: eso-secret-storage
-            path: k8s/gitops/infra/eso/cluster_secret_store
+            path: k8s/gitops/infra/eso/cluster_secret_store/app_backend_secret
             syncGroup: "2"
             namespace: external-secrets
 
