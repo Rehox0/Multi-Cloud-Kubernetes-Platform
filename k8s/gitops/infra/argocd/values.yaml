@@ -1,49 +1,51 @@
 configs:
   cm:
-    resource.customizations.health.argoproj.io_Application: |
+    resource.customizations.health.external-secrets.io_ClusterSecretStore: |
       hs = {}
 
-      if obj.metadata.name ~= "eso-operator" then
-        hs.status = "Progressing"
-        hs.message = "Waiting for Application health"
-        return hs
-      end
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            if condition.status == "True" then
+              hs.status = "Healthy"
+              hs.message = condition.message or "ClusterSecretStore is Ready"
+              return hs
+            end
 
-      local required = {
-        ["eso-operator-external-secrets"] = true,
-        ["eso-operator-external-secrets-cert-controller"] = true,
-        ["eso-operator-external-secrets-webhook"] = true
-      }
-
-      local healthy = 0
-      local found = 0
-
-      if obj.status ~= nil and obj.status.resources ~= nil then
-        for _, resource in ipairs(obj.status.resources) do
-          if resource.kind == "Deployment"
-             and resource.namespace == "external-secrets"
-             and required[resource.name] then
-
-            found = found + 1
-
-            if resource.health ~= nil
-               and resource.health.status == "Healthy" then
-              healthy = healthy + 1
+            if condition.status == "False" then
+              hs.status = "Degraded"
+              hs.message = condition.message or "ClusterSecretStore is not Ready"
+              return hs
             end
           end
         end
       end
 
-      if found == 3 and healthy == 3 then
-        hs.status = "Healthy"
-        hs.message = "All 3 ESO deployments are Healthy"
-        return hs
+      hs.status = "Progressing"
+      hs.message = "Waiting for ClusterSecretStore to become Ready"
+      return hs
+
+    resource.customizations.health.external-secrets.io_ExternalSecret: |
+      hs = {}
+
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            if condition.status == "True" then
+              hs.status = "Healthy"
+              hs.message = condition.message or "ExternalSecret is Ready"
+              return hs
+            end
+
+            if condition.status == "False" then
+              hs.status = "Degraded"
+              hs.message = condition.message or "ExternalSecret is not Ready"
+              return hs
+            end
+          end
+        end
       end
 
       hs.status = "Progressing"
-      hs.message = string.format(
-        "Waiting for ESO deployments: %d/3 Healthy",
-        healthy
-      )
-
+      hs.message = "Waiting for ExternalSecret to become Ready"
       return hs
