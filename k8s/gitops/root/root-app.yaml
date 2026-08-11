@@ -41,6 +41,13 @@ spec:
   generators:
     - list:
         elements:
+          # ============================================================
+          # GROUP 1
+          # ============================================================
+          - name: backend-identity
+            path: k8s/gitops/infra/identity/backend
+            syncGroup: "1"
+            namespace: backend-ns
 
           # ============================================================
           # GROUP 2

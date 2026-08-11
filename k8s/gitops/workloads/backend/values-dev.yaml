@@ -5,9 +5,8 @@ image:
   tag: latest
 
 serviceAccount:
-  create: true
+  create: false
   name: backend
-  roleArn: "arn:aws:iam::134748917914:role/allegro-analytics-eks-dev-backend-irsa-role"
 
 env:
   debug: "True"
