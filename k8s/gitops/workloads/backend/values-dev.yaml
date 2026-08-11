@@ -13,7 +13,7 @@ env:
   allowedHosts: "*"
 
 externalSecret:
-  targetName: backend-secret
+  targetName: eso-backend-secret
 
 service:
   type: ClusterIP
