@@ -12,6 +12,3 @@ serviceAccount:
 env:
   debug: "False"
   allowedHosts: "*"
-
-secret:
-  name: backend-secret
