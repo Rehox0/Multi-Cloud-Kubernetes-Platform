@@ -84,7 +84,7 @@ spec:
                 jsonPointers:
                   - /spec/rules/0/skipBackgroundRequests
                   - /spec/rules/0/validate/allowExistingViolations
-                  - /spec/rules/0/generate
+                  - '.spec.rules[] | select(.name == "infra-project") | .generate'
             syncPolicy:
               syncOptions:
                 - CreateNamespace=true
