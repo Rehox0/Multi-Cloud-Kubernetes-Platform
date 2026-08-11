@@ -12,9 +12,6 @@ env:
   debug: "True"
   allowedHosts: "*"
 
-externalSecret:
-  targetName: eso-backend-secret
-
 service:
   type: ClusterIP
   port: 8000
@@ -41,7 +38,7 @@ networkPolicy:
 externalSecret:
   refreshInterval: "1m"
   remoteKey: "infra-project"
-  targetName: "backend-secret"
+  targetName: "eso-backend-secret"
   secretStoreRef:
     name: "aws-secretsmanager"
     kind: "ClusterSecretStore"
