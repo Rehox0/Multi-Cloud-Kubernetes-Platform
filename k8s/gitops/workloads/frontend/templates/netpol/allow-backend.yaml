@@ -19,7 +19,7 @@ spec:
           kubernetes.io/metadata.name: backend-ns
       podSelector:
         matchLabels:
-          app: backend
+          app: workload-backend-dev
     ports:
     - protocol: TCP
       port: 8000
