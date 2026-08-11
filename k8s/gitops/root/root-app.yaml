@@ -128,7 +128,7 @@ spec:
     metadata:
       name: '{{name}}'
       labels:
-        infra.project.dev/sync-group: '{{sync-group}}'
+        infra.project.dev/sync-group: '{{syncGroup}}'
     spec:
       project: infra-project
       source:
