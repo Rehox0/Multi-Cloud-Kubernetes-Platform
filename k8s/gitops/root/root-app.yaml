@@ -40,11 +40,10 @@ spec:
   generators:
 
     # ============================================================
-    # GENERATOR 1 — aplikacje z Git repo
+    # GENERATOR 1 
     # ============================================================
     - list:
         elements:
-
           - name: backend-identity
             path: k8s/gitops/infra/identity/backend
             syncGroup: "1"
@@ -55,12 +54,6 @@ spec:
             syncGroup: "2"
             namespace: external-secrets
 
-          - name: workload-backend-dev
-            path: k8s/gitops/workloads/backend
-            valuesFile: values-dev.yaml
-            syncGroup: "3"
-            namespace: backend-ns
-
           - name: gateway
             path: k8s/gitops/infra/gateway
             syncGroup: "3"
@@ -70,12 +63,6 @@ spec:
             path: k8s/gitops/infra/kyverno/policy
             syncGroup: "3"
             namespace: kyverno
-
-          - name: workload-frontend-dev
-            path: k8s/gitops/workloads/frontend
-            valuesFile: values-dev.yaml
-            syncGroup: "4"
-            namespace: frontend-ns
 
         template:
           metadata:
@@ -88,9 +75,6 @@ spec:
               repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
               targetRevision: testing
               path: '{{path}}'
-              helm:
-                valueFiles:
-                  - '{{valuesFile}}'
             destination:
               server: https://kubernetes.default.svc
               namespace: '{{namespace}}'
@@ -102,10 +86,53 @@ spec:
                 - CreateNamespace=true
                 - ServerSideApply=true
 
+    # ============================================================
+    # GENERATOR 2
+    # ============================================================
+    - list:
+        elements:
 
-    # ============================================================
-    # GENERATOR 2 — Helm applications
-    # ============================================================
+          - name: workload-backend-dev
+            path: k8s/gitops/workloads/backend
+            valuesFile: values-dev.yaml
+            syncGroup: "3"
+            namespace: backend-ns
+
+          - name: workload-frontend-dev
+            path: k8s/gitops/workloads/frontend
+            valuesFile: values-dev.yaml
+            syncGroup: "4"
+            namespace: frontend-ns
+
+        template:
+          metadata:
+            name: '{{name}}'
+            labels:
+              infra.project.dev/sync-group: '{{syncGroup}}'
+
+          spec:
+            project: infra-project
+
+            source:
+              repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+              targetRevision: testing
+              path: '{{path}}'
+              helm:
+                valueFiles:
+                  - '{{valuesFile}}'
+
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: '{{namespace}}'
+
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
+
     - list:
         elements:
 
@@ -136,7 +163,6 @@ spec:
               repoURL: '{{repoURL}}'
               chart: '{{chart}}'
               targetRevision: '{{targetRevision}}'
-
               helm:
                 values: |
                   installCRDs: true
