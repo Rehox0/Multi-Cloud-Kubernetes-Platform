@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: backend
+      app: workload-backend-dev
   policyTypes:
   - Ingress
   ingress:
