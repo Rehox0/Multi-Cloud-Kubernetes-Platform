@@ -117,14 +117,14 @@ spec:
           - name: eso-operator
             repoURL: 'https://charts.external-secrets.io'
             chart: external-secrets
-            targetRevision: '0.14.2'
+            targetRevision: '2.8.0'
             syncGroup: "1"
             namespace: external-secrets
 
           - name: kyverno-system
             repoURL: 'https://kyverno.github.io/kyverno/'
             chart: kyverno
-            targetRevision: '3.2.5'
+            targetRevision: '3.8.2'
             syncGroup: "3"
             namespace: kyverno
 
