@@ -25,6 +25,19 @@ metadata:
   namespace: argocd
 
 spec:
+  template:
+    metadata:
+      name: 'default'
+    spec:
+      project: infra-project
+      source:
+        repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+        targetRevision: testing
+        path: '.'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+
   generators:
     - list:
         elements:
