@@ -45,7 +45,7 @@ spec:
     - list:
         elements:
           - name: backend-identity
-            path: k8s/gitops/infra/identity/backend
+            path: k8s/gitops/infra/identity/backends
             syncGroup: "1"
             namespace: backend-ns
 
