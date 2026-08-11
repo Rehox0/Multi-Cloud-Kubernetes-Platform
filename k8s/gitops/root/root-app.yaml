@@ -54,7 +54,7 @@ spec:
           # ClusterSecretStore-backend-dev
           # ============================================================
 
-          - name: eso-secret-storage
+          - name: eso-backend-secret
             path: k8s/gitops/infra/eso/backend_secret
             syncGroup: "2"
             namespace: external-secrets
@@ -132,7 +132,7 @@ spec:
             repoURL: 'https://kyverno.github.io/kyverno/'
             chart: kyverno
             targetRevision: '3.8.2'
-            syncGroup: "3"
+            syncGroup: "1"
             namespace: kyverno
 
         template:
