@@ -14,6 +14,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno
+  ignoreDifferences:
+    - group: kyverno.io
+      kind: ClusterPolicy
+      jsonPointers:
+        - /spec/rules/0/skipBackgroundRequests
+        - /spec/rules/0/validate/allowExistingViolations
+        - /spec/rules/0/validate/cel/generate
   syncPolicy:
     automated:
       prune: true
