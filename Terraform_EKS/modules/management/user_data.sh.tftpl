@@ -69,7 +69,16 @@ CLUSTER_NAME=$(aws eks list-clusters --region "$REGION" --query "clusters[0]" --
 
 aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$REGION"
 
-#Cilium installation via helm
+#Cilium installation + Gateway API CRDs
+  
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_backendtlspolicies.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_tlsroutes.yaml
+
 CLUSTER_INFO=$(aws eks describe-cluster --name "$CLUSTER_NAME" --region "$REGION" --query "cluster.endpoint" --output text | sed 's|https://||')
 
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -85,22 +94,34 @@ helm repo update cilium
 export KUBECONFIG=/root/.kube/config
 
 helm upgrade --install cilium cilium/cilium \
-  --version 1.17.4 \
+  --version 1.20.0 \
   --namespace kube-system \
   --set eni.enabled=true \
   --set ipam.mode=eni \
   --set ipam.preAllocate=3 \
   --set routingMode=native \
   --set kubeProxyReplacement=true \
+  --set l7Proxy=true \
   --set egressMasqueradeInterfaces="ens+" \
   --set gatewayAPI.enabled=true \
-  --set gatewayAPI.externalTrafficPolicy=Cluster \
   --set k8sServiceHost=$${CLUSTER_INFO}\
   --set k8sServicePort=443
 
+
+
+
+# ArgoCD installation
+helm repo add argoproj https://argoproj.github.io/argo-helm
+helm repo update
+helm upgrade --install argocd argoproj/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  --set configs.params.server\.insecure=true \
+
+
+# ESO installation
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
-
 helm upgrade --install eso-operator external-secrets/external-secrets \
   --namespace external-secrets \
   --create-namespace \

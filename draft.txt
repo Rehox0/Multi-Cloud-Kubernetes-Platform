@@ -231,12 +231,30 @@ problems durning project:
       3 nodes × 3 ENI × 4 IP = 36 IP (t3.small)
       Proba zwiekszenia ilosci nodow
 6. Problem z gateway
-      po instalacji gateway nalezy zrestartowac cilium
-7. Problem z dependency w ArgoCD
-      Jak rozwiazac problem?
-      cronjob?
-      webhook?
-      wlasny controller?
+      enable-gateway-api=true w Cilium ✅
+      Cilium nie przejął GatewayClass
+      Cilium widzi GatewayClass ✅
+      Cilium Operator 2/2 ✅
+      Gateway API CRD ✅
+      Cilium operator obserwuje GatewayClass:
+            Doc zaleca restart cilium -> nie pomaga
+      ClusterRole ✅
+      ClusterRoleBinding ✅
+      SA ✅
+      RBAC ok ✅
+      controllerName: io.cilium/gateway-controller ✅
+
+      mismatch wersji Gateway API CRD -> Cilium 1.17.4. ❌
+      status.supportedFeatures[0]: Invalid value: "object":
+      supportedFeatures[0] in body must be of type string: "object"
+      status.supportedFeatures[1]: Invalid value: "object"
+      ...
+      status.supportedFeatures[26]: Invalid value: "object"
+      Duplicate value: {}
+
+      Cilium supports Gateway API v1.6.1 
+
+            
       
       
       

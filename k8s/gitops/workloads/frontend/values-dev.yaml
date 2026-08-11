@@ -19,5 +19,5 @@ serviceAccount:
   name: frontend
 
   backend:
-    host: workload-backend-dev.backend-ns.svc.cluster.local
+    host: http://workload-backend-dev.backend-ns.svc.cluster.local
     port: 8000

@@ -46,3 +46,7 @@ externalSecret:
 provider:
   aws:
     region: eu-north-1
+
+backend:
+  host: http://workload-backend-dev.backend-ns.svc.cluster.local
+  port: 8000
