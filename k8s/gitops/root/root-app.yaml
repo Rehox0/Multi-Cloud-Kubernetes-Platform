@@ -35,7 +35,9 @@ spec:
           # ============================================================
 
           - name: eso-operator
-            path: k8s/gitops/infra/eso/operator
+            repoURL: 'https://charts.external-secrets.io'
+            chart: external-secrets
+            targetRevision: 2.8.0
             sync-group: "1"
             namespace: external-secrets
 
@@ -45,6 +47,8 @@ spec:
           # ============================================================
 
           - name: eso-secret-storage
+            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+            targetRevision: testing
             path: k8s/gitops/infra/eso/cluster_secret_store
             sync-group: "2"
             namespace: external-secrets
@@ -55,21 +59,30 @@ spec:
           # ============================================================
 
           - name: workload-backend-dev
+            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+            targetRevision: testing
             path: k8s/gitops/workloads/backend/app
             sync-group: "3"
             namespace: backend-ns
 
           - name: gateway
+            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+            targetRevision: testing
             path: k8s/gitops/infra/gateway/app
             sync-group: "3"
             namespace: gateway-ns
 
           - name: kyverno-system
+            repoURL: 'https://kyverno.github.io/kyverno/'
+            chart: kyverno
+            targetRevision: 3.8.2
             path: k8s/gitops/infra/kyverno/system
             sync-group: "3"
             namespace: kyverno
 
           - name: kyverno-policies
+            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+            targetRevision: testing
             path: k8s/gitops/infra/kyverno/policy/app
             sync-group: "3"
             namespace: kyverno
@@ -80,6 +93,8 @@ spec:
           # ============================================================
 
           - name: workload-frontend-dev
+            repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+            targetRevision: testing
             path: k8s/gitops/workloads/frontend/app
             sync-group: "4"
             namespace: frontend-ns
@@ -95,26 +110,22 @@ spec:
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
-            values:
-              - "1"
+            values: ["1"]
       # GROUP 2
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
-            values:
-              - "2"
+            values: ["2"]
       # GROUP 3
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
-            values:
-              - "3"
+            values: ["3"]
       # GROUP 4
       - matchExpressions:
           - key: infra.project.dev/sync-group
             operator: In
-            values:
-              - "4"
+            values: ["4"]
 
   # ================================================================
   # Application template
@@ -128,9 +139,10 @@ spec:
     spec:
       project: infra-project
       source:
-        repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
-        targetRevision: testing
+        repoURL: '{{repoURL}}'
+        targetRevision: '{{targetRevision}}'
         path: '{{path}}'
+        chart: '{{chart}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
