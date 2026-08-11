@@ -35,9 +35,9 @@ spec:
           # ============================================================
 
           - name: eso-operator
-            repoURL: 'https://charts.external-secrets.io'
-            chart: external-secrets
-            targetRevision: 'v2.8.0'
+            helmRepo: 'https://charts.external-secrets.io'
+            helmChart: external-secrets
+            helmVersion: 'v2.8.0'
             namespace: external-secrets
             syncGroup: "1"
             helmValues: |
@@ -66,9 +66,9 @@ spec:
             syncGroup: "3"
 
           - name: kyverno-system
-            repoURL: 'https://kyverno.github.io/kyverno/'
-            chart: kyverno
-            targetRevision: 3.8.2
+            helmRepo: 'https://kyverno.github.io/kyverno/'
+            helmChart: kyverno
+            helmVersion: 3.8.2
             path: k8s/gitops/infra/kyverno/system
             syncGroup: "3"
             namespace: kyverno
@@ -132,12 +132,9 @@ spec:
     spec:
       project: infra-project
       source:
-        repoURL: '{{repoURL | default "https://github.com/Rehox0/allegro-analytics-eks.git"}}'
-        targetRevision: '{{targetRevision | default "testing"}}'
+        repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+        targetRevision: testing
         path: '{{path}}'
-        chart: '{{chart}}'
-        helm:
-          values: '{{helmValues}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
@@ -145,4 +142,17 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
-
+  templatePatch: |
+      {{- if .helmChart }}
+      spec:
+        source:
+          repoURL: {{ .helmRepo }}
+          chart: {{ .helmChart }}
+          targetRevision: {{ .helmVersion }}
+          path: ""
+          helm:
+            values: |
+              installCRDs: true
+        destination:
+          namespace: {{ .namespace }}
+      {{- end }}
