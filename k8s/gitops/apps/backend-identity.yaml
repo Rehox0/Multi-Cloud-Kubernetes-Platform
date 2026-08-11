@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend-identity
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: infra-project
+  source:
+    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+    targetRevision: testing
+    path: k8s/gitops/infra/identity/backend
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend-ns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

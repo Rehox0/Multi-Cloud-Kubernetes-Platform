@@ -4,19 +4,22 @@ metadata:
   name: workload-frontend-dev
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   project: infra-project
+
   source:
-    repoURL: 'https://github.com/Rehox0/allegro-analytics-eks.git'
+    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
     targetRevision: testing
     path: k8s/gitops/workloads/frontend
     helm:
       valueFiles:
         - values-dev.yaml
+
   destination:
-    server: 'https://kubernetes.default.svc'
+    server: https://kubernetes.default.svc
     namespace: frontend-ns
+
   syncPolicy:
     automated:
       prune: true
