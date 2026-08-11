@@ -78,6 +78,13 @@ spec:
             destination:
               server: https://kubernetes.default.svc
               namespace: '{{namespace}}'
+            ignoreDifferences:
+              - group: kyverno.io
+                kind: ClusterPolicy
+                jsonPointers:
+                  - /spec/rules/0/skipBackgroundRequests
+                  - /spec/rules/0/validate/allowExistingViolations
+                  - /spec/rules/0/generate
             syncPolicy:
               syncOptions:
                 - CreateNamespace=true
