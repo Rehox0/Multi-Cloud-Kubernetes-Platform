@@ -14,8 +14,10 @@ spec:
         settings:
           clusterName: allegro-analytics-eks-dev-eks-cluster
         serviceAccount:
-          create: false
+          create: true
           name: karpenter
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/allegro-analytics-eks-dev-karpenter-controller-role
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter
