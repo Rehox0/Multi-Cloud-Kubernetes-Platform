@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+spec:
+  project: infra-project
+  source:
+    repoURL: https://charts.karpenter.sh
+    chart: karpenter
+    targetRevision: v1.9.1
+    helm:
+      values: |
+        serviceAccountName: karpenter
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

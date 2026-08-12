@@ -17,6 +17,8 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+            - port: "9999"
+              protocol: UDP
     # Cilium Gateway / Envoy
     - fromEntities:
         - ingress
