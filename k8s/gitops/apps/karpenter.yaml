@@ -6,12 +6,14 @@ metadata:
 spec:
   project: infra-project
   source:
-    repoURL: https://charts.karpenter.sh
+    repoURL: public.ecr.aws/karpenter/karpenter
     chart: karpenter
     targetRevision: v1.9.1
     helm:
       values: |
-        serviceAccountName: karpenter
+        serviceAccount:
+          create: false
+          name: karpenter
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter

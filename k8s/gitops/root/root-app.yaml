@@ -9,6 +9,7 @@ spec:
     - 'https://kyverno.github.io/kyverno/'
     - 'https://charts.external-secrets.io'
     - 'https://github.com/Rehox0/allegro-analytics-eks.git'
+    - 'public.ecr.aws/karpenter/karpenter'
   destinations:
     - namespace: '*'
       server: '*'
