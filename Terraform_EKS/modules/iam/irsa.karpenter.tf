@@ -44,13 +44,16 @@ resource "aws_iam_role_policy" "karpenter_controller" {
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeImages",
           "ec2:DescribeInstanceTypes",
+          "ec2:DescribeInstanceTypeOfferings",
           "ec2:DescribeLaunchTemplates",
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeSpotPriceHistory",
           "ec2:DescribeSubnets",
           "ec2:DescribeTags",
           "ec2:DescribeInstances",
-          "ec2:TerminateInstances"
+          "ec2:TerminateInstances",
+          "ec2:RunInstances",
+          "eks:DescribeCluster"
         ]
 
         Resource = "*"
