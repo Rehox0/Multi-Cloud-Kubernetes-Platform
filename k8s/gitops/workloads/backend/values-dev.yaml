@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: rehox0/portfolio-backend
-  tag: latest
+  tag: v1.0.0
 
 serviceAccount:
   create: false
