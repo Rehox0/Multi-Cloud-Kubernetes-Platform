@@ -6,9 +6,9 @@ metadata:
 spec:
   project: infra-project
   source:
-    repoURL: public.ecr.aws/karpenter/karpenter
+    repoURL: public.ecr.aws/karpenter
     chart: karpenter
-    targetRevision: v1.9.1
+    targetRevision: 1.9.1
     helm:
       values: |
         serviceAccount:
