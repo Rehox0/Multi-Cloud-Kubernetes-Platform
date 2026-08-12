@@ -53,7 +53,23 @@ resource "aws_iam_role_policy" "karpenter_controller" {
           "ec2:DescribeInstances",
           "ec2:TerminateInstances",
           "ec2:RunInstances",
-          "eks:DescribeCluster"
+          "eks:DescribeCluster",
+          "pricing:GetProducts"
+        ]
+
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+
+        Action = [
+          "iam:GetInstanceProfile",
+          "iam:ListInstanceProfiles",
+          "iam:CreateInstanceProfile",
+          "iam:AddRoleToInstanceProfile",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:DeleteInstanceProfile",
+          "iam:TagInstanceProfile"
         ]
 
         Resource = "*"
