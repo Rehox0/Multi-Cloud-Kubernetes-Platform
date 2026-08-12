@@ -26,7 +26,7 @@ module "eks" {
   eks_nodes_sg_id      = module.security_groups.eks_nodes_sg_id
   eks_cluster_sg_id    = module.security_groups.eks_cluster_sg_id
   node_instance_types  = ["t3.small"]
-  node_desired_size    = 4
+  node_desired_size    = 5
   node_min_size        = 3
   node_max_size        = 8
   node_max_unavailable = 2

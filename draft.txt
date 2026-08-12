@@ -258,6 +258,7 @@ problems durning project:
       HTTPRoute ✅
       NetPol ❌
             
-      
+8. Problem z pula IP:
+      refractor from ipam: eni -> cluster-pool
       
       

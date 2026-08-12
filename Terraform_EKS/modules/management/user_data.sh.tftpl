@@ -96,9 +96,10 @@ helm repo update cilium
 helm upgrade --install cilium cilium/cilium \
   --version 1.20.0 \
   --namespace kube-system \
-  --set eni.enabled=true \
-  --set ipam.mode=eni \
-  --set ipam.preAllocate=3 \
+  --set eni.enabled=false \
+  --set ipam.mode=cluster-pool \
+  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.244.0.0/16" \
+  --set ipam.operator.clusterPoolIPv4MaskSize=24 \
   --set routingMode=native \
   --set kubeProxyReplacement=true \
   --set l7Proxy=true \
