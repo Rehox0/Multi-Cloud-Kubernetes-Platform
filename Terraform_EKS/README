@@ -25,41 +25,34 @@ The same bucket name **MUST** appear in two places:
 ### 5. After running Cilium - Delete AWS VPC CNI. Next restart DNS and ArgoCD (critical for refresh config)
 kubectl delete ds aws-node -n kube-system
 kubectl delete ds kube-proxy -n kube-system
-
 kubectl rollout restart deployment coredns -n kube-system
+k rollout restart -n external-secrets deployment
 
-#k rollout restart argocd
 git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 kubectl apply -f ~/allegro-analytics-eks/k8s/gitops/root/root-app.yaml
+
+k rollout restart -n argocd deployment
+k rollout restart -n argocd statefulset
+
 
 
 #ArgoCD UI
 On mgmt:
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
+##ArgoCD UI
 <!-- Locally run: -->
 aws ssm start-session \
-  --target i-xxxxxxxx \
+  --target i-0b06b0c588ea58744 \
   --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
+
 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 
 
-
-
-after some time - restart deploy ESO!
-
-after ESO healthy -> restart backend
 ```
 ---
-
-##ArgoCD UI
-
-  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
-
-<!-- password fot ArgoCD UI
-  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
--->
 
 
 

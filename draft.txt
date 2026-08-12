@@ -253,7 +253,10 @@ problems durning project:
       Duplicate value: {}
 
       Cilium supports Gateway API v1.6.1 
-
+      
+7. Frontend -> Backend error:
+      HTTPRoute ✅
+      
             
       
       

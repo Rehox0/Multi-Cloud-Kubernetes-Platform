@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: root-app
+  name: infra-project
   namespace: argocd
 spec:
   description: "Application project for ArgoCD"
