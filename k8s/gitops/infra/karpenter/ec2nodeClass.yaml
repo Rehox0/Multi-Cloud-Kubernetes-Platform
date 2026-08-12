@@ -16,7 +16,6 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: allegro-analytics-eks-dev-eks-cluster
-
   tags:
     Name: allegro-analytics-eks-dev-karpenter
     karpenter.sh/discovery: allegro-analytics-eks-dev-eks-cluster
