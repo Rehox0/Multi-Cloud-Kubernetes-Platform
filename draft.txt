@@ -256,7 +256,7 @@ problems durning project:
       
 7. Frontend -> Backend error:
       HTTPRoute ✅
-      
+      NetPol ❌
             
       
       
