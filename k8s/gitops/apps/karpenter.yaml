@@ -11,6 +11,8 @@ spec:
     targetRevision: 1.9.1
     helm:
       values: |
+        settings:
+          clusterName: allegro-analytics-eks-dev-eks-cluster
         serviceAccount:
           create: false
           name: karpenter
