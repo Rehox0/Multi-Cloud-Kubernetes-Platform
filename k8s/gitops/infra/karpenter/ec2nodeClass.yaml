@@ -7,7 +7,7 @@ spec:
   amiSelectorTerms:
     - id: ami-04ca947d4c371ef5a
 
-  role: allegro-analytics-eks-dev-eks-node-role
+  role: allegro-analytics-eks-dev-karpenter-node-role
 
   subnetSelectorTerms:
     - tags:
