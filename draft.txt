@@ -265,5 +265,11 @@ problems durning project:
       nie dziala pod -> pod miedzy nodami.
       zmiana z routing native na tunell- OK
 
-10.
+10. Problem z Karpenter - Nody nie rejestruja sie w EKS:
+      Nody sie scaluja ✅
+      Problem z AMI Karpenter
+      
+
+
+
 

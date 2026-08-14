@@ -131,7 +131,8 @@ helm upgrade --install eso-operator external-secrets/external-secrets \
   --set installCRDs=true \
   --set webhook.hostNetwork=true \
   --set webhook.hostUsers=true \
-  --set webhook.dnsPolicy=ClusterFirstWithHostNet
+  --set webhook.dnsPolicy=ClusterFirstWithHostNet \
+  --set webhook.port=10251
 
 
 # Autocompletion .bashrc
