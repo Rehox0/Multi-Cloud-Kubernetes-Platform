@@ -30,4 +30,4 @@ spec:
     cpu: "8"
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 3m
+    consolidateAfter: 5m
