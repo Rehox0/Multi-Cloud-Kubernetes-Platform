@@ -268,7 +268,8 @@ problems durning project:
 10. Problem z Karpenter - Nody nie rejestruja sie w EKS:
       Nody sie scaluja ✅
       Problem z AMI Karpenter
-      
+      cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
+
 
 
 
