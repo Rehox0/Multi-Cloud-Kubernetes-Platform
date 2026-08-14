@@ -28,6 +28,7 @@ kubectl delete ds kube-proxy -n kube-system
 kubectl rollout restart deployment coredns -n kube-system
 k rollout restart -n external-secrets deployment
 
+
 git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 kubectl apply -f ~/allegro-analytics-eks/k8s/gitops/root/root-app.yaml
 
@@ -43,7 +44,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 ##ArgoCD UI
 <!-- Locally run: -->
 aws ssm start-session \
-  --target i-0b06b0c588ea58744 \
+  --target i-xxxxxxxxxxxxxx \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
 

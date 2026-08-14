@@ -260,5 +260,10 @@ problems durning project:
             
 8. Problem z pula IP:
       refractor from ipam: eni -> cluster-pool
-      
-      
+
+9. Problem z ArgoCD - repo server:
+      nie dziala pod -> pod miedzy nodami.
+      zmiana z routing native na tunell- OK
+
+10.
+
