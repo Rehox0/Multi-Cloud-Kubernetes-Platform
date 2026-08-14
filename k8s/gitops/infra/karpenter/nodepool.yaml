@@ -27,7 +27,7 @@ spec:
           values:
             - t3.small
   limits:
-    cpu: "8"
+    cpu: "12"
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 1m
