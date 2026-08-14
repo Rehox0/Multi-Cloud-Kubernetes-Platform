@@ -5,7 +5,7 @@ metadata:
 spec:
   amiFamily: AL2023
   amiSelectorTerms:
-    - id: ami-04ca947d4c371ef5a
+    - id: ami-0c11219423ce00ad3
 
   role: allegro-analytics-eks-dev-karpenter-node-role
 
