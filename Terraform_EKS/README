@@ -31,7 +31,6 @@ k rollout restart -n external-secrets deployment
 
 git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
 kubectl apply -f ~/allegro-analytics-eks/k8s/gitops/root/root-app.yaml
-
 k rollout restart -n argocd deployment
 k rollout restart -n argocd statefulset
 

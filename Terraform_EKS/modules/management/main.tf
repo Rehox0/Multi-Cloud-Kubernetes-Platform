@@ -41,9 +41,6 @@ resource "aws_autoscaling_group" "management" {
         launch_template_id = aws_launch_template.management.id
         version            = "$Latest"
       }
-      override {
-        instance_type = "t3.small"
-      }
     }
   }
 }
