@@ -70,8 +70,18 @@ CLUSTER_NAME=$(aws eks list-clusters --region "$REGION" --query "clusters[0]" --
 aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$REGION"
 export KUBECONFIG=/root/.kube/config
 
-#Cilium installation + Gateway API CRDs
+#PrioClass
+kubectl apply -f - <<'EOF'
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: prio-critical
+value: 1000000
+globalDefault: false
+description: "Critical infrastructure workloads"
+EOF
 
+#Cilium installation + Gateway API CRDs
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
@@ -107,7 +117,7 @@ helm upgrade --install cilium cilium/cilium \
   --set egressMasqueradeInterfaces="ens+" \
   --set gatewayAPI.enabled=true \
   --set k8sServiceHost=$${CLUSTER_INFO}\
-  --set k8sServicePort=443
+  --set k8sServicePort=443  
 
 
 
@@ -118,7 +128,8 @@ helm repo update
 helm upgrade --install argocd argoproj/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --set configs.params.server\.insecure=true
+  --set configs.params.server\.insecure=true \
+  --set global.priorityClassName=prio-critical
 
 
 # ESO installation
@@ -132,7 +143,8 @@ helm upgrade --install eso-operator external-secrets/external-secrets \
   --set webhook.hostNetwork=true \
   --set webhook.hostUsers=true \
   --set webhook.dnsPolicy=ClusterFirstWithHostNet \
-  --set webhook.port=10251
+  --set webhook.port=10251 \
+  --set webhook.priorityClassName=prio-critical
 
 
 # Autocompletion .bashrc

@@ -18,6 +18,7 @@ spec:
           name: karpenter
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/allegro-analytics-eks-dev-karpenter-controller-role
+        priorityClassName: prio-critical
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter

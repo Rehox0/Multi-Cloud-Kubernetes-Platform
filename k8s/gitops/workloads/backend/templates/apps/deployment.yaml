@@ -13,6 +13,7 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
+      priorityClassName: prio-high
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: backend

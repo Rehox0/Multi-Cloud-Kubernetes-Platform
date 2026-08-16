@@ -17,6 +17,7 @@ spec:
         admissionController:
           hostNetwork: true
           dnsPolicy: ClusterFirstWithHostNet
+        priorityClassName: prio-high
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno
