@@ -260,17 +260,25 @@ problems durning project:
             
 8. Problem z pula IP:
       refractor from ipam: eni -> cluster-pool
+      kubelet = 11max Pod
+      
 
 9. Problem z ArgoCD - repo server:
       nie dziala pod -> pod miedzy nodami.
-      zmiana z routing native na tunell- OK
+      ✅✅✅ zmiana z routing native na tunell ✅✅✅
 
 10. Problem z Karpenter - Nody nie rejestruja sie w EKS:
       Nody sie scaluja ✅
       Problem z AMI Karpenter
       cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
+      ✅✅✅ zmiana na compatible AMI ✅✅✅
+      
 
-
+11. Problem z node - kubelet no response
+      Test:
+            create 30 pods -> cilium [429] putEndpointIdTooManyRequests
+            2/3 Node Ready, next 1/3
+            
 
 
 

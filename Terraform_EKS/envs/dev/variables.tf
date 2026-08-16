@@ -80,3 +80,9 @@ variable "cilium_chart_version" {
   description = "Pinned chart version for cilium"
   default     = "1.18.4"
 }
+
+variable "node_max_pods" {
+  description = "Maximum number of pods allowed on each EKS node"
+  type        = number
+  default     = 11
+}

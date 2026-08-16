@@ -28,8 +28,9 @@ module "eks" {
   node_instance_types  = ["t3.small"]
   node_desired_size    = 4
   node_min_size        = 4
-  node_max_size        = 9
+  node_max_size        = 8
   node_max_unavailable = 2
+  node_max_pods        = 20
   node_labels = {
     env = "dev"
   }
