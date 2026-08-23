@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "**/Chart.yaml": "helm",
+    "**/values*.yaml": "helm",
+    "**/templates/**/*.yaml": "helm",
+    "**/templates/**/*.tpl": "helm"
+  },
+  "vscode-helm.completion.enabled": true,
+  "vscode-helm.hover.enabled": true,
+  "vscode-helm.lint.enabled": true
+}

@@ -14,4 +14,47 @@ Building to gain hands-on experience with:
 - Helm charts
 - IRSA (IAM Roles for Service Accounts)
 
+Current stage:
+![Current stage](./images/EKS_pods.png)
+
+
+GitOps goal:
+
+                        Argo CD
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ root-app    │
+                    └──────┬──────┘
+                           │
+             ┌─────────────┴─────────────┐
+             ▼                           ▼
+      ┌─────────────┐             different components
+      │ eso-operator│             
+      └──────┬──────┘
+             │
+             │ Healthy
+             ▼
+      ┌──────────────┐
+      │ ESO dependency│
+      │  gate(backend)│
+      └──────┬───────┘
+             │
+             │ unlock
+             ▼
+      ┌─────────────────┐
+      │eso-secret-storage│
+      └────────┬────────┘
+               │
+               │ ClusterSecretStore Ready
+               ▼
+      ┌─────────────────┐
+      │ ExternalSecret  │
+      └────────┬────────┘
+               │
+               │ SecretSynced
+               ▼
+           backend
+
+
 ---

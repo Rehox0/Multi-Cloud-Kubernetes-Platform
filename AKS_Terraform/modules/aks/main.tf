@@ -1,0 +1,63 @@
+resource "azurerm_kubernetes_cluster" "main" {
+  name                = var.cluster_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  dns_prefix = var.cluster_name
+
+  kubernetes_version = var.kubernetes_version
+
+  # ----------------------------------------------------------
+  # Default node pool
+  # ----------------------------------------------------------
+
+  default_node_pool {
+    name = "system"
+
+    vm_size = var.node_vm_size
+
+    node_count = var.node_desired_size
+
+    min_count = var.node_min_size
+    max_count = var.node_max_size
+
+    auto_scaling_enabled = true
+
+    vnet_subnet_id = var.subnet_id
+
+    node_labels = merge(
+      {
+        role = "worker"
+      },
+      var.node_labels
+    )
+  }
+
+  # ----------------------------------------------------------
+  # Identity
+  # ----------------------------------------------------------
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  # ----------------------------------------------------------
+  # Networking
+  # ----------------------------------------------------------
+
+  network_profile {
+    network_plugin = "azure"
+    network_policy = "azure"
+
+    load_balancer_sku = "standard"
+
+    service_cidr = "10.1.0.0/16"
+    dns_service_ip = "10.1.0.10"
+  }
+
+  # ----------------------------------------------------------
+  # Tags
+  # ----------------------------------------------------------
+
+  tags = var.common_tags
+}

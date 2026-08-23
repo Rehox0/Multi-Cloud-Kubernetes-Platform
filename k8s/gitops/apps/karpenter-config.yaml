@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-config
+  namespace: argocd
+spec:
+  project: infra-project
+  source:
+    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+    targetRevision: testing
+    path: k8s/gitops/infra/karpenter
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

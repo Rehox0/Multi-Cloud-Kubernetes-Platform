@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: infra-project
+  source:
+    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+    targetRevision: testing
+    path: k8s/gitops/infra/kyverno/policy
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  ignoreDifferences:
+    - group: kyverno.io
+      kind: ClusterPolicy
+      jsonPointers:
+        - /spec/rules/0/skipBackgroundRequests
+        - /spec/rules/0/validate/allowExistingViolations
+        - /spec/rules/0/validate/cel/generate
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

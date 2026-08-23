@@ -2,7 +2,7 @@ output "eks_oidc_url" {
   value = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
-output "cluster_primary_security_group_id" {
+output "pod_security_group_id" {
   description = "ID of the main security group created by EKS"
   value       = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
 }

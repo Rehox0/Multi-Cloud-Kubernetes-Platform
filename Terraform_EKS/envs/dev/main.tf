@@ -26,10 +26,11 @@ module "eks" {
   eks_nodes_sg_id      = module.security_groups.eks_nodes_sg_id
   eks_cluster_sg_id    = module.security_groups.eks_cluster_sg_id
   node_instance_types  = ["t3.small"]
-  node_desired_size    = 3
-  node_min_size        = 3
-  node_max_size        = 6
-  node_max_unavailable = 1
+  node_desired_size    = 4
+  node_min_size        = 4
+  node_max_size        = 8
+  node_max_unavailable = 2
+  node_max_pods        = 20
   node_labels = {
     env = "dev"
   }
@@ -45,6 +46,7 @@ module "security_groups" {
   vpc_id                  = module.vpc.vpc_id
   common_tags             = local.tags
   alb_ingress_cidr_blocks = var.alb_ingress_cidr_blocks
+  pod_security_group_id   = module.eks.pod_security_group_id
 }
 
 module "vpc_endpoints" {
@@ -61,7 +63,7 @@ module "iam" {
   project_name                   = var.project_name
   cluster_name                   = module.eks.cluster_name
   eks_oidc_url                   = module.eks.eks_oidc_url
-  secret_arn                     = data.aws_secretsmanager_secret.manual_secrets.arn
+  secret_arn                     = data.aws_secretsmanager_secret.infra_project.arn
   eks_console_user_principal_arn = var.eks_console_user_principal_arn
 
   common_tags = local.tags
@@ -69,7 +71,7 @@ module "iam" {
 
 module "management" {
   source = "../../modules/management"
-  
+
   subnet_ids            = module.vpc.private_subnets
   instance_profile_name = module.iam.management_instance_profile_name
   management_sg_id      = module.security_groups.management_sg_id
@@ -80,4 +82,8 @@ module "management" {
   helm_version          = var.helm_version
   helm_sha256           = var.helm_sha256
   ssh_public_keys       = var.management_ssh_public_keys
+
+  depends_on = [
+    module.eks
+  ]
 }

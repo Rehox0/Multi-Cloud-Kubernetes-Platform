@@ -25,4 +25,12 @@ resource "aws_eks_addon" "main" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = each.key
 
+  depends_on = [aws_eks_node_group.main]
+
+}
+
+resource "aws_ec2_tag" "cluster_sg_karpenter_discovery" {
+  resource_id = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+  key         = "karpenter.sh/discovery"
+  value       = aws_eks_cluster.main.name
 }

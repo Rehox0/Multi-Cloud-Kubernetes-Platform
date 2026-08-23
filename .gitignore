@@ -13,3 +13,11 @@ terraform.tfstate*
 terraform.rc
 crash.log
 *.log
+.env
+.env.*
+!.env.example
+*.local.conf
+
+.git
+__pycache__
+*.pyc

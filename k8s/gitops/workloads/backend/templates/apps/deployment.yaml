@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      priorityClassName: prio-high
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.containerPort }}
+          env:
+            - name: DEBUG
+              value: {{ .Values.env.debug | quote }}
+            - name: ALLOWED_HOSTS
+              value: {{ .Values.env.allowedHosts | quote }}
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: SECRET_KEY

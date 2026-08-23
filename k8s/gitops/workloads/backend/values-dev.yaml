@@ -1,0 +1,52 @@
+replicaCount: 3
+
+image:
+  repository: rehox0/portfolio-backend
+  tag: v1.0.0
+
+serviceAccount:
+  create: false
+  name: backend
+
+env:
+  debug: "True"
+  allowedHosts: "*"
+
+service:
+  type: ClusterIP
+  port: 8000
+  
+  containerPort: 8000
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  - protocol: UDP
+    port: 9999
+    targetPort: 9999
+  
+gateway:
+  enabled: true
+  name: main-gateway
+  namespace: gateway-ns
+  host: "my-domain.com"
+
+
+networkPolicy:
+  enabled: true
+
+externalSecret:
+  refreshInterval: "1m"
+  remoteKey: "infra-project"
+  targetName: "eso-backend-secret"
+  secretStoreRef:
+    name: "aws-secretsmanager"
+    kind: "ClusterSecretStore"
+
+provider:
+  aws:
+    region: eu-north-1
+
+backend:
+  host: http://workload-backend-dev.backend-ns.svc.cluster.local
+  port: 8000

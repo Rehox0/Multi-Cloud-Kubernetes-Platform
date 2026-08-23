@@ -118,6 +118,7 @@ resource "aws_iam_role_policy" "management_terraform_apply" {
         Effect = "Allow"
         Action = [
           "ec2:Describe*",
+          "ec2:GetConsoleOutput",
           "eks:Describe*",
           "eks:List*",
           "eks:AccessKubernetesApi",
@@ -155,6 +156,45 @@ resource "aws_iam_role_policy" "management_eni_policy" {
         Action   = [
           "ec2:ModifyNetworkInterfaceAttribute",
           "ec2:DescribeNetworkInterfaces"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "management_ssm_access" {
+  name = "eks-management-ssm-access"
+  role = aws_iam_role.management_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "SSMDescribe"
+        Effect = "Allow"
+        Action = [
+          "ssm:DescribeInstanceInformation",
+          "ssm:StartSession",
+          "ssm:TerminateSession"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "SSMSession"
+        Effect = "Allow"
+        Action = [
+          "ssm:StartSession",
+          "ssm:TerminateSession",
+          "ssm:ResumeSession"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "SSMSendCommand"
+        Effect = "Allow"
+        Action = [
+          "ssm:SendCommand"
         ]
         Resource = "*"
       }

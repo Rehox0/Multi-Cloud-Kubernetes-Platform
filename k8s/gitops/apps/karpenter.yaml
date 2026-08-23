@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+spec:
+  project: infra-project
+  source:
+    repoURL: public.ecr.aws/karpenter
+    chart: karpenter
+    targetRevision: 1.9.1
+    helm:
+      values: |
+        settings:
+          clusterName: allegro-analytics-eks-dev-eks-cluster
+        serviceAccount:
+          create: true
+          name: karpenter
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/allegro-analytics-eks-dev-karpenter-controller-role
+        priorityClassName: prio-critical
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

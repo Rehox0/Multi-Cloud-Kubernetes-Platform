@@ -1,0 +1,24 @@
+crds:
+  enabled: true
+
+grafana:
+  enabled: true
+  priorityClassName: prio-medium
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    priorityClassName: prio-medium
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    priorityClassName: prio-medium
+
+kubeStateMetrics:
+  enabled: true
+  priorityClassName: prio-medium
+
+nodeExporter:
+  enabled: true
+  priorityClassName: prio-medium

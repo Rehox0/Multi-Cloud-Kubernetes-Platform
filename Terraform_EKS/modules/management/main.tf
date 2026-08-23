@@ -1,7 +1,7 @@
 resource "aws_launch_template" "management" {
   name_prefix   = "mgmt-template-"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = "t3.small"
 
   iam_instance_profile {
     name = var.instance_profile_name
@@ -26,12 +26,21 @@ resource "aws_launch_template" "management" {
 resource "aws_autoscaling_group" "management" {
   name                = "mgmt-asg"
   desired_capacity    = 1
-  max_size            = 1
+  max_size            = 2
   min_size            = 1
   vpc_zone_identifier = var.subnet_ids
 
-  launch_template {
-    id      = aws_launch_template.management.id
-    version = "$Latest"
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 100
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.management.id
+        version            = "$Latest"
+      }
+    }
   }
 }

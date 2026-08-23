@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            width: 100%;
+            padding: 10px 10px;
+            text-align: center;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 6px solid #ecf0f1;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 5px 10px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        pre {
+            background-color: #1e1e1e;
+            color: #9cdcfe;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+            overflow-x: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <!-- Change the src attribute to a link to your photo -->
+        <img src="default.png" alt="My Photo" class="profile-pic">
+        <h1 style="margin: -0.5em 0; font-size: 2em;">My Name</h1>
+        <p style="font-size: 1.2em; color: #bdc3c7;">My Title / My Role</p>
+    </div>
+
+    <div class="container">
+        <h2 style="margin-bottom: 30px;">API Endpoints</h2>
+        
+        <div class="buttons">
+            <button onclick="fetchData('video')">🎬 Video API</button>
+            <button onclick="fetchData('shop')">🛒 Shop API</button>
+            <button onclick="fetchData('payments')">💳 Payments API</button>
+        </div>
+        
+        <pre id="result">Press a button to fetch data from the backend (Django)...</pre>
+    </div>
+
+    <script>
+        function fetchData(endpoint) {
+            const resultBlock = document.getElementById('result');
+            resultBlock.style.color = '#d4d4d4';
+            resultBlock.innerText = "Loading data...";
+            
+            fetch(`/api/${endpoint}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(data => {
+                    resultBlock.innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(err => {
+                    console.error(err);
+                    resultBlock.style.color = '#ff6b6b';
+                    resultBlock.innerText = "An error occurred! Make sure the backend is responding.";
+                });
+        }
+    </script>
+</body>
+</html>
