@@ -44,7 +44,7 @@ variable "node_capacity_type" {
 
 variable "node_instance_types" {
   type    = list(string)
-  default = ["t3.small"]
+  default = ["m7i-flex.large"]
 }
 
 variable "node_max_unavailable" {

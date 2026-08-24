@@ -280,5 +280,18 @@ problems durning project:
             2/3 Node Ready, next 1/3
             
 
+12. Problem z losowym wylaczaniem sie Node:
+      inspekcja node when NotReady:
+      ssm to instacje ->  sh-5.2$ free -h
+      total 1.9Gi, free 60Mi.
+      Instancja jest za mała na tyle podów
 
-
+13. Problem z CoreDNS
+      coredns pody - running, NotReady
+      szybkie sprawdzenie logow.
+      problemem byla zmiana typu instancji.
+      problem z dopasowaniem konfiguracji do instancji.
+      sprawdzenie ip route na node:
+            default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
+      ens+ =/= enp
+      zmiana konfiguracji cilium
