@@ -24,21 +24,6 @@ architecture are planned as the next major phase.
 
 ---
 
-## 📍 Current Status
-- Amazon EKS
-- Cilium
-- Gateway API
-- ArgoCD / GitOps
-- Karpenter autoscaling
-- External Secrets Operator
-- Kyverno
-- Prometheus & Grafana
-- Backend and frontend workloads
-- Resource management and workload prioritization
-- Failure and autoscaling testing
-
----
-
 ## ▶️ Live / Demo
 > in progress...
 
