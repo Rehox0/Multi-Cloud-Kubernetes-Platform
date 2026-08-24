@@ -1,6 +1,6 @@
-deleted helm from tf to manage it from argoCD
+# The draft
+0. deleted helm from tf to manage it from argoCD
 
-problems durning project:
 1. problem with terraform apply: cilium, helm (k8s in private subnet, no public access)
 2. hard to find problem with cilium (wrong egressMasqueradeInterfaces. Eth =/= ens)
 
@@ -274,11 +274,24 @@ problems durning project:
       ✅✅✅ zmiana na compatible AMI ✅✅✅
       
 
-11. Problem z node - kubelet no response
-      Test:
-            create 30 pods -> cilium [429] putEndpointIdTooManyRequests
-            2/3 Node Ready, next 1/3
+11. Stress Test: kubelet no response
+        A deployment containing 30 Pods was created simultaneously on a cluster
+running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
+        2/3 Node Ready, next 1/3
             
 
+12. Problem z losowym wylaczaniem sie Node:
+      inspekcja node when NotReady:
+      ssm to instacje ->  sh-5.2$ free -h
+      total 1.9Gi, free 60Mi.
+      Instancja jest za mała na tyle podów
 
-
+13. Problem z CoreDNS
+      coredns pody - running, NotReady
+      szybkie sprawdzenie logow.
+      problemem byla zmiana typu instancji.
+      problem z dopasowaniem konfiguracji do instancji.
+      sprawdzenie ip route na node:
+            default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
+      ens+ =/= enp
+      zmiana konfiguracji cilium

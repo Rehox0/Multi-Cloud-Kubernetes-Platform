@@ -114,7 +114,7 @@ helm upgrade --install cilium cilium/cilium \
   --set tunnelProtocol=vxlan \
   --set kubeProxyReplacement=true \
   --set l7Proxy=true \
-  --set egressMasqueradeInterfaces="ens+" \
+  --set egressMasqueradeInterfaces="e+" \
   --set gatewayAPI.enabled=true \
   --set k8sServiceHost=$${CLUSTER_INFO}\
   --set k8sServicePort=443  
