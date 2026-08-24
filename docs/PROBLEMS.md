@@ -1,6 +1,6 @@
-deleted helm from tf to manage it from argoCD
+# The draft
+0. deleted helm from tf to manage it from argoCD
 
-problems durning project:
 1. problem with terraform apply: cilium, helm (k8s in private subnet, no public access)
 2. hard to find problem with cilium (wrong egressMasqueradeInterfaces. Eth =/= ens)
 
@@ -274,10 +274,10 @@ problems durning project:
       ✅✅✅ zmiana na compatible AMI ✅✅✅
       
 
-11. Problem z node - kubelet no response
-      Test:
-            create 30 pods -> cilium [429] putEndpointIdTooManyRequests
-            2/3 Node Ready, next 1/3
+11. Stress Test: kubelet no response
+        A deployment containing 30 Pods was created simultaneously on a cluster
+running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
+        2/3 Node Ready, next 1/3
             
 
 12. Problem z losowym wylaczaniem sie Node:
@@ -295,47 +295,3 @@ problems durning project:
             default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
       ens+ =/= enp
       zmiana konfiguracji cilium
-
-### Azure - Frontend Platform
-- [ ] Azure networking
-- [ ] Azure resource groups
-- [ ] Azure AKS / frontend compute platform
-- [ ] Frontend container deployment
-- [ ] Azure Container Registry
-- [ ] Frontend CI/CD
-- [ ] Azure ingress
-- [ ] HTTPS / TLS
-- [ ] Azure monitoring
-
-### Multi-Cloud Connectivity
-- [ ] Design Azure - AWS network architecture
-- [ ] Establish private connectivity between Azure and AWS
-- [ ] Define routing between cloud networks
-- [ ] Secure backend API access from Azure
-- [ ] Restrict backend access to trusted frontend infrastructure
-- [ ] Configure DNS across cloud environments
-- [ ] Configure TLS for cross-cloud communication
-- [ ] Test connectivity and failover scenarios
-
-### Multi-Cloud Security
-- [ ] Azure Managed Identity
-- [ ] Azure Key Vault
-- [ ] Cross-cloud identity strategy
-- [ ] Network-level access restrictions
-- [ ] Private backend API access
-- [ ] TLS between cloud environments
-- [ ] Expanded Kyverno security policies
-
-### Multi-Cloud Observability
-- [ ] Azure infrastructure metrics
-- [ ] Frontend application metrics
-- [ ] Centralized multi-cloud dashboards
-- [ ] Cross-cloud alerting
-- [ ] Application latency monitoring
-- [ ] End-to-end request monitoring
-
-### Multi-Cloud Reliability
-- [ ] Azure frontend failure testing
-- [ ] AWS backend failure testing
-- [ ] Cross-cloud connectivity failure testing
-- [ ] Backend recovery testing
