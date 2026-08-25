@@ -1,0 +1,96 @@
+name: Terraform Checks
+
+on:
+  pull_request:
+    paths:
+      - 'Terraform_EKS/**'
+      - '.github/workflows/terraform-check.yaml'
+  push:
+    branches:
+      - main
+      - testing
+    paths:
+      - 'Terraform_EKS/**'
+      - '.github/workflows/terraform-check.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  fmt:
+    name: Terraform fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+
+  validate:
+    name: Terraform validate (${{ matrix.env_dir }})
+    needs: fmt
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env_dir:
+          - Terraform_EKS/envs/dev
+          - Terraform_EKS/envs/staging
+          - Terraform_EKS/envs/prod
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+
+      - name: Terraform init (backend disabled)
+        working-directory: ${{ matrix.env_dir }}
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform validate
+        working-directory: ${{ matrix.env_dir }}
+        run: terraform validate
+
+  security:
+    name: Terraform security/static checks
+    needs: fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.64.0
+
+      - name: TFLint init
+        run: tflint --init
+
+      - name: TFLint
+        run: tflint --recursive --format compact
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.2.0
+        with:
+          working_directory: Terraform_EKS
+          tfsec_args: --force-all-dirs
