@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: rehox0/portfolio-frontend
+  repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-frontend
   tag: latest
 
 service:

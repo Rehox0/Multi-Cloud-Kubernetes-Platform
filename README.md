@@ -128,13 +128,10 @@ architecture are planned as the next major phase.
 
 
 ### 🔄 CI/CD & GitOps (AWS)
-
-Goal: full path from commit to running pod, no manual image builds/pushes.
-
 - [x] GitHub Actions - build & test
 - [x] Container image build
 - [x] Push to Amazon ECR
-- [ ] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
+- [x] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
 - [x] ArgoCD
 - [x] GitOps deployment
 - [ ] Deployment verification (health checks post-sync)

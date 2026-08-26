@@ -49,3 +49,91 @@ jobs:
         if: always()
         run: |
           docker rm -f frontend-test || true
+
+    push-to-ecr:
+      name: Push frontend image to ECR
+      needs: frontend-ci
+
+      if: github.event_name == 'push' &&
+          (github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main')
+
+      runs-on: ubuntu-latest
+      environment: dev
+
+      permissions:
+        contents: write
+        id-token: write
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+            aws-region: ${{ env.AWS_REGION }}
+            role-session-name: gha-frontend-${{ github.run_id }}
+
+        - name: Login to Amazon ECR
+          id: ecr-login
+          uses: aws-actions/amazon-ecr-login@v2
+
+        - name: Build Docker image
+          env:
+            REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker build \
+              -t $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+              ./frontend
+
+        - name: Push Docker image
+          env:
+            REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker push \
+              $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+        - name: Update Helm image tag
+          env:
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            python - <<'PY'
+            from pathlib import Path
+            import os
+            import re
+
+            path = Path("k8s/gitops/workloads/frontend/values-dev.yaml")
+
+            content = path.read_text()
+
+            content, count = re.subn(
+                r'(^\s*tag:\s*).*$',
+                rf'\g<1>{os.environ["IMAGE_TAG"]}',
+                content,
+                count=1,
+                flags=re.MULTILINE,
+            )
+
+            if count != 1:
+                raise RuntimeError("Could not find image.tag in values.yaml")
+
+            path.write_text(content)
+            PY
+
+        - name: Commit updated image tag
+          run: |
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            git add k8s/gitops/workloads/frontend/values-dev.yaml
+
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              exit 0
+            fi
+
+            git commit -m "ci: update frontend image to ${{ github.sha }}"
+            git push
