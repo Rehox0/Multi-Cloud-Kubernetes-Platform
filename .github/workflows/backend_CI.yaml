@@ -90,13 +90,8 @@ jobs:
           done
 
           echo "Backend failed health check"
-          docker logs backend
+          docker logs backend-test
           exit 1
-
-      - name: Show container logs
-        if: always()
-        run: docker logs backend
-
 
       - name: Cleanup
         if: always()
