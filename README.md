@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>Allegro Profit & Margin Analytics on EKS</h1>
-  <p>Portfolio project demonstrating production-oriented Kubernetes platform engineering on AWS</p>
+  <h1>Multi-Cloud Kubernetes Platform</h1>
+  <p>Portfolio project demonstrating production-oriented Kubernetes platform engineering on AWS and Azure</p>
 </div>
 
 [![AWS](https://custom-icon-badges.demolab.com/badge/AWS-%23FF9900.svg?logo=aws&logoColor=white)](#)
