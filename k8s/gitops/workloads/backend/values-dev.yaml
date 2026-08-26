@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-backend
-  tag: v1.0.0
+  tag: 6280ce7e0a9491a5b7d0816cc855d438c276e56c
 
 serviceAccount:
   create: false
