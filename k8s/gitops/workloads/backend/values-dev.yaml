@@ -1,7 +1,7 @@
 replicaCount: 3
 
 image:
-  repository: rehox0/portfolio-backend
+  repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-backend
   tag: v1.0.0
 
 serviceAccount:

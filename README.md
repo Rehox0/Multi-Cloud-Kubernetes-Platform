@@ -124,16 +124,16 @@ architecture are planned as the next major phase.
 - [x] Cilium Cluster Pool IPAM
 - [x] Cilium Gateway API
 - [x] AWS Secrets Manager
-- [ ] ECR
+- [x] ECR
 
 
 ### 🔄 CI/CD & GitOps (AWS)
 
 Goal: full path from commit to running pod, no manual image builds/pushes.
 
-- [ ] GitHub Actions - build & test
-- [ ] Container image build
-- [ ] Push to Amazon ECR
+- [x] GitHub Actions - build & test
+- [x] Container image build
+- [x] Push to Amazon ECR
 - [ ] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
 - [x] ArgoCD
 - [x] GitOps deployment
