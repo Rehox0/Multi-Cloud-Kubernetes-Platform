@@ -80,7 +80,7 @@ jobs:
       - name: Backend health check
         run: |
           for i in {1..30}; do
-            if curl --fail http://localhost:8000/health; then
+            if curl --fail http://localhost:8000/api/health; then
               echo "Backend is healthy"
               exit 0
             fi
@@ -97,7 +97,7 @@ jobs:
         if: always()
         run: docker logs backend
 
-        
+
       - name: Cleanup
         if: always()
         run: |
