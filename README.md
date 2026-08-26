@@ -63,9 +63,8 @@ architecture are planned as the next major phase.
 
 ## 🔄 CI/CD
 - **ArgoCD (~10 apps):** - Kyverno, Karpenter, ESO, Gateway, Monitoring, Backend, Frontend
-- **Frontend:** - GitHub ➔ CI ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
-- **Backend:** - GitHub ➔ CI ➔ tests ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
 
+> in progress...
 ---
 
 ## ⭐ Code Highlights
@@ -135,8 +134,8 @@ architecture are planned as the next major phase.
 - [x] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
 - [x] ArgoCD
 - [x] GitOps deployment
-- [x] Deployment health monitoring via ArgoCD
-- [ ] Rollback strategy and recovery testing
+- [ ] Deployment verification (health checks post-sync)
+- [ ] Rollback strategy (ArgoCD rollback / progressive delivery)
 
 
 ### 🔐 Security
