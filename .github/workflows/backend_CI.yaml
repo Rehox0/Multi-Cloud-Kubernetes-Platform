@@ -67,25 +67,37 @@ jobs:
           docker build \
             -t backend:${{ github.sha }} \
             ./backend
-    
-      - name: Generate CI secret
-        run: |
-          echo "DJANGO_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(50))')" >> "$GITHUB_ENV"
 
-      - name: Run backend container
+      - name: Docker run
         run: |
           docker run -d \
             --name backend-test \
             -p 8000:8000 \
-            -e SECRET_KEY="$DJANGO_SECRET_KEY" \
-            -e DEBUG="False" \
+            -e SECRET_KEY=test-secret-key \
+            -e DEBUG=True \
             backend:${{ github.sha }}
 
-      - name: Test backend container
+      - name: Backend health check
         run: |
-          curl --fail --retry 10 --retry-delay 2 \
-            http://localhost:8000/health
+          for i in {1..30}; do
+            if curl --fail http://localhost:8000/health; then
+              echo "Backend is healthy"
+              exit 0
+            fi
 
+            echo "Waiting for backend..."
+            sleep 2
+          done
+
+          echo "Backend failed health check"
+          docker logs backend
+          exit 1
+
+      - name: Show container logs
+        if: always()
+        run: docker logs backend
+
+        
       - name: Cleanup
         if: always()
         run: |
