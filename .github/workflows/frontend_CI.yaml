@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+env:
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY: portfolio-frontend
+
 jobs:
   frontend-ci:
     name: Frontend CI
