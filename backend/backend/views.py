@@ -8,3 +8,6 @@ def shop(request):
 
 def payments(request):
     return JsonResponse({"module": "Payments", "status": "Gateway ready", "balance": 150.00})
+
+def health(request):
+    return JsonResponse({"status": "ok"})

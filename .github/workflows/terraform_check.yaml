@@ -4,14 +4,14 @@ on:
   pull_request:
     paths:
       - 'Terraform_EKS/**'
-      - '.github/workflows/terraform-check.yaml'
+      - '.github/workflows/terraform_check.yaml'
   push:
     branches:
       - main
       - testing
     paths:
       - 'Terraform_EKS/**'
-      - '.github/workflows/terraform-check.yaml'
+      - '.github/workflows/terraform_check.yaml'
 
 permissions:
   contents: read

@@ -1,0 +1,51 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_CI.yaml'
+  push:
+    branches:
+      - main
+      - testing
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_CI.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-ci:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate frontend files
+        run: |
+          test -s frontend/index.html
+          test -s frontend/default.png
+
+      - name: Docker build
+        run: docker build -t frontend:${{ github.sha }} ./frontend
+      
+      - name: Run container
+        run: |
+          docker run -d --name frontend-test -p 8080:80 frontend:${{ github.sha }}
+
+      - name: Test frontend
+        run: |
+          sleep 3
+          curl --fail http://localhost:8080/
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f frontend-test || true
