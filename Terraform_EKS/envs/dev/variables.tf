@@ -86,3 +86,13 @@ variable "node_max_pods" {
   type        = number
   default     = 11
 }
+
+
+variable "ecr_repository_names" {
+  type = list(string)
+
+  default = [
+    "portfolio-backend",
+    "portfolio-frontend"
+  ]
+}

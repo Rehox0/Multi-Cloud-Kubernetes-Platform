@@ -60,8 +60,10 @@ module "vpc_endpoints" {
 
 module "iam" {
   source                         = "../../modules/iam"
+  aws_region                     = var.aws_region
   project_name                   = var.project_name
   cluster_name                   = module.eks.cluster_name
+  ecr_repository_names           = var.ecr_repository_names
   eks_oidc_url                   = module.eks.eks_oidc_url
   secret_arn                     = data.aws_secretsmanager_secret.infra_project.arn
   eks_console_user_principal_arn = var.eks_console_user_principal_arn

@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: rehox0/portfolio-frontend
-  tag: latest
+  repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-frontend
+  tag: d7e27f3452e9c2c5b5a6cc42850912e450aafb0e
 
 service:
   type: ClusterIP

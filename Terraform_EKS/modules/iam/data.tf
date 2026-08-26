@@ -63,3 +63,9 @@ data "aws_iam_policy_document" "alb_controller" {
     resources = ["*"]
   }
 }
+
+data "tls_certificate" "github_actions" {
+  url = "https://token.actions.githubusercontent.com"
+}
+
+data "aws_caller_identity" "current" {}

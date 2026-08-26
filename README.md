@@ -98,53 +98,25 @@ architecture are planned as the next major phase.
 
 ---
 
-## 🎯 Final Goal
-
-Provide a production-oriented Kubernetes platform on AWS and Azure demonstrating:
-
-- Infrastructure as Code
-- Kubernetes platform engineering
-- GitOps end-to-end (build -> registry -> deploy)
-- Automated infrastructure scaling
-- Cloud-native networking
-- Secrets management
-- Kubernetes security
-- Observability
-- High availability
-- Failure recovery & disaster recovery
-- Cost visibility (FinOps basics)
-
-Multi-cloud (Azure) extension is a future phase, started only after the AWS platform below is fully complete
-
----
-
 ## ✅ Checkbox
 
-### ☁️ AWS - Backend
+### ☁️ AWS
 - [x] AWS VPC
-- [x] Multi-AZ networking
+- [x] S3 remote state
 - [x] Amazon EKS
+- [x] Multi-AZ networking
 - [x] Cilium CNI
 - [x] Cilium Cluster Pool IPAM
 - [x] Cilium Gateway API
 - [x] AWS Secrets Manager
-- [x] External Secrets Operator
-- [x] Karpenter
-- [x] ArgoCD
-- [x] Kyverno
-- [x] Prometheus
-- [x] Grafana
-- [x] Backend application deployment
+- [x] ECR
 
 
 ### 🔄 CI/CD & GitOps (AWS)
-
-Goal: full path from commit to running pod, no manual image builds/pushes.
-
-- [ ] GitHub Actions — build & test
-- [ ] Container image build
-- [ ] Push to Amazon ECR
-- [ ] Automated image tag update (e.g. ArgoCD Image Updater / GitOps commit step)
+- [x] GitHub Actions - build & test
+- [x] Container image build
+- [x] Push to Amazon ECR
+- [x] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
 - [x] ArgoCD
 - [x] GitOps deployment
 - [ ] Deployment verification (health checks post-sync)
@@ -152,10 +124,9 @@ Goal: full path from commit to running pod, no manual image builds/pushes.
 
 
 ### 🔐 Security
-- [x] IAM-based AWS access
-- [x] AWS Secrets Manager
-- [x] External Secrets Operator
 - [x] Kyverno
+- [x] External Secrets Operator
+- [x] IAM-based AWS access
 - [x] Kubernetes PriorityClasses
 - [ ] Resource requests and limits
 - [ ] PodDisruptionBudgets
@@ -170,7 +141,7 @@ Goal: full path from commit to running pod, no manual image builds/pushes.
 - [x] Alertmanager
 - [x] kube-state-metrics
 - [x] Node Exporter
-- [x] Kubernetes dashboards
+- [ ] Kubernetes dashboards
 - [ ] Application-level metrics (custom exporters / business KPIs)
 - [ ] Centralized logging (e.g. Loki or CloudWatch Logs)
 - [ ] Distributed tracing (basic, e.g. OpenTelemetry + Tempo)
@@ -183,10 +154,11 @@ Goal: full path from commit to running pod, no manual image builds/pushes.
 - [ ] Documented cost trade-offs in README
 
 ### 🧪 Reliability & Disaster Recovery
-- [x] Pod failure testing
-- [x] Node failure testing
+- [x] Karpenter
 - [x] Karpenter scale-up testing
 - [x] Karpenter scale-down testing
+- [x] Pod failure testing
+- [x] Node failure testing
 - [x] Workload rescheduling
 - [ ] Database backup and restore testing
 - [ ] Disaster recovery procedure (documented runbook)
@@ -194,10 +166,11 @@ Goal: full path from commit to running pod, no manual image builds/pushes.
 - [ ] RPO definition
 
 ### 📖 Documentation & Presentation
-- [ ] Architecture diagram (current AWS-only state)
+- [ ] Architecture diagram
 - [ ] README: design decisions and trade-offs (why Cilium, why Karpenter, why Kyverno)
 - [ ] README: known limitations / what's intentionally not done yet
 - [ ] Short demo video (deploy flow: commit → CI → ArgoCD sync → running pod)
+- [ ] Clean code
 
 
 ## 🌐 Phase 2 - Multi-Cloud Extension (Azure)
@@ -214,8 +187,6 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [ ] Azure ingress
 - [ ] HTTPS / TLS
 - [ ] Azure monitoring
-
----
 
 - [ ] Multi-Cloud Connectivity
 - [ ] Multi-Cloud Security
