@@ -29,6 +29,7 @@ architecture are planned as the next major phase.
 - Cilium
 - Gateway API
 - ArgoCD / GitOps
+- CI/CD
 - Karpenter autoscaling
 - External Secrets Operator
 - Kyverno
@@ -54,7 +55,7 @@ architecture are planned as the next major phase.
 ---
 
 ## 🏗️ Architecture diagram
-- **Infrastructure as Code using Terraform (~100 resources)** - networking, compute, security, scaling, and observability.
+- **Infrastructure as Code using Terraform (+100 resources)** - networking, compute, security, scaling, and observability.
 - **Remote state** stored in S3 with AES-256 encryption; single `terraform.tfstate` scoped to `eu-north-1`.
 - **Security Groups** enforce strict inbound/outbound rules between layers
 
@@ -65,7 +66,7 @@ architecture are planned as the next major phase.
 - **ArgoCD (~10 apps):** - Kyverno, Karpenter, ESO, Gateway, Monitoring, Backend, Frontend
 - **Frontend:** - GitHub ➔ CI ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
 - **Backend:** - GitHub ➔ CI ➔ tests ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
-
+- **Rollback:** - ⛔Failed deployment ➔ ⛔degraded Pod + healthy replicas✅ ➔ Git revert ➔ ArgoCD reconciliation ➔ recovery
 ---
 
 ## ⭐ Code Highlights
@@ -132,11 +133,11 @@ architecture are planned as the next major phase.
 - [x] GitHub Actions - build & test
 - [x] Container image build
 - [x] Push to Amazon ECR
-- [x] Automated image tag update (ArgoCD Image Updater / GitOps commit step)
+- [x] Automated image tag update
 - [x] ArgoCD
 - [x] GitOps deployment
 - [x] Deployment health monitoring via ArgoCD
-- [ ] Rollback strategy and recovery testing
+- [x] Rollback strategy and recovery testing
 
 
 ### 🔐 Security
@@ -149,7 +150,10 @@ architecture are planned as the next major phase.
 - [ ] Cilium Network Policies (L3-L7, namespace isolation)
 - [ ] Pod Security Standards / restricted profile
 - [ ] Image scanning in CI (e.g. Trivy)
-- [ ] Kyverno policy expansion (disallow privileged, enforce resource limits, require labels)
+- [ ] Kyverno policy expansion
+      - [ ] Disallow privileged containers
+      - [ ] Enforce resource requests and limits
+      - [ ] Require mandatory labels
 
 ### 📊 Observability
 - [x] Prometheus
