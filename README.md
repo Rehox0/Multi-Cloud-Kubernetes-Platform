@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Multi-cloud Kubernetes Platform</h1>
+  <h1>Multi-Cloud Kubernetes Platform</h1>
   <p>Portfolio project demonstrating production-oriented Kubernetes platform engineering on AWS and Azure</p>
 </div>
 
