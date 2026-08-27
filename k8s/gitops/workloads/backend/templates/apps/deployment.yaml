@@ -4,8 +4,6 @@ metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  minAvailable: 2
-  maxUnavailable: 2
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
