@@ -8,7 +8,7 @@ metadata:
 spec:
   project: infra-project
   source:
-    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+    repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
     targetRevision: testing
     path: k8s/gitops/infra/kyverno/policy
   destination:

@@ -1,12 +1,13 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-backend-ingress
+  name: backend-policy
   namespace: backend-ns
 spec:
   endpointSelector:
     matchLabels:
       app: workload-backend-dev
+
   ingress:
     # Frontend
     - fromEndpoints:
@@ -19,10 +20,24 @@ spec:
               protocol: TCP
             - port: "9999"
               protocol: UDP
+
     # Cilium Gateway / Envoy
     - fromEntities:
         - ingress
       toPorts:
         - ports:
             - port: "8000"
+              protocol: TCP
+
+  egress:
+    # DNS
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
               protocol: TCP

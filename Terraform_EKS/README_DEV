@@ -29,8 +29,8 @@ kubectl rollout restart deployment coredns -n kube-system
 k rollout restart -n external-secrets deployment
 
 
-git clone -b testing https://github.com/Rehox0/allegro-analytics-eks.git
-kubectl apply -f ~/allegro-analytics-eks/k8s/gitops/root/root-app.yaml
+git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
+kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/root-app.yaml
 k rollout restart -n argocd deployment
 k rollout restart -n argocd statefulset
 
@@ -43,9 +43,9 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 ##ArgoCD UI
 <!-- Locally run: -->
 aws ssm start-session \
-  --target i-xxxxxxxxxxxxxx \
   --document-name AWS-StartPortForwardingSession \
-  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
+  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}' \
+  --target i-xxxxxxxxxxxxxx
 
 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
@@ -62,6 +62,8 @@ aws ssm start-session \
   --parameters '{"portNumber":["3000"],"localPortNumber":["3000"]}'
 
 kubectl get secret -n monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
+
+
 
 
 <!-- there would be state drift so commet these resources -->

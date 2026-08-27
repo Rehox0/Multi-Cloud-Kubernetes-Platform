@@ -62,6 +62,12 @@
             background-color: #2980b9;
             transform: translateY(-2px);
         }
+        button.health {
+            background-color: #27ae60;
+        }
+        button.health:hover {
+            background-color: #219150;
+        }
         pre {
             background-color: #1e1e1e;
             color: #9cdcfe;
@@ -78,7 +84,6 @@
 <body>
 
     <div class="header">
-        <!-- Change the src attribute to a link to your photo -->
         <img src="default.png" alt="My Photo" class="profile-pic">
         <h1 style="margin: -0.5em 0; font-size: 2em;">My Name</h1>
         <p style="font-size: 1.2em; color: #bdc3c7;">My Title / My Role</p>
@@ -91,6 +96,7 @@
             <button onclick="fetchData('video')">🎬 Video API</button>
             <button onclick="fetchData('shop')">🛒 Shop API</button>
             <button onclick="fetchData('payments')">💳 Payments API</button>
+            <button class="health" onclick="healthCheck()">❤️ Health Check</button>
         </div>
         
         <pre id="result">Press a button to fetch data from the backend (Django)...</pre>
@@ -108,6 +114,7 @@
                     return response.json();
                 })
                 .then(data => {
+                    resultBlock.style.color = '#9cdcfe';
                     resultBlock.innerText = JSON.stringify(data, null, 2);
                 })
                 .catch(err => {
