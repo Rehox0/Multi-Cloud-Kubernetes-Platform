@@ -12,7 +12,7 @@ variable "common_tags" {
   type        = map(string)
   description = "Standard tags for all assets in the project"
   default = {
-    Project     = "allegro-analytics-eks"
+    Project     = "Multi-Cloud-Kubernetes-Platform"
     Environment = "dev"
     ManagedBy   = "Terraform"
   }

@@ -12,12 +12,12 @@ spec:
     helm:
       values: |
         settings:
-          clusterName: allegro-analytics-eks-dev-eks-cluster
+          clusterName: Multi-Cloud-Kubernetes-Platform-eks-cluster
         serviceAccount:
           create: true
           name: karpenter
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/allegro-analytics-eks-dev-karpenter-controller-role
+            eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/Multi-Cloud-Kubernetes-Platform-karpenter-controller-role
         priorityClassName: prio-critical
         serviceMonitor:
           enabled: true

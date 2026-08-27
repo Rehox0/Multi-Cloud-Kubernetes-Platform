@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Project name"
   type        = string
-  default     = "allegro-analytics-aks"
+  default     = "Multi-Cloud-Kubernetes-Platform"
 }
 
 variable "location" {

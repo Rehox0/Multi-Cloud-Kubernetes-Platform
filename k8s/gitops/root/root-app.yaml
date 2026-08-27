@@ -8,7 +8,7 @@ spec:
   sourceRepos:
     - 'https://kyverno.github.io/kyverno/'
     - 'https://charts.external-secrets.io'
-    - 'https://github.com/Rehox0/allegro-analytics-eks.git'
+    - 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
     - 'public.ecr.aws/karpenter'
     - 'https://prometheus-community.github.io/helm-charts'
   destinations:
@@ -29,7 +29,7 @@ spec:
   project: infra-project
 
   source:
-    repoURL: https://github.com/Rehox0/allegro-analytics-eks.git
+    repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
     targetRevision: testing
     path: k8s/gitops/apps
 

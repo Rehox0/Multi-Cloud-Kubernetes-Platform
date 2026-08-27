@@ -13,7 +13,7 @@ spec:
       helm:
         valueFiles:
             - $values/k8s/gitops/infra/monitoring/values.yaml
-    - repoURL:  'https://github.com/Rehox0/allegro-analytics-eks.git'
+    - repoURL:  'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
       targetRevision: testing
       ref: values
   destination:

@@ -7,15 +7,15 @@ spec:
   amiSelectorTerms:
     - id: ami-0c11219423ce00ad3
 
-  role: allegro-analytics-eks-dev-karpenter-node-role
+  role: Multi-Cloud-Kubernetes-Platform-karpenter-node-role
 
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: allegro-analytics-eks-dev-eks-cluster
+        karpenter.sh/discovery: Multi-Cloud-Kubernetes-Platform-eks-cluster
 
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: allegro-analytics-eks-dev-eks-cluster
+        karpenter.sh/discovery: Multi-Cloud-Kubernetes-Platform-eks-cluster
   tags:
-    Name: allegro-analytics-eks-dev-karpenter
-    karpenter.sh/discovery: allegro-analytics-eks-dev-eks-cluster
+    Name: Multi-Cloud-Kubernetes-Platform-karpenter
+    karpenter.sh/discovery: Multi-Cloud-Kubernetes-Platform-eks-cluster

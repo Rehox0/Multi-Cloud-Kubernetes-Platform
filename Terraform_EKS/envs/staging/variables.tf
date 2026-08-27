@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Name for the project"
   type        = string
-  default     = "allegro-analytics-eks-staging"
+  default     = "Multi-Cloud-Kubernetes-Platform"
 }
 
 variable "aws_region" {
@@ -14,7 +14,7 @@ variable "common_tags" {
   type        = map(string)
   description = "Standard tags for all assets in the project"
   default = {
-    Project     = "allegro-analytics-eks-staging"
+    Project     = "Multi-Cloud-Kubernetes-Platform"
     Environment = "staging"
     ManagedBy   = "Terraform"
   }
