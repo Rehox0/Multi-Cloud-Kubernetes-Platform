@@ -1,146 +1,123 @@
 # The draft
-0. deleted helm from tf to manage it from argoCD
+# Troubleshooting & Engineering Challenges
 
-1. problem with terraform apply: cilium, helm (k8s in private subnet, no public access)
-2. hard to find problem with cilium (wrong egressMasqueradeInterfaces. Eth =/= ens)
+This document records the main technical problems encountered while building
+and operating the Kubernetes platform.
 
-3. problem with ArgoCD - ESO: wrong SG for Cilium ENIs
-4. InvalidProviderConfig:
+The goal is not to document every minor configuration issue, but to capture
+problems that required meaningful investigation, debugging, or architectural
+changes.
+
+## 1. Terraform apply + Cluster in Private Subnets
+```
+### Problem
+
+Terraform was unable to install/configure Kubernetes and Helm resources during
+the initial Terraform apply.
+
+The Kubernetes API and workloads were running in private networking, while
+Terraform was executing from outside the VPC.
+
+### Resolution
+
+Kubernetes/Helm resources were separated from the initial Terraform bootstrap
+and later moved to ArgoCD/GitOps management.
+
+### Lesson Learned
+
+Infrastructure provisioning and Kubernetes application/platform management have
+different networking and lifecycle requirements.
+```
+
+## 2. Cilium Egress Masquerading Interface
+```
+### Problem
+
+Cilium networking was not behaving as expected after enabling native routing.
+
+### Resolution
+
+The configured `egressMasqueradeInterfaces` did not match the actual network
+interface used by the EC2 nodes.
+
+The configuration assumed:
+ens+
+while the node interface was:
+enp39s0
+
+### Lesson Learned
+
+Never assume Linux network interface naming. Verify the actual interface with
+ip route, ip addr, or similar tools before configuring CNI networking.
+```
+
+## 3. ArgoCD / ESO - AWS SG connectivity
+### Problem
+
+External Secrets Operator could not obtain AWS credentials through IRSA.
+ArgoCD reported an invalid provider configuration. 
+
+### Investigation
+InvalidProviderConfig:
+```
       failed to refresh cached credentials, failed to retrieve credentials, operation error STS: AssumeRoleWithWebIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post "https://sts.eu-north-1.amazonaws.com/": dial tcp 10.0.12.31:443: i/o timeout
+```
+      kube-apiserver ➔ webhook ❌
       Wrong certificates?
-      DNS ✅
-      Service ✅
-      Endpoint ✅
+      DNS           ✅
+      K8s Service   ✅
+      Endpoints     ✅
       TLS handshake ✅
-      cert SAN ✅
-      CA  ✅
       webhook:
-      Secret z certem	✅
-      Deployment używa tego Secretu	✅
-      caBu    ndle == ca.crt	✅
-      Service nazwa	✅
-      Service działa ✅
-      Namespace	✅
-      SAN certu	✅
-      Endpoint odpowiada	✅
-      klient dotarł do webhooka ✅
-      TCP działa ✅
-      ale klient odrzuca certyfikat webhooka ❌
+            cert SAN  ✅
+            CA        ✅
+            Secret    ✅
+            Deployment✅
+            Endpoint  ✅
+            response  ✅
+      Service name      ✅
+      Namespace	        ✅
+      Endpoint response	✅
+      client ➔ webhooka ✅
+      TCP               ✅
+      kube-apiserver ➔ Service external-secrets-operator-webhook ➔ Pod external-secrets-webhook ✅ 
+      diff ca.crt webhook-ca.crt ✅.
+      Network, Service, Endpoints & TLS ✅
 
-      kube-apiserver
-            |
-            | HTTPS :443
-            v
-      Service external-secrets-operator-webhook
-            |
-            | targetPort webhook -> 10250
-            v
-      Pod external-secrets-webhook
-      ✅
-      diff ca.crt webhook-ca.crt ✅
+      API Server ➔ Service 172.20.243.138:443 ➔ Pod 10.0.11.164:10250
+      [] check: AWS STS connectivity IRSA
 
-      To nie jest to klasyczny problem CA mismatch
-
-      kube-apiserver
-            |
-            | TLS verify webhook cert
-            X
-      webhook
-
-      webhook odpowiada ✅
-      caBundle w ValidatingWebhookConfiguration jest ustawiony ✅
-      webhook nasłuchuje na:
-      containerPort 10250
-      name webhook
-      webhook config wskazuje:
-      service: external-secrets-operator-webhook
-      port: 443
-      path: /validate-external-secrets-io-v1-externalsecret
-
-      Czyli problem raczej nie jest już w CA.
-
-      Sieć, Service, Endpointy i TLS działają. ✅
-
-      API Server
-      |
-      v
-      Service 172.20.243.138:443
-      |
-      v
-      Pod 10.0.11.164:10250
-
-      i TLS:
-
-      CN=external-secrets-operator-webhook.external-secrets.svc
-      SAN:
-      external-secrets-operator-webhook.external-secrets.svc
-
-      webhook działa, cert działa, Service działa, ale był moment startu gdzie Secret z certem nie był jeszcze zamontowany
-
-      Podsumowanie:
-
-      ✅ webhook Service OK
-      ✅ endpoint OK
-      ✅ cert SAN OK
-      ✅ caBundle OK
-      ✅ TLS działa
-      ❌ problem teraz jest AWS STS connectivity dla IRSA
-
-      Webhook jest w 100% OK.
-
-      HTTP/1.1 200 OK
-
-      {"response":{"uid":"","allowed":false,"status":{"metadata":{},"message":"request body is empty","code":400}}}
-
-      ✅ DNS Service działa
-      ✅ ClusterIP działa
-      ✅ kube-proxy/Cilium routing działa
-      ✅ TLS handshake działa
-      ✅ cert SAN pasuje
-      ✅ caBundle prawdopodobnie pasuje
-      ✅ webhook process działa
-
-      DNS i endpoint STS działają, ale TCP 443 do VPC Endpointu nie przechodzi.
+      ✅ ClusterIP
+      ✅ kube-proxy/Cilium routing
+      ✅ DNS & endpoint STS
+      ❌ TCP 443 ➔ VPC Endpoint
 
       Endpoint SG inbound:
       ✅ sg-02e1fb4ec9295872c
       ❌ sg-085e462b302b47fca
 
-      TLS jeszcze nie dochodzi ❌
+      To check:
+      [] NACL subnets endpoints
+      [] route table subnets
+      [] Cilium egress policy / BPF
+      [] SG for ENI
 
-      Zostały:
-
-      NACL subnetów endpointów
-      route table subnetów
-      Cilium egress policy / BPF
-      SG przypisany do ENI nie jest tym, który myślimy
-
-      ✅ VPC Endpoint ENI mają poprawny SG:
+      ✅ VPC Endpoint ENI SG:
 
       10.0.10.171 -> sg-03ee5f8c0790c08ba
       10.0.11.238 -> sg-03ee5f8c0790c08ba
       10.0.12.31  -> sg-03ee5f8c0790c08ba
 
-      ✅ Endpoint SG ma ingress:
+      ✅ Endpoint SG ingress:
 
       sg-02e1fb4ec9295872c (nodes)
       sg-0a9108dda1e42ce13 (cilium)
 
-      Pod
-      |
-      | source SG = sg-085e462b302b47fca
-      |
-      v
-      VPC Endpoint ENI
-      |
-      | sg-03ee5f8c0790c08ba
-      |
-      X  BLOCK
-
-      brak: sg-085e462b302b47fca -> sg-03ee5f8c0790c08ba :443
+      ❌ Pod ➔ (sg-085e462b302b47fca) ➔ VPC Endpoint ENI (sg-03ee5f8c0790c08ba)
+      ❌ sg-085e462b302b47fca -> sg-03ee5f8c0790c08ba :443
 
 
-      node SG ≠ pod ENI SG
+      ✅✅✅✅✅ node SG ≠ pod ENI SG ✅✅✅✅✅
 
       VPC Endpoint SG
             |
@@ -149,8 +126,6 @@
             +-- sg-0a9108dda1e42ce13  (Cilium ENI)
             |
             +-- sg-085e462b302b47fca  (EKS cluster/pod traffic)
-
-      SG cilium_enis nie jest używany przez żaden ENI.
 
       Pod (10.0.10.41)
             |
@@ -165,22 +140,6 @@
             |
       VPC Endpoint ENI (10.0.10.171)
 
-
-      Pod 10.0.10.41
-            |
-            |
-      veth
-            |
-      Node 10.0.10.167
-            |
-            |
-      AWS VPC
-            |
-            |
-      Interface Endpoint 10.0.10.171
-
-      Cilium nie blokuje ruchu. Problem jest niżej — routing / AWS networking / NAT do VPC endpointów STS.
-
       NetworkPolicy ✅
       Cilium policy ✅
       kube-proxy replacement ✅
@@ -188,10 +147,11 @@
 
       Connection timed out: Pod & Node (curl -v --connect-timeout 5 https://sts.eu-north-1.amazonaws.com)
       NACL inbound & outbound [*]
-      route tables OK
+      route tables ✅
 
+      Next approach:
+      
       Flow Logs: ENI(10.0.12.31) ->
-
       @timestamp	srcAddr	dstAddr	srcPort	dstPort	protocol	action	logStatus
             2026-08-07T16:33:07.000Z	10.0.10.201	10.0.12.31	42838	443	6	REJECT	OK
             2026-08-07T16:30:47.000Z	10.0.10.121	10.0.12.31	47078	443	6	REJECT	OK
@@ -225,6 +185,7 @@
       Pody wysyłają ruch bezpośrednio pod własnymi IP, przez co pakiet do interfejsu VPC Endpointa dociera z identyfikatorem Security Group przypisanym do Podów / ruchu klastra (sg-085e462b302b47fca).
 
       Security Group przypisany do VPC Endpointów STS (sg-03ee5f8c0790c08ba) nie posiada (Inbound Rule) zezwalającej na ruch z tej grupy!
+
 
 5. Problem with IP poll size:
       tried to change to t3.medium. -> error with autoscaling group. T3.medium nie mozna postawic na free tier.

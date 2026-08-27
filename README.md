@@ -101,7 +101,7 @@ architecture are planned as the next major phase.
   to VXLAN tunneling resolved Pod-to-Pod communication issues between nodes.
 
 > 📖 Detailed investigation, diagnostics, root causes and fixes:
-> **[Problems & Troubleshooting →](./docs/PROBLEMS.md)**
+> **[Problems & Troubleshooting →](./docs/troubleshooting.md)**
 
 ---
 
