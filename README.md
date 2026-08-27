@@ -145,8 +145,8 @@ architecture are planned as the next major phase.
 - [x] External Secrets Operator
 - [x] IAM-based AWS access
 - [x] Kubernetes PriorityClasses
-- [ ] Resource requests and limits
-- [ ] PodDisruptionBudgets
+- [x] Resource requests and limits
+- [x] PodDisruptionBudgets
 - [ ] Cilium Network Policies (L3-L7, namespace isolation)
 - [ ] Pod Security Standards / restricted profile
 - [ ] Image scanning in CI (e.g. Trivy)
