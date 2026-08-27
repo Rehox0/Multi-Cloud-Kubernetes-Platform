@@ -40,9 +40,9 @@ spec:
               protocol: TCP
           rules:
             http:
-                - method: GET
+              - method: GET
                 path: "/api/video"
-                - method: GET
+              - method: GET
                 path: "/api/shop"
-                - method: GET
+              - method: GET
                 path: "/api/payments"
