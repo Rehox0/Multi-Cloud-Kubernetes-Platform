@@ -62,6 +62,7 @@ InvalidProviderConfig:
 ```
       failed to refresh cached credentials, failed to retrieve credentials, operation error STS: AssumeRoleWithWebIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post "https://sts.eu-north-1.amazonaws.com/": dial tcp 10.0.12.31:443: i/o timeout
 ```
+      kube-apiserver ➔ webhook ❌
       Wrong certificates?
       DNS           ✅
       K8s Service   ✅
@@ -79,20 +80,15 @@ InvalidProviderConfig:
       Endpoint response	✅
       client ➔ webhooka ✅
       TCP               ✅
-      kube-apiserver ➔ webhook ❌
-
       kube-apiserver ➔ Service external-secrets-operator-webhook ➔ Pod external-secrets-webhook ✅ 
       diff ca.crt webhook-ca.crt ✅.
-
       Network, Service, Endpoints & TLS ✅
 
       API Server ➔ Service 172.20.243.138:443 ➔ Pod 10.0.11.164:10250
-
-      ❌ problem for now: AWS STS connectivity IRSA
+      [] check: AWS STS connectivity IRSA
 
       ✅ ClusterIP
       ✅ kube-proxy/Cilium routing
-
       ✅ DNS & endpoint STS
       ❌ TCP 443 ➔ VPC Endpoint
 
@@ -131,8 +127,6 @@ InvalidProviderConfig:
             |
             +-- sg-085e462b302b47fca  (EKS cluster/pod traffic)
 
-      SG cilium_enis nie jest używany przez żaden ENI.
-
       Pod (10.0.10.41)
             |
             | veth
@@ -146,22 +140,6 @@ InvalidProviderConfig:
             |
       VPC Endpoint ENI (10.0.10.171)
 
-
-      Pod 10.0.10.41
-            |
-            |
-      veth
-            |
-      Node 10.0.10.167
-            |
-            |
-      AWS VPC
-            |
-            |
-      Interface Endpoint 10.0.10.171
-
-      Cilium nie blokuje ruchu. Problem jest niżej — routing / AWS networking / NAT do VPC endpointów STS.
-
       NetworkPolicy ✅
       Cilium policy ✅
       kube-proxy replacement ✅
@@ -169,10 +147,11 @@ InvalidProviderConfig:
 
       Connection timed out: Pod & Node (curl -v --connect-timeout 5 https://sts.eu-north-1.amazonaws.com)
       NACL inbound & outbound [*]
-      route tables OK
+      route tables ✅
 
+      Next approach:
+      
       Flow Logs: ENI(10.0.12.31) ->
-
       @timestamp	srcAddr	dstAddr	srcPort	dstPort	protocol	action	logStatus
             2026-08-07T16:33:07.000Z	10.0.10.201	10.0.12.31	42838	443	6	REJECT	OK
             2026-08-07T16:30:47.000Z	10.0.10.121	10.0.12.31	47078	443	6	REJECT	OK
@@ -206,6 +185,7 @@ InvalidProviderConfig:
       Pody wysyłają ruch bezpośrednio pod własnymi IP, przez co pakiet do interfejsu VPC Endpointa dociera z identyfikatorem Security Group przypisanym do Podów / ruchu klastra (sg-085e462b302b47fca).
 
       Security Group przypisany do VPC Endpointów STS (sg-03ee5f8c0790c08ba) nie posiada (Inbound Rule) zezwalającej na ruch z tej grupy!
+
 
 5. Problem with IP poll size:
       tried to change to t3.medium. -> error with autoscaling group. T3.medium nie mozna postawic na free tier.
