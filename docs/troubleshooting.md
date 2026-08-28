@@ -241,3 +241,15 @@ running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
             default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
       ens+ =/= enp
       zmiana konfiguracji cilium
+
+14. Problem z GHA "Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity"
+      ✅ GitHub repository
+      ✅ GitHub branch
+      ✅ GitHub Environment
+      ✅ OIDC token
+      ✅ token aud
+      ✅ token sub
+      ✅ IAM Role ARN
+      ✅ IAM Trust Policy
+      ✅ IAM OIDC Provider
+      ✅ GitHub → OIDC → AWS STS

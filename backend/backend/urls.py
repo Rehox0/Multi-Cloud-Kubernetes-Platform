@@ -25,3 +25,4 @@ urlpatterns = [
     path('api/payments', views.payments),
     path('api/health', views.health)
 ]
+
