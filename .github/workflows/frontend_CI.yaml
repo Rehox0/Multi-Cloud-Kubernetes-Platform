@@ -78,7 +78,8 @@ jobs:
           echo "Ref: ${{ github.ref }}"
           echo "Event: ${{ github.event_name }}"
           echo "Environment: dev"
-          
+          echo "Role ARN: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
