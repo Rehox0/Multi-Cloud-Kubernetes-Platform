@@ -114,8 +114,6 @@ InvalidProviderConfig:
       sg-0a9108dda1e42ce13 (cilium)
 
       ❌ Pod ➔ (sg-085e462b302b47fca) ➔ VPC Endpoint ENI (sg-03ee5f8c0790c08ba)
-      ❌ sg-085e462b302b47fca -> sg-03ee5f8c0790c08ba :443
-
 
       ✅✅✅✅✅ node SG ≠ pod ENI SG ✅✅✅✅✅
 
@@ -126,19 +124,6 @@ InvalidProviderConfig:
             +-- sg-0a9108dda1e42ce13  (Cilium ENI)
             |
             +-- sg-085e462b302b47fca  (EKS cluster/pod traffic)
-
-      Pod (10.0.10.41)
-            |
-            | veth
-            |
-      Cilium host routing
-            |
-            | SNAT/masquerade
-            |
-      Node ENI (10.0.10.167)
-            |
-            |
-      VPC Endpoint ENI (10.0.10.171)
 
       NetworkPolicy ✅
       Cilium policy ✅
