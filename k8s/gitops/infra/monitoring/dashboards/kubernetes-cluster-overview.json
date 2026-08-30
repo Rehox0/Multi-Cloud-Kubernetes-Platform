@@ -20,7 +20,7 @@
   "panels": [
     {
       "type": "stat",
-      "title": "Nodes",
+      "title": "Nodes Summary",
       "gridPos": {
         "h": 4,
         "w": 12,
@@ -34,23 +34,83 @@
       "targets": [
         {
           "expr": "count(kube_node_info)",
+          "legendFormat": "Total Nodes",
           "refId": "A"
+        },
+        {
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status=\"true\"} == 0) or vector(0)",
+          "legendFormat": "Not Ready Nodes",
+          "refId": "B"
+        },
+        {
+          "expr": "count(kube_node_labels{label_karpenter_sh_nodepool=~\".+\"}) or count(kube_node_labels{label_karpenter_sh_provisioner_name=~\".+\"}) or vector(0)",
+          "legendFormat": "Karpenter Nodes",
+          "refId": "C"
         }
       ],
       "options": {
         "reduceOptions": {
           "calcs": ["lastNotNull"]
         },
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
-        "textMode": "auto",
+        "textMode": "value_and_name",
         "justifyMode": "center"
       },
       "fieldConfig": {
         "defaults": {
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Nodes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Not Ready Nodes"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "red", "value": 1 }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Karpenter Nodes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -414,5 +474,5 @@
   "timezone": "",
   "title": "Kubernetes Cluster Overview",
   "uid": "k8s-cluster-overview",
-  "version": 4
+  "version": 5
 }
