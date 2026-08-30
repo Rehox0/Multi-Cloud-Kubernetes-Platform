@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-frontend
-  tag: 034b8443f0e7251a669d4a43be7e777605c02269
+  tag: 58e0c96f4606c6779019df3dff82796fbd977827
 
 service:
   type: ClusterIP
