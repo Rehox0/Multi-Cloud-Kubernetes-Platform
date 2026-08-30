@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/warn: restricted
     spec:
       priorityClassName: prio-high
       containers:

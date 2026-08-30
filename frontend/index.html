@@ -118,10 +118,13 @@
                 } 
                 
                 const data = await response.json();
+
                 resultBlock.style.color = '#9cdcfe'; 
                 resultBlock.innerText = JSON.stringify(data, null, 2);
+
             } catch (error) { 
                 console.error('Backend request failed:', error);
+                
                 resultBlock.classList.add('error'); 
                 resultBlock.innerText = 
                     `❌ Backend error\n\n` + 
