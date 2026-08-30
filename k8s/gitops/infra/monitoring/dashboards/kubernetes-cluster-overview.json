@@ -403,29 +403,16 @@
           "id": "calculateField",
           "options": {
             "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
             "leftField": "Value #A",
             "rightField": "Value #B",
             "operator": "/",
-            "alias": "Ratio"
+            "alias": "Health"
           }
         },
         {
-          "id": "calculateField",
+          "id": "concatenate",
           "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false,
-            "alias": "Replicas",
-            "binary": {
-              "leftParameter": "Value #A",
-              "rightParameter": "Value #B",
-              "operator": "+"
-            }
+            "reducers": []
           }
         },
         {
@@ -438,25 +425,28 @@
               "job #B": true,
               "instance #A": true,
               "instance #B": true,
+              "namespace #A": true,
               "namespace #B": true
             },
             "renameByName": {
               "deployment": "Deployment",
-              "namespace #A": "Namespace",
               "Value #A": "Available",
               "Value #B": "Desired",
-              "Ratio": "Status"
+              "Health": "Status"
             },
             "indexByName": {
               "Deployment": 0,
-              "Namespace": 1,
-              "Available": 2,
-              "Desired": 3,
-              "Status": 4
+              "Available": 1,
+              "Desired": 2,
+              "Status": 3
             }
           }
         }
       ],
+      "options": {
+        "showHeader": false,
+        "cellHeight": "sm"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "short"
@@ -471,7 +461,8 @@
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "color-background",
+                  "mode": "basic"
                 }
               },
               {
@@ -480,46 +471,15 @@
                   "mode": "absolute",
                   "steps": [
                     { "color": "red", "value": null },
-                    { "color": "yellow", "value": 0.5 },
+                    { "color": "yellow", "value": 0.99 },
                     { "color": "green", "value": 1 }
                   ]
                 }
-              },
-              {
-                "id": "unit",
-                "value": "percentunit"
               }
             ]
           }
         ]
       }
     }
-  ],
-  "schemaVersion": 39,
-  "style": "dark",
-  "tags": ["kubernetes", "cluster", "prometheus", "observability"],
-  "templating": {
-    "list": [
-      {
-        "name": "DS_PROMETHEUS",
-        "type": "datasource",
-        "query": "prometheus",
-        "label": "Prometheus",
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
-        "options": []
-      }
-    ]
-  },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "",
-  "title": "Kubernetes Cluster Overview",
-  "uid": "k8s-cluster-overview",
-  "version": 6
+  ]
 }
