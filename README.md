@@ -148,7 +148,7 @@ architecture are planned as the next major phase.
 - [x] Resource requests and limits
 - [x] PodDisruptionBudgets
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
-- [ ] Pod Security Standards / restricted profile
+- [x] Pod Security Standards / restricted profile
 - [ ] Image scanning in CI (e.g. Trivy)
 - [ ] Kyverno policy expansion
       - [ ] Disallow privileged containers

@@ -1,10 +1,10 @@
 FROM python:3.12-slim
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-RUN useradd --create-home --shell /bin/bash appuser \
+RUN useradd --uid 1000 --create-home --shell /bin/bash appuser \
     && chown -R appuser:appuser /app
-USER appuser
+USER 1000
 ENV PYTHONPATH=/app/backend
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
