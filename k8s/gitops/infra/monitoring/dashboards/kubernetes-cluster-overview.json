@@ -338,48 +338,12 @@
       }
     },
     {
-      "type": "bargauge",
-      "title": "Pods by Namespace",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "targets": [
-        {
-          "expr": "sum by (namespace) (kube_pod_info)",
-          "format": "table",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true,
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
       "type": "timeseries",
       "title": "Pod Restarts by Namespace",
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 24,
+        "x": 0,
         "y": 20
       },
       "datasource": {
@@ -403,7 +367,7 @@
     },
     {
       "type": "table",
-      "title": "Deployment Availability",
+      "title": "Deployment Health",
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -420,22 +384,75 @@
           "format": "table",
           "instant": true,
           "refId": "A"
+        },
+        {
+          "expr": "kube_deployment_spec_replicas",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
         }
       ],
       "transformations": [
         {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "deployment"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "leftField": "Value #A",
+            "rightField": "Value #B",
+            "operator": "/",
+            "alias": "Ratio"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false,
+            "alias": "Replicas",
+            "binary": {
+              "leftParameter": "Value #A",
+              "rightParameter": "Value #B",
+              "operator": "+"
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true,
-              "job": true,
-              "instance": true,
-              "uid": true
+              "Time #A": true,
+              "Time #B": true,
+              "job #A": true,
+              "job #B": true,
+              "instance #A": true,
+              "instance #B": true,
+              "namespace #B": true
             },
             "renameByName": {
-              "namespace": "Namespace",
               "deployment": "Deployment",
-              "Value": "Available replicas"
+              "namespace #A": "Namespace",
+              "Value #A": "Available",
+              "Value #B": "Desired",
+              "Ratio": "Status"
+            },
+            "indexByName": {
+              "Deployment": 0,
+              "Namespace": 1,
+              "Available": 2,
+              "Desired": 3,
+              "Status": 4
             }
           }
         }
@@ -444,7 +461,37 @@
         "defaults": {
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "red", "value": null },
+                    { "color": "yellow", "value": 0.5 },
+                    { "color": "green", "value": 1 }
+                  ]
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
       }
     }
   ],
@@ -474,5 +521,5 @@
   "timezone": "",
   "title": "Kubernetes Cluster Overview",
   "uid": "k8s-cluster-overview",
-  "version": 5
+  "version": 6
 }
