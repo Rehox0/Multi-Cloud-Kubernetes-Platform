@@ -4,6 +4,11 @@ crds:
 grafana:
   enabled: true
   priorityClassName: prio-medium
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
 
 prometheus:
   enabled: true

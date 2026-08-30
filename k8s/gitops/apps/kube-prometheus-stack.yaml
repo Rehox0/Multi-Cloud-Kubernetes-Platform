@@ -16,6 +16,9 @@ spec:
     - repoURL:  'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
       targetRevision: testing
       ref: values
+    - repoURL: 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
+      targetRevision: testing
+      path: k8s/gitops/infra/monitoring/dashboards
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
