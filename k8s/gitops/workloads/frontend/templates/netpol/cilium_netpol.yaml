@@ -46,5 +46,3 @@ spec:
                 path: "/api/shop"
               - method: GET
                 path: "/api/payments"
-              - method: GET
-                path: "/api/health"
