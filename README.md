@@ -150,10 +150,10 @@ architecture are planned as the next major phase.
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
-- [ ] Kyverno policy expansion
-      - [ ] Disallow privileged containers
-      - [ ] Enforce resource requests and limits
-      - [ ] Require mandatory labels
+- [x] Kyverno policy expansion
+      - [x] Disallow privileged containers
+      - [x] Enforce resource requests and limits
+      - [x] Require mandatory labels
 
 ### 📊 Observability
 - [x] Prometheus
