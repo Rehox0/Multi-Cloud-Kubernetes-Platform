@@ -28,14 +28,6 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
-          rules:
-            http:
-              - method: GET
-                path: "/api/video"
-              - method: GET
-                path: "/api/shop"
-              - method: GET
-                path: "/api/payments"
 
   egress:
     # DNS
