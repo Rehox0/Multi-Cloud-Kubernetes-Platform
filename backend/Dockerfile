@@ -3,5 +3,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
+RUN useradd --create-home --shell /bin/bash appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 ENV PYTHONPATH=/app/backend
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
