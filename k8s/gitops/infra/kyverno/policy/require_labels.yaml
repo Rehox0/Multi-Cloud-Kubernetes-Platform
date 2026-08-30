@@ -17,6 +17,11 @@ spec:
           - resources:
               kinds:
                 - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - monitoring
 
       validate:
         message: "The 'app' label is required."
