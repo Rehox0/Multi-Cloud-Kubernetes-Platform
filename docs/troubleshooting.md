@@ -253,3 +253,12 @@ running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
       ✅ IAM Trust Policy
       ✅ IAM OIDC Provider
       ✅ GitHub → OIDC → AWS STS
+      
+      Po zmianie nazwy repozytorium GitHub OIDC sub zmienił format.
+      Stary format:
+
+      repo:Rehox0/allegro-analytics-eks:environment:dev
+
+      Aktualny format:
+
+      repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
