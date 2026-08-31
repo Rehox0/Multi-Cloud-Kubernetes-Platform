@@ -364,10 +364,10 @@
       }
     },
     {
-      "type": "table",
+      "type": "bargauge",
       "title": "Deployment Health",
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 28
@@ -379,111 +379,55 @@
       "targets": [
         {
           "expr": "kube_deployment_status_replicas_available",
-          "format": "table",
-          "instant": true,
+          "legendFormat": "{{namespace}}/{{deployment}}",
           "refId": "A"
-        },
-        {
-          "expr": "kube_deployment_spec_replicas",
-          "format": "table",
-          "instant": true,
-          "refId": "B"
-        }
-      ],
-      "transformations": [
-        {
-          "id": "seriesToColumns",
-          "options": {
-            "byField": "deployment"
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "mode": "binary",
-            "leftField": "Value #A",
-            "rightField": "Value #B",
-            "operator": "/",
-            "alias": "Health"
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time #A": true,
-              "Time #B": true,
-              "job #A": true,
-              "job #B": true,
-              "instance #A": true,
-              "instance #B": true,
-              "namespace #A": true,
-              "namespace #B": true
-            },
-            "renameByName": {
-              "deployment": "Deployment",
-              "Value #A": "Available",
-              "Value #B": "Desired",
-              "Health": "Status"
-            },
-            "indexByName": {
-              "Deployment": 0,
-              "Available": 1,
-              "Desired": 2,
-              "Status": 3
-            }
-          }
         }
       ],
       "options": {
-        "showHeader": true,
-        "cellHeight": "sm"
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {
+          "titleSize": 14,
+          "valueSize": 20,
+          "value": "value_and_name"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Status"
-            },
-            "properties": [
+          "unit": "short",
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
               {
-                "id": "unit",
-                "value": "percentunit"
+                "color": "red",
+                "value": 0
               },
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background",
-                  "mode": "basic"
-                }
+                "color": "yellow",
+                "value": 50
               },
               {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 0.99
-                    },
-                    {
-                      "color": "green",
-                      "value": 1
-                    }
-                  ]
-                }
+                "color": "green",
+                "value": 100
               }
             ]
+          },
+          "custom": {
+            "displayMode": "gradient",
+            "lineWidth": 0,
+            "fillOpacity": 80
           }
-        ]
+        },
+        "overrides": []
       }
     }
   ],
@@ -518,5 +462,5 @@
   "timezone": "",
   "title": "Kubernetes Cluster Overview",
   "uid": "k8s-cluster-overview",
-  "version": 1
+  "version": 2
 }
