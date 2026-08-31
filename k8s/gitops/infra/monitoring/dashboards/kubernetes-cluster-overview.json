@@ -364,140 +364,108 @@
       }
     },
     {
-      "type": "table",
-      "title": "Deployment Health (Status)",
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "targets": [
-        {
-          "expr": "kube_deployment_status_replicas_available",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "Available",
-          "refId": "A"
-        },
-        {
-          "expr": "kube_deployment_spec_replicas",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "Desired",
-          "refId": "B"
-        }
-      ],
-      "transformations": [
-        {
-          "id": "joinByField",
-          "options": {
-            "byField": "deployment",
-            "mode": "outer"
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "Health Ratio",
-            "binary": {
-              "left": "Value #A",
-              "operator": "/",
-              "reducer": "sum",
-              "right": "Value #B"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "Time 1": true,
-              "Time 2": true,
-              "namespace 1": true,
-              "namespace 2": true
-            },
-            "renameByName": {
-              "Value #A": "Available",
-              "Value #B": "Desired"
-            }
-          }
-        }
-      ],
+  "type": "table",
+  "title": "Deployment Health",
+  "gridPos": {
+    "h": 10,
+    "w": 24,
+    "x": 0,
+    "y": 28
+  },
+  "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+  },
+  "targets": [
+    {
+      "expr": "kube_deployment_status_replicas_available",
+      "format": "table",
+      "instant": true,
+      "refId": "A"
+    },
+    {
+      "expr": "kube_deployment_spec_replicas",
+      "format": "table",
+      "instant": true,
+      "refId": "B"
+    }
+  ],
+  "transformations": [
+    {
+      "id": "joinByField",
       "options": {
-        "showHeader": true,
-        "cellHeight": "sm"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "center",
-            "cellOptions": {
-              "type": "color-background"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.01
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
+        "byField": "deployment",
+        "mode": "outer"
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "Time": true,
+          "Time #A": true,
+          "Time #B": true,
+          "job": true,
+          "job #A": true,
+          "job #B": true,
+          "instance": true,
+          "instance #A": true,
+          "instance #B": true
         },
-        "overrides": [
+        "renameByName": {
+          "deployment": "Deployment",
+          "namespace": "Namespace",
+          "Value #A": "Available",
+          "Value #B": "Desired"
+        },
+        "indexByName": {
+          "Deployment": 0,
+          "Namespace": 1,
+          "Available": 2,
+          "Desired": 3
+        }
+      }
+    }
+  ],
+  "options": {
+    "showHeader": true,
+    "cellHeight": "sm",
+    "footer": {
+      "show": false
+    }
+  },
+  "fieldConfig": {
+    "defaults": {
+      "unit": "short"
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Available"
+        },
+        "properties": [
           {
-            "matcher": {
-              "id": "byName",
-              "options": "Health Ratio"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
+            "id": "unit",
+            "value": "short"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Desired"
+        },
+        "properties": [
           {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^(Available|Desired)$/"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "auto"
-                }
-              }
-            ]
+            "id": "unit",
+            "value": "short"
           }
         ]
       }
-    }
+    ]
+  }
+}
   ],
   "schemaVersion": 39,
   "style": "dark",
