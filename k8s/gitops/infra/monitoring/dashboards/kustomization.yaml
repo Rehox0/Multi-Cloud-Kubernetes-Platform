@@ -10,3 +10,9 @@ configMapGenerator:
     options:
       labels:
         grafana_dashboard: "1"
+  - name: backend-overview
+    files:
+      - backend_overview.json
+    options:
+      labels:
+        grafana_dashboard: "1"
