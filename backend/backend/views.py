@@ -14,7 +14,7 @@ from core.metrics import (
 def video(request):
     start = time.time()
     VIDEO_REQUESTS.inc()
-    response = JsonResponse({
+    return = JsonResponse({
         "module": "Video",
         "status": "Streaming active",
         "items": [
@@ -23,7 +23,6 @@ def video(request):
             "movie3"
         ]
     })
-    return response
 
 
 def shop(request):
@@ -40,8 +39,6 @@ def shop(request):
         ]
     })
 
-    return response
-
 
 def payments(request):
     start = time.time()
@@ -52,8 +49,6 @@ def payments(request):
         "status": "Gateway ready",
         "balance": 150.00
     })
-
-    return response
 
 
 def health(request):
