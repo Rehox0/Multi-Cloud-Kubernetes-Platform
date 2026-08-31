@@ -114,8 +114,6 @@ InvalidProviderConfig:
       sg-0a9108dda1e42ce13 (cilium)
 
       ❌ Pod ➔ (sg-085e462b302b47fca) ➔ VPC Endpoint ENI (sg-03ee5f8c0790c08ba)
-      ❌ sg-085e462b302b47fca -> sg-03ee5f8c0790c08ba :443
-
 
       ✅✅✅✅✅ node SG ≠ pod ENI SG ✅✅✅✅✅
 
@@ -126,19 +124,6 @@ InvalidProviderConfig:
             +-- sg-0a9108dda1e42ce13  (Cilium ENI)
             |
             +-- sg-085e462b302b47fca  (EKS cluster/pod traffic)
-
-      Pod (10.0.10.41)
-            |
-            | veth
-            |
-      Cilium host routing
-            |
-            | SNAT/masquerade
-            |
-      Node ENI (10.0.10.167)
-            |
-            |
-      VPC Endpoint ENI (10.0.10.171)
 
       NetworkPolicy ✅
       Cilium policy ✅
@@ -256,3 +241,24 @@ running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
             default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
       ens+ =/= enp
       zmiana konfiguracji cilium
+
+14. Problem z GHA "Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity"
+      ✅ GitHub repository
+      ✅ GitHub branch
+      ✅ GitHub Environment
+      ✅ OIDC token
+      ✅ token aud
+      ✅ token sub
+      ✅ IAM Role ARN
+      ✅ IAM Trust Policy
+      ✅ IAM OIDC Provider
+      ✅ GitHub → OIDC → AWS STS
+      
+      Po zmianie nazwy repozytorium GitHub OIDC sub zmienił format.
+      Stary format:
+
+      repo:Rehox0/allegro-analytics-eks:environment:dev
+
+      Aktualny format:
+
+      repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev

@@ -16,6 +16,12 @@ class CoreConfig(AppConfig):
             threading.Thread(target=self._start_udp_listener, daemon=True).start()
 
     def _start_udp_listener(self):
+        from core.metrics import (
+            UDP_PACKETS_RECEIVED,
+            UDP_BYTES_RECEIVED,
+            UDP_LISTENER_ACTIVE,
+        )
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.bind(("0.0.0.0", 9999))
@@ -26,6 +32,9 @@ class CoreConfig(AppConfig):
 
             while True:
                 data, addr = sock.recvfrom(1024)
+                UDP_PACKETS_RECEIVED.inc()
+                UDP_BYTES_RECEIVED.inc(len(data))
+
                 print(
                     f"[UDP] Received: '{data.decode().strip()}' from {addr}",
                     flush=True,

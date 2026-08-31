@@ -12,7 +12,13 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/warn: restricted
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       priorityClassName: prio-high
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
@@ -27,6 +33,19 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
           env:
             - name: DEBUG
               value: {{ .Values.env.debug | quote }}
@@ -37,3 +56,9 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: SECRET_KEY
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

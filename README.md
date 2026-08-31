@@ -24,22 +24,6 @@ architecture are planned as the next major phase.
 
 ---
 
-## 📍 Current Status
-- Amazon EKS
-- Cilium
-- Gateway API
-- ArgoCD / GitOps
-- CI/CD
-- Karpenter autoscaling
-- External Secrets Operator
-- Kyverno
-- Prometheus & Grafana
-- Backend and frontend workloads
-- Resource management and workload prioritization
-- Failure and autoscaling testing
-
----
-
 ## ▶️ Live / Demo
 > in progress...
 
@@ -105,6 +89,15 @@ architecture are planned as the next major phase.
 
 ---
 
+## 💰 Cost Visibility
+
+- **Cost allocation:** Terraform applies Project, Environment and ManagedBy tags for AWS cost tracking.
+- **Karpenter:** dynamic node provisioning reduces idle capacity; Spot can be used for fault-tolerant workloads.
+- **Cost monitoring:** AWS Cost Explorer with project/environment tags.
+- **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes uses bigger m7i-flex.large
+
+---
+
 </div>
 <div align="center">
   <h1>🚀 Infrastructure Roadmap</h1>
@@ -147,13 +140,13 @@ architecture are planned as the next major phase.
 - [x] Kubernetes PriorityClasses
 - [x] Resource requests and limits
 - [x] PodDisruptionBudgets
-- [ ] Cilium Network Policies (L3-L7, namespace isolation)
-- [ ] Pod Security Standards / restricted profile
-- [ ] Image scanning in CI (e.g. Trivy)
-- [ ] Kyverno policy expansion
-      - [ ] Disallow privileged containers
-      - [ ] Enforce resource requests and limits
-      - [ ] Require mandatory labels
+- [x] Cilium Network Policies (L3-L7, namespace isolation)
+- [x] Pod Security Standards / restricted profile
+- [x] Image scanning in CI (e.g. Trivy)
+- [x] Kyverno policy expansion:
+-- [x] Disallow privileged containers
+-- [x] Enforce resource requests and limits
+-- [x] Require mandatory labels
 
 ### 📊 Observability
 - [x] Prometheus
@@ -161,17 +154,17 @@ architecture are planned as the next major phase.
 - [x] Alertmanager
 - [x] kube-state-metrics
 - [x] Node Exporter
-- [ ] Kubernetes dashboards
-- [ ] Application-level metrics (custom exporters / business KPIs)
+- [x] Kubernetes dashboards
+- [x] Application-level metrics
+- [ ] Alerting
 - [ ] Centralized logging (e.g. Loki or CloudWatch Logs)
 - [ ] Distributed tracing (basic, e.g. OpenTelemetry + Tempo)
 - [ ] SLO-based alerting rules
 
-### 💰 Cost Visibility (FinOps basics)
-- [ ] Cost allocation tags across resources
-- [ ] Karpenter cost-aware provisioning notes (spot vs on-demand mix)
-- [ ] Basic cost dashboard / report (e.g. Kubecost or AWS Cost Explorer tagging)
-- [ ] Documented cost trade-offs in README
+### 💰 Cost Visibility
+- [x] Cost allocation tags across resources
+- [x] Karpenter cost-aware provisioning notes (spot vs on-demand mix)
+- [x] Documented cost trade-offs in README
 
 ### 🧪 Reliability & Disaster Recovery
 - [x] Karpenter

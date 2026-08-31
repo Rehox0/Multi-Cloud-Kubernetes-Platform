@@ -96,33 +96,43 @@
             <button onclick="fetchData('video')">🎬 Video API</button>
             <button onclick="fetchData('shop')">🛒 Shop API</button>
             <button onclick="fetchData('payments')">💳 Payments API</button>
-            <button class="health" onclick="healthCheck()">❤️ Health Check</button>
+            <button class="health" onclick="fetchData('health')">❤️ Health Check</button>
         </div>
         
         <pre id="result">Press a button to fetch data from the backend (Django)...</pre>
     </div>
 
-    <script>
-        function fetchData(endpoint) {
+    <script> 
+        async function fetchData(endpoint) {
             const resultBlock = document.getElementById('result');
-            resultBlock.style.color = '#d4d4d4';
-            resultBlock.innerText = "Loading data...";
-            
-            fetch(`/api/${endpoint}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network error');
-                    return response.json();
-                })
-                .then(data => {
-                    resultBlock.style.color = '#9cdcfe';
-                    resultBlock.innerText = JSON.stringify(data, null, 2);
-                })
-                .catch(err => {
-                    console.error(err);
-                    resultBlock.style.color = '#ff6b6b';
-                    resultBlock.innerText = "An error occurred! Make sure the backend is responding.";
-                });
-        }
+            resultBlock.classList.remove('error'); 
+            resultBlock.style.color = '#d4d4d4'; 
+            resultBlock.innerText = 'Loading data...'; 
+
+            try { 
+                const response = await fetch(`/api/${endpoint}`); 
+                if (!response.ok) { 
+                    throw new Error( 
+                        `Backend returned HTTP ${response.status} ${response.statusText}` 
+                    ); 
+                } 
+                
+                const data = await response.json();
+
+                resultBlock.style.color = '#9cdcfe'; 
+                resultBlock.innerText = JSON.stringify(data, null, 2);
+
+            } catch (error) { 
+                console.error('Backend request failed:', error);
+                
+                resultBlock.classList.add('error'); 
+                resultBlock.innerText = 
+                    `❌ Backend error\n\n` + 
+                    `Endpoint: /api/${endpoint}\n` + 
+                    `Error: ${error.message}\n\n` + 
+                    `The backend may be unavailable.`; 
+            } 
+        } 
     </script>
 </body>
 </html>

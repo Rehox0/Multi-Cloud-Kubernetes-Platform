@@ -17,7 +17,7 @@ resource "aws_iam_role" "github_actions" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub": "repo:Rehox0/Multi-Cloud-Kubernetes-Platform:environment:dev"
+            "token.actions.githubusercontent.com:sub": "repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev"
           }
         }
       }
