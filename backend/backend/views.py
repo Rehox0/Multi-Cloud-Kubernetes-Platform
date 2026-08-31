@@ -7,9 +7,12 @@ from core.metrics import (
     VIDEO_REQUESTS,
     SHOP_REQUESTS,
     PAYMENT_REQUESTS,
+    UDP_PACKETS_RECEIVED,
+    UDP_BYTES_RECEIVED,
 )
 
 def video(request):
+    start = time.time()
     VIDEO_REQUESTS.inc()
     response = JsonResponse({
         "module": "Video",
@@ -20,9 +23,11 @@ def video(request):
             "movie3"
         ]
     })
+    return response
 
 
 def shop(request):
+    start = time.time()
     SHOP_REQUESTS.inc()
 
     return JsonResponse({
@@ -35,8 +40,11 @@ def shop(request):
         ]
     })
 
+    return response
+
 
 def payments(request):
+    start = time.time()
     PAYMENT_REQUESTS.inc()
 
     return JsonResponse({
@@ -44,6 +52,8 @@ def payments(request):
         "status": "Gateway ready",
         "balance": 150.00
     })
+
+    return response
 
 
 def health(request):
