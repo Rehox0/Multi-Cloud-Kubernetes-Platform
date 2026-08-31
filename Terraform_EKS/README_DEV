@@ -84,3 +84,8 @@ echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
 echo "source <(helm completion bash)" >> ~/.bashrc
 sudo chsh -s /bin/bash ssm-user
 source ~/.bashrc -->
+
+aws ssm start-session \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["9090"],"localPortNumber":["9090"]}' \
+  --target i-xxxxxxxxxxxxxx
