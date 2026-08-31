@@ -26,3 +26,18 @@ UDP_LISTENER_ACTIVE = Gauge(
     "app_udp_listener_active",
     "Whether UDP listener is active",
 )
+
+VIDEO_REQUESTS = Counter(
+    "app_video_requests_total",
+    "Total number of video endpoint requests",
+)
+
+SHOP_REQUESTS = Counter(
+    "app_shop_requests_total",
+    "Total number of shop endpoint requests",
+)
+
+PAYMENT_REQUESTS = Counter(
+    "app_payment_requests_total",
+    "Total number of payment endpoint requests",
+)
