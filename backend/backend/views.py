@@ -14,7 +14,7 @@ from core.metrics import (
 def video(request):
     start = time.time()
     VIDEO_REQUESTS.inc()
-    return = JsonResponse({
+    return JsonResponse({
         "module": "Video",
         "status": "Streaming active",
         "items": [
