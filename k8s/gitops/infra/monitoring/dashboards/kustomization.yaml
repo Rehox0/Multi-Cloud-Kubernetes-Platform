@@ -16,9 +16,5 @@ configMapGenerator:
     options:
       labels:
         grafana_dashboard: "1"
-  - name: backend-alerts
-    files:
-      - backend_alerts.yaml
-    options:
-      labels:
-        grafana_dashboard: "1"
+resources:
+  - backend_alerts.yaml
