@@ -155,7 +155,8 @@ architecture are planned as the next major phase.
 - [x] kube-state-metrics
 - [x] Node Exporter
 - [x] Kubernetes dashboards
-- [ ] Application-level metrics (custom exporters / business KPIs)
+- [x] Application-level metrics
+- [ ] Alerting
 - [ ] Centralized logging (e.g. Loki or CloudWatch Logs)
 - [ ] Distributed tracing (basic, e.g. OpenTelemetry + Tempo)
 - [ ] SLO-based alerting rules
