@@ -38,19 +38,21 @@
           "refId": "A"
         },
         {
-          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status=\"true\"} == 0) or vector(0)",
-          "legendFormat": "Not Ready Nodes",
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"false\"}) or vector(0)",
+          "legendFormat": "Not Ready",
           "refId": "B"
         },
         {
-          "expr": "count(kube_node_labels{label_karpenter_sh_nodepool=~\".+\"}) or count(kube_node_labels{label_karpenter_sh_provisioner_name=~\".+\"}) or vector(0)",
+          "expr": "count(kube_node_labels{label_karpenter_sh_nodepool=~\".+\"}) or vector(0)",
           "legendFormat": "Karpenter Nodes",
           "refId": "C"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"]
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "colorMode": "background",
         "graphMode": "none",
@@ -65,22 +67,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Total Nodes"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "blue"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Not Ready Nodes"
+              "options": "Not Ready"
             },
             "properties": [
               {
@@ -88,24 +75,15 @@
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "green", "value": null },
-                    { "color": "red", "value": 1 }
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
                   ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Karpenter Nodes"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
                 }
               }
             ]
@@ -115,7 +93,7 @@
     },
     {
       "type": "stat",
-      "title": "Pod Status & Restarts",
+      "title": "Pods",
       "gridPos": {
         "h": 4,
         "w": 12,
@@ -145,7 +123,9 @@
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"]
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "colorMode": "background",
         "graphMode": "none",
@@ -179,10 +159,19 @@
             },
             "properties": [
               {
-                "id": "color",
+                "id": "thresholds",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "yellow"
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 1
+                    }
+                  ]
                 }
               }
             ]
@@ -198,9 +187,18 @@
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "green", "value": null },
-                    { "color": "yellow", "value": 1 },
-                    { "color": "red", "value": 5 }
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 1
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
                   ]
                 }
               }
@@ -410,12 +408,6 @@
           }
         },
         {
-          "id": "concatenate",
-          "options": {
-            "reducers": []
-          }
-        },
-        {
           "id": "organize",
           "options": {
             "excludeByName": {
@@ -444,7 +436,7 @@
         }
       ],
       "options": {
-        "showHeader": false,
+        "showHeader": true,
         "cellHeight": "sm"
       },
       "fieldConfig": {
@@ -459,6 +451,10 @@
             },
             "properties": [
               {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "color-background",
@@ -470,9 +466,18 @@
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "red", "value": null },
-                    { "color": "yellow", "value": 0.99 },
-                    { "color": "green", "value": 1 }
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.99
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
                   ]
                 }
               }
@@ -481,5 +486,37 @@
         ]
       }
     }
-  ]
+  ],
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "kubernetes",
+    "cluster",
+    "prometheus",
+    "observability"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Prometheus",
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "options": []
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Kubernetes Cluster Overview",
+  "uid": "k8s-cluster-overview",
+  "version": 1
 }
