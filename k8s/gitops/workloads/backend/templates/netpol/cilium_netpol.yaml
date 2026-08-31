@@ -28,6 +28,15 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+    # Prometheus
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
 
   egress:
     # DNS
