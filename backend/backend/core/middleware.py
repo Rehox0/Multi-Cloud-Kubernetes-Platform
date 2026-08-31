@@ -15,20 +15,15 @@ class PrometheusMiddleware:
 
         response = self.get_response(request)
 
-        duration = time.time() - start
-
-        endpoint = request.path
-        status = str(response.status_code)
-
         HTTP_REQUESTS.labels(
             method=request.method,
-            endpoint=endpoint,
-            status=status,
+            endpoint=request.path,
+            status=response.status_code,
         ).inc()
 
         HTTP_REQUEST_DURATION.labels(
             method=request.method,
-            endpoint=endpoint,
-        ).observe(duration)
+            endpoint=request.path,
+        ).observe(time.time() - start)
 
         return response
