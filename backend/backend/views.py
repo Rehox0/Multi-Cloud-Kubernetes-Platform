@@ -3,6 +3,11 @@ import time
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
+from .metrics import (
+    VIDEO_REQUESTS,
+    SHOP_REQUESTS,
+    PAYMENT_REQUESTS,
+)
 
 def video(request):
     VIDEO_REQUESTS.inc()
