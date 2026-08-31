@@ -378,13 +378,13 @@
   },
   "targets": [
     {
-      "expr": "kube_deployment_status_replicas_available",
+      "expr": "max by (namespace, deployment) (kube_deployment_status_replicas_available)",
       "format": "table",
       "instant": true,
       "refId": "A"
     },
     {
-      "expr": "kube_deployment_spec_replicas",
+      "expr": "max by (namespace, deployment) (kube_deployment_spec_replicas)",
       "format": "table",
       "instant": true,
       "refId": "B"
@@ -406,9 +406,16 @@
           "Time #A": true,
           "Time #B": true,
           "job": true,
+          "instance": true,
+          "endpoint": true,
+          "pod": true,
+          "service": true,
+          "container": true,
+          "__name__": true,
+          "__name__ #A": true,
+          "__name__ #B": true,
           "job #A": true,
           "job #B": true,
-          "instance": true,
           "instance #A": true,
           "instance #B": true
         },
@@ -451,30 +458,6 @@
       "unit": "short"
     },
     "overrides": [
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "Available"
-        },
-        "properties": [
-          {
-            "id": "unit",
-            "value": "short"
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "Desired"
-        },
-        "properties": [
-          {
-            "id": "unit",
-            "value": "short"
-          }
-        ]
-      },
       {
         "matcher": {
           "id": "byName",
