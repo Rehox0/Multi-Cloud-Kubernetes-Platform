@@ -3,12 +3,6 @@ import socket
 import threading
 from django.apps import AppConfig
 
-from .metrics import (
-    UDP_PACKETS_RECEIVED,
-    UDP_BYTES_RECEIVED,
-    UDP_LISTENER_ACTIVE,
-)
-
 
 class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
@@ -22,6 +16,12 @@ class CoreConfig(AppConfig):
             threading.Thread(target=self._start_udp_listener, daemon=True).start()
 
     def _start_udp_listener(self):
+        from .metrics import (
+            UDP_PACKETS_RECEIVED,
+            UDP_BYTES_RECEIVED,
+            UDP_LISTENER_ACTIVE,
+        )
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.bind(("0.0.0.0", 9999))
