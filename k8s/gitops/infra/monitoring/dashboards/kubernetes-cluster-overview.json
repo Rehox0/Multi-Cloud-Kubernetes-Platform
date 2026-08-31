@@ -363,7 +363,7 @@
         "overrides": []
       }
     },
-    {
+{
   "type": "table",
   "title": "Deployment Health",
   "gridPos": {
@@ -425,6 +425,18 @@
           "Desired": 3
         }
       }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "mode": "binary",
+        "alias": "Health",
+        "binary": {
+          "left": "Available",
+          "right": "Desired",
+          "operator": "/"
+        }
+      }
     }
   ],
   "options": {
@@ -460,6 +472,49 @@
           {
             "id": "unit",
             "value": "short"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Health"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "percentunit"
+          },
+          {
+            "id": "decimals",
+            "value": 0
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-background",
+              "mode": "thresholds"
+            }
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 0.99
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
           }
         ]
       }
