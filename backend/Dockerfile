@@ -12,5 +12,6 @@ COPY . .
 RUN useradd --uid 1000 --create-home --shell /bin/bash appuser \
     && chown -R appuser:appuser /app
 USER 1000
+
 ENV PYTHONPATH=/app/backend
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application", "--workers", "1"]

@@ -26,6 +26,10 @@ class CoreConfig(AppConfig):
 
             while True:
                 data, addr = sock.recvfrom(1024)
+
+                    UDP_PACKETS_RECEIVED.inc()
+                    UDP_BYTES_RECEIVED.inc(len(data))
+                    
                 print(
                     f"[UDP] Received: '{data.decode().strip()}' from {addr}",
                     flush=True,
