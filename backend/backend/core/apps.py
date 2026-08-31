@@ -16,7 +16,7 @@ class CoreConfig(AppConfig):
             threading.Thread(target=self._start_udp_listener, daemon=True).start()
 
     def _start_udp_listener(self):
-        from .metrics import (
+        from core.metrics import (
             UDP_PACKETS_RECEIVED,
             UDP_BYTES_RECEIVED,
             UDP_LISTENER_ACTIVE,

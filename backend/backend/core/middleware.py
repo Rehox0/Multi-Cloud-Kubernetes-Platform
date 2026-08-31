@@ -1,6 +1,6 @@
 import time
 
-from .metrics import (
+from core.metrics import (
     HTTP_REQUESTS,
     HTTP_REQUEST_DURATION,
 )
