@@ -14,5 +14,5 @@ urlpatterns = [
     path("api/health", views.health),
     path("api/ready", views.health),
 
-    path("metrics", views.metrics),
+    path("api/metrics", views.metrics),
 ]
