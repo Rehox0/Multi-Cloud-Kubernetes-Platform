@@ -192,9 +192,9 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Azure resource groups
 - [x] Azure AKS
 - [x] Azure networking
-- [ ] Frontend container deployment
-- [ ] Azure Container Registry
-- [ ] Frontend CI/CD
+- [x] Azure Container Registry
+- [x] Frontend CI
+- [ ] Frontend CD
 - [ ] Azure ingress
 - [ ] HTTPS / TLS
 - [ ] Azure monitoring
