@@ -26,7 +26,7 @@ resource "azurerm_federated_identity_credential" "gha_dev_env" {
   audience            = ["api://AzureADTokenExchange"]
   issuer              = "https://token.actions.githubusercontent.com"
   parent_id           = azurerm_user_assigned_identity.gha_dev.id
-  subject             = "repo:${local.github_repo_slug}:environment:dev"
+  subject             = "repo:${var.github_oidc_repository}:environment:dev"
 }
 
 ################################################################################
@@ -82,4 +82,16 @@ resource "github_actions_secret" "azure_subscription_id" {
   repository      = var.github_repository
   secret_name     = "AZURE_SUBSCRIPTION_ID"
   plaintext_value = data.azurerm_client_config.current.subscription_id
+}
+
+resource "azurerm_role_assignment" "gha_subscription_reader" {
+  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.gha_dev.principal_id
+}
+
+resource "azurerm_role_assignment" "gha_acr_push" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPush"
+  principal_id         = azurerm_user_assigned_identity.gha_dev.principal_id
 }

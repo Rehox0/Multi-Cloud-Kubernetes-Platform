@@ -37,3 +37,8 @@ variable "github_repository" {
   description = "GitHub repository name without owner"
   type        = string
 }
+
+variable "github_oidc_repository" {
+  description = "Repository identifier as emitted in the GitHub OIDC subject"
+  type        = string
+}
