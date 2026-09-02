@@ -1,0 +1,23 @@
+replicaCount: 3
+
+image:
+  repository: acrmulticloudproject.azurecr.io/frontend
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+
+gateway:
+  enabled: true
+  name: main-gateway
+  namespace: gateway-ns
+  host: "my-domain.com"
+
+serviceAccount:
+  create: true
+  name: frontend
+
+backend:
+  host: http://workload-backend-dev.backend-ns.svc.cluster.local
+  port: 8000

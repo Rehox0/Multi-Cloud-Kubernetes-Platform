@@ -1,6 +1,6 @@
 ########## 1. Resource Group for Bootstrap ##########
 resource "azurerm_resource_group" "bootstrap" {
-  name     = "rg-${var.project_name}-bootstrap"
+  name     = "${var.project_name}-bootstrap-rg"
   location = var.location
 
   tags = {
@@ -27,7 +27,7 @@ resource "azurerm_storage_account" "bootstrap" {
     container_delete_retention_policy { days = 30 }
   }
     # (Analogue to prevent_destroy)
-  lifecycle { prevent_destroy = true }
+  #lifecycle { prevent_destroy = true }
 
   tags = {
     Project     = var.project_name

@@ -29,12 +29,7 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "tags" {
-  description = "Tags passed from the environment"
-  type        = map(string)
-}
-
-variable "cluster_name" {
-  description = "Name of the AKS cluster"
+variable "jumpbox_subnet_cidr" {
+  description = "CIDR range for the jumpbox subnet"
   type        = string
 }
