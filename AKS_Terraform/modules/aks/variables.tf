@@ -26,10 +26,6 @@ variable "node_vm_size" {
   type = string
 }
 
-variable "node_desired_size" {
-  type = number
-}
-
 variable "node_min_size" {
   type = number
 }

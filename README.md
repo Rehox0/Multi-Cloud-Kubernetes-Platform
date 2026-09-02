@@ -157,9 +157,7 @@ architecture are planned as the next major phase.
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
 - [ ] Alerting
-- [ ] Centralized logging (e.g. Loki or CloudWatch Logs)
-- [ ] Distributed tracing (basic, e.g. OpenTelemetry + Tempo)
-- [ ] SLO-based alerting rules
+- [ ] Centralized logging ELK Stack
 
 ### 💰 Cost Visibility
 - [x] Cost allocation tags across resources
@@ -191,12 +189,12 @@ architecture are planned as the next major phase.
 This phase is explicitly a learning/demonstration extension - documented as such in the README to preempt "why multi-cloud for this workload?" questions.
 
 ### Azure - Frontend Platform
-- [ ] Azure networking
-- [ ] Azure resource groups
-- [ ] Azure AKS / frontend compute platform
-- [ ] Frontend container deployment
-- [ ] Azure Container Registry
-- [ ] Frontend CI/CD
+- [x] Azure resource groups
+- [x] Azure AKS
+- [x] Azure networking
+- [x] Azure Container Registry
+- [x] Frontend CI
+- [ ] Frontend CD
 - [ ] Azure ingress
 - [ ] HTTPS / TLS
 - [ ] Azure monitoring

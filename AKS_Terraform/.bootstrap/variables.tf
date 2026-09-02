@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Project name"
   type        = string
-  default     = "Multi-Cloud-Kubernetes-Platform"
+  default     = "Multi-Cloud-Project"
 }
 
 variable "location" {
@@ -13,7 +13,7 @@ variable "location" {
 variable "storage_container_name" {
   description = "Name of the Azure Storage Container to hold .tfstate"
   type        = string
-  default     = "allegroanalyticsakstfstate2026"
+  default     = "multicloudprojecttfstate2026"
 }
 
 variable "state_storage_account_name" {
@@ -35,5 +35,10 @@ variable "github_owner" {
 
 variable "github_repository" {
   description = "GitHub repository name without owner"
+  type        = string
+}
+
+variable "github_oidc_repository" {
+  description = "Repository identifier as emitted in the GitHub OIDC subject"
   type        = string
 }

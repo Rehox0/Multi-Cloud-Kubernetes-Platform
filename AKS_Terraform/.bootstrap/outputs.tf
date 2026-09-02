@@ -29,7 +29,7 @@ output "github_actions_client_id_dev" {
   description = "Client ID used by GitHub Actions in `azure/login` action for Dev"
 }
 
-output "github_actions_client_id_prod" {
-  value       = azurerm_user_assigned_identity.gha_prod.client_id
-  description = "Client ID used by GitHub Actions in `azure/login` action for Prod"
-}
+# output "github_actions_client_id_prod" {
+#   value       = azurerm_user_assigned_identity.gha_prod.client_id
+#   description = "Client ID used by GitHub Actions in `azure/login` action for Prod"
+# }

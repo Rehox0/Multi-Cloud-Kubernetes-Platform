@@ -13,3 +13,8 @@ output "nat_gateway_id" {
 output "nat_public_ip" {
   value = azurerm_public_ip.nat.ip_address
 }
+
+output "jumpbox_subnet_id" {
+  description = "Subnet ID for the jumpbox"
+  value       = azurerm_subnet.jumpbox.id
+}

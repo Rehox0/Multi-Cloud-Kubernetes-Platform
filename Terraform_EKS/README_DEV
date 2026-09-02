@@ -85,7 +85,35 @@ echo "source <(helm completion bash)" >> ~/.bashrc
 sudo chsh -s /bin/bash ssm-user
 source ~/.bashrc -->
 
+kubectl port-forward -n monitoring pod/prometheus-kube-prometheus-stack-prometheus-0 9090:9090
+
 aws ssm start-session \
   --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["9090"],"localPortNumber":["9090"]}' \
   --target i-xxxxxxxxxxxxxx
+
+
+###################### AZURE #############################
+
+After SSH:
+
+az login --identity
+
+mkdir -p /home/azureadmin/.kube
+
+cp /root/.kube/config /home/azureadmin/.kube/config
+
+chown -R azureadmin:azureadmin /home/azureadmin/.kube
+
+chmod 700 /home/azureadmin/.kube
+chmod 600 /home/azureadmin/.kube/config
+
+su - azureadmin
+
+<!-- sudo apt install bash-completion
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+echo "alias k=kubectl" >> ~/.bashrc
+echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
+echo "source <(helm completion bash)" >> ~/.bashrc
+sudo chsh -s /bin/bash azureadmin
+source ~/.bashrc -->

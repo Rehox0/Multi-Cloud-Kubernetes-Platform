@@ -3,9 +3,14 @@ resource "azurerm_kubernetes_cluster" "main" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  dns_prefix = var.cluster_name
+  dns_prefix          = var.cluster_name
 
-  kubernetes_version = var.kubernetes_version
+  kubernetes_version  = var.kubernetes_version
+
+  private_cluster_enabled   = true
+  
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
 
   # ----------------------------------------------------------
   # Default node pool
@@ -15,8 +20,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     name = "system"
 
     vm_size = var.node_vm_size
-
-    node_count = var.node_desired_size
 
     min_count = var.node_min_size
     max_count = var.node_max_size
@@ -51,6 +54,8 @@ resource "azurerm_kubernetes_cluster" "main" {
 
     load_balancer_sku = "standard"
 
+    outbound_type = "userAssignedNATGateway"
+
     service_cidr = "10.1.0.0/16"
     dns_service_ip = "10.1.0.10"
   }
@@ -60,4 +65,10 @@ resource "azurerm_kubernetes_cluster" "main" {
   # ----------------------------------------------------------
 
   tags = var.common_tags
+}
+
+resource "azurerm_role_assignment" "aks_acr_pull" {
+  scope                = data.azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
 }

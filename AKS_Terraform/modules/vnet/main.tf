@@ -32,6 +32,21 @@ resource "azurerm_subnet" "aks" {
 }
 
 # ============================================================
+# Jumpbox Subnet
+# ============================================================
+
+resource "azurerm_subnet" "jumpbox" {
+  name = "${var.project_name}-jumpbox-subnet"
+
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.main.name
+
+  address_prefixes = [
+    var.jumpbox_subnet_cidr
+  ]
+}
+
+# ============================================================
 # Public IP for NAT Gateway
 # ============================================================
 
