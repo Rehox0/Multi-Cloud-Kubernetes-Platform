@@ -104,8 +104,10 @@ architecture are planned as the next major phase.
 </div>
 
 ## Current stage:
+### AWS
 ![Current stage](./images/EKS_pods.png)
-
+### Azure
+![Current stage](./images/AKS_pods.png)
 ---
 
 ## ✅ Checkbox
