@@ -39,13 +39,6 @@ variable "common_tags" {
   default = {}
 }
 
-variable "aks_resource_group" {
-  type = string
-}
-
-variable "aks_cluster_name" {
-  type = string
-}
 variable "kubectl_version" { type = string }
 variable "kubectl_sha256" { type = string }
 variable "kubelogin_version" { type = string }

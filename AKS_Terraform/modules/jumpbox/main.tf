@@ -88,8 +88,6 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   }
 
   custom_data = base64encode(templatefile("${path.module}/bootstrap.sh",{
-    aks_resource_group = var.aks_resource_group
-    aks_cluster_name   = var.aks_cluster_name
 
     kubectl_version    = var.kubectl_version
     kubectl_sha256     = var.kubectl_sha256

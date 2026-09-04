@@ -2,6 +2,10 @@ output "vnet_id" {
   value = azurerm_virtual_network.main.id
 }
 
+output "vnet_name" {
+  value = azurerm_virtual_network.main.name
+}
+
 output "aks_subnets" {
   value = azurerm_subnet.aks[*].id
 }
@@ -12,9 +16,4 @@ output "nat_gateway_id" {
 
 output "nat_public_ip" {
   value = azurerm_public_ip.nat.ip_address
-}
-
-output "jumpbox_subnet_id" {
-  description = "Subnet ID for the jumpbox"
-  value       = azurerm_subnet.jumpbox.id
 }
