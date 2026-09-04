@@ -7,7 +7,19 @@ module "vnet" {
 
   vnet_cidr           = "10.0.0.0/16"
   aks_subnet_cidrs    = ["10.0.4.0/22", "10.0.8.0/22"]
-  jumpbox_subnet_cidr = "10.0.0.0/24"
+
+  common_tags = local.tags
+}
+
+module "vnet_jumpbox" {
+  source = "../../modules/vnet_jumpbox"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = "austriaeast"
+
+  vnet_cidr           = "10.10.0.0/16"
+  jumpbox_subnet_cidr = "10.10.0.0/24"
 
   common_tags = local.tags
 }
@@ -27,7 +39,7 @@ module "aks" {
 
   node_vm_size = "Standard_B2s_v2"
 
-  node_min_size     = 1
+  node_min_size     = 2
   node_max_size     = 2
 
   node_labels = {
@@ -42,9 +54,9 @@ module "jumpbox" {
 
   project_name        = var.project_name
   resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  location            = "austriaeast"
 
-  subnet_id      = module.vnet.jumpbox_subnet_id
+  subnet_id             = module.vnet_jumpbox.jumpbox_subnet_id
   kubectl_version       = var.kubectl_version
   kubectl_sha256        = var.kubectl_sha256
   kubelogin_version     = var.kubelogin_version
@@ -56,10 +68,11 @@ module "jumpbox" {
   admin_username = "azureadmin"
   admin_source_ip = var.admin_source_ip
 
-  vm_size = "Standard_B2s_v2"
-
-  aks_resource_group = azurerm_resource_group.main.name
-  aks_cluster_name   = local.cluster_name
+  vm_size = "Standard_B2ls_v2"
 
   common_tags = local.tags
+
+  depends_on = [
+    module.aks
+  ]
 }

@@ -104,7 +104,7 @@ helm repo add cilium https://helm.cilium.io/
 helm repo update cilium
 
 helm upgrade --install cilium cilium/cilium \
-  --version 1.20.0 \
+  --version 1.20.1 \
   --namespace kube-system \
   --set eni.enabled=false \
   --set ipam.mode=cluster-pool \

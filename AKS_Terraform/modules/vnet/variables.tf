@@ -29,7 +29,3 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "jumpbox_subnet_cidr" {
-  description = "CIDR range for the jumpbox subnet"
-  type        = string
-}

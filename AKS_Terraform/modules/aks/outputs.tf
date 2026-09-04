@@ -23,3 +23,13 @@ output "oidc_issuer_url" {
   description = "OIDC issuer URL used by AKS Workload Identity"
   value       = azurerm_kubernetes_cluster.main.oidc_issuer_url
 }
+
+output "private_dns_zone_id" {
+  description = "Private DNS Zone ID used by the AKS private cluster"
+  value       = azurerm_kubernetes_cluster.main.private_dns_zone_id
+}
+
+output "node_resource_group" {
+  description = "Managed resource group created by AKS"
+  value       = azurerm_kubernetes_cluster.main.node_resource_group
+}

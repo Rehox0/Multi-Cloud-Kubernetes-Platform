@@ -34,6 +34,12 @@ resource "azurerm_kubernetes_cluster" "main" {
       },
       var.node_labels
     )
+
+    upgrade_settings {
+      max_surge = "10%"
+      drain_timeout_in_minutes = 0
+      node_soak_duration_in_minutes = 0
+    }
   }
 
   # ----------------------------------------------------------
@@ -49,14 +55,13 @@ resource "azurerm_kubernetes_cluster" "main" {
   # ----------------------------------------------------------
 
   network_profile {
-    network_plugin = "azure"
-    network_policy = "azure"
+    network_plugin = "none"
 
     load_balancer_sku = "standard"
 
-    outbound_type = "userAssignedNATGateway"
+    outbound_type  = "userAssignedNATGateway"
 
-    service_cidr = "10.1.0.0/16"
+    service_cidr   = "10.1.0.0/16"
     dns_service_ip = "10.1.0.10"
   }
 

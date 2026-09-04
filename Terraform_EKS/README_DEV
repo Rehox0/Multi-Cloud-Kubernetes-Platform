@@ -117,3 +117,8 @@ echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
 echo "source <(helm completion bash)" >> ~/.bashrc
 sudo chsh -s /bin/bash azureadmin
 source ~/.bashrc -->
+
+az aks get-credentials \
+  --resource-group Multi-Cloud-Project-rg \
+  --name Multi-Cloud-Project-aks-cluster \
+  --overwrite-existing
