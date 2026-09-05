@@ -30,7 +30,7 @@ k rollout restart -n external-secrets deployment
 
 
 git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
-kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/root-app.yaml
+kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/aws-root-app.yaml
 k rollout restart -n argocd deployment
 k rollout restart -n argocd statefulset
 
@@ -95,21 +95,6 @@ aws ssm start-session \
 
 ###################### AZURE #############################
 
-After SSH:
-
-az login --identity
-
-mkdir -p /home/azureadmin/.kube
-
-cp /root/.kube/config /home/azureadmin/.kube/config
-
-chown -R azureadmin:azureadmin /home/azureadmin/.kube
-
-chmod 700 /home/azureadmin/.kube
-chmod 600 /home/azureadmin/.kube/config
-
-su - azureadmin
-
 <!-- sudo apt install bash-completion
 echo "source <(kubectl completion bash)" >> ~/.bashrc
 echo "alias k=kubectl" >> ~/.bashrc
@@ -118,7 +103,14 @@ echo "source <(helm completion bash)" >> ~/.bashrc
 sudo chsh -s /bin/bash azureadmin
 source ~/.bashrc -->
 
-az aks get-credentials \
-  --resource-group Multi-Cloud-Project-rg \
-  --name Multi-Cloud-Project-aks-cluster \
-  --overwrite-existing
+<!-- az extension add --name aks-preview
+az extension update --name aks-preview
+
+az feature register \
+  --namespace "Microsoft.ContainerService" \
+  --name "KubeProxyConfigurationPreview"
+
+az provider register --namespace Microsoft.ContainerService -->
+
+git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
+kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml

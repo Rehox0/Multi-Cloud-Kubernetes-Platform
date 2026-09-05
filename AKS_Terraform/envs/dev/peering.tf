@@ -25,8 +25,6 @@ resource "azurerm_virtual_network_peering" "jumpbox_to_aks" {
 resource "azurerm_private_dns_zone_virtual_network_link" "jumpbox" {
   name = "${var.project_name}-jumpbox-dns"
 
-  resource_group_name   = module.aks.node_resource_group
-  private_dns_zone_name = data.azurerm_private_dns_zone.aks.name
-
+  private_dns_zone_id   = data.azurerm_private_dns_zone.aks.id
   virtual_network_id = module.vnet_jumpbox.vnet_id
 }

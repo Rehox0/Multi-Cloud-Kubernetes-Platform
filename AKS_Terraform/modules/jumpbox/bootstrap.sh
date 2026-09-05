@@ -118,7 +118,45 @@ helm upgrade --install cilium cilium/cilium \
   --set l7Proxy=true \
   --set gatewayAPI.enabled=true \
   --set k8sServiceHost="$${CLUSTER_INFO}" \
-  --set k8sServicePort=443
+  --set k8sServicePort=443 \
+  --wait \
+  --timeout 3m
+
+#PrioClass
+kubectl apply -f - <<'EOF'
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: prio-critical
+value: 1000000
+globalDefault: false
+description: "Critical infrastructure workloads"
+EOF
+
+# ArgoCD installation
+helm repo add argoproj https://argoproj.github.io/argo-helm
+helm upgrade --install argocd argoproj/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  --set configs.params.server\.insecure=true \
+  --set global.priorityClassName=prio-critical \
+  --wait \
+  --timeout 3m
+
+# ESO installation
+helm repo add external-secrets https://charts.external-secrets.io
+helm upgrade --install eso-operator external-secrets/external-secrets \
+  --namespace external-secrets \
+  --create-namespace \
+  --version 2.8.0 \
+  --set installCRDs=true \
+  --set webhook.hostNetwork=true \
+  --set webhook.hostUsers=true \
+  --set webhook.dnsPolicy=ClusterFirstWithHostNet \
+  --set webhook.port=10251 \
+  --set webhook.priorityClassName=prio-critical \
+  --wait \
+  --timeout 3m
 
 # Bash completion
 echo "[bootstrap] Configuring bash completion"

@@ -1,6 +1,5 @@
 data "azurerm_resources" "aks_private_dns_zone" {
   resource_group_name = module.aks.node_resource_group
-
   type = "Microsoft.Network/privateDnsZones"
 }
 

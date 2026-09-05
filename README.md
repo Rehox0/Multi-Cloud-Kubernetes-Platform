@@ -190,14 +190,16 @@ architecture are planned as the next major phase.
 
 This phase is explicitly a learning/demonstration extension - documented as such in the README to preempt "why multi-cloud for this workload?" questions.
 
-### Azure - Frontend Platform
+### Azure
 - [x] Azure AKS
-- [x] Azure networking
-- [x] Azure Container Registry
 - [x] Management/jumpbox
 - [x] Cilium CNI
+- [x] Azure networking
+- [x] Azure Container Registry
 - [x] Frontend CI
 - [ ] Frontend CD
+- [ ] Backend CI
+- [ ] Backend CD
 - [ ] HTTPS / TLS
 - [ ] Azure monitoring
 

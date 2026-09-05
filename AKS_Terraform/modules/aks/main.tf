@@ -11,10 +11,15 @@ resource "azurerm_kubernetes_cluster" "main" {
   
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
-
+  
   # ----------------------------------------------------------
   # Default node pool
   # ----------------------------------------------------------
+
+  node_provisioning_profile {
+    mode                = "Manual"
+    default_node_pools  = "Auto"
+  }
 
   default_node_pool {
     name = "system"
@@ -76,4 +81,23 @@ resource "azurerm_role_assignment" "aks_acr_pull" {
   scope                = data.azurerm_container_registry.acr.id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+}
+
+resource "azapi_update_resource" "aks_kube_proxy" {
+  type        = "Microsoft.ContainerService/managedClusters@2025-05-02-preview"
+  resource_id = azurerm_kubernetes_cluster.main.id
+
+  body = {
+    properties = {
+      networkProfile = {
+        kubeProxyConfig = {
+          enabled = false
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    azurerm_kubernetes_cluster.main
+  ]
 }
