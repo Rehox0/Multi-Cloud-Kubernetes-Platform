@@ -1,0 +1,22 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: application-prevent-default-project
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: default-project
+      match:
+        any:
+          - resources:
+              kinds:
+                - Application
+              operations:
+                - CREATE
+                - UPDATE
+      validate:
+        cel:
+          expressions:
+            - expression: object.spec.project != 'default'
+              message: The default project may not be used in an Application.
