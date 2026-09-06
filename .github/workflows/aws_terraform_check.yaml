@@ -1,4 +1,4 @@
-name: Terraform Checks
+name: AWS - Terraform Checks
 
 on:
   pull_request:

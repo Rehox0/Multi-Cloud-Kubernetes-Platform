@@ -23,7 +23,7 @@ env:
 
 jobs:
   frontend-ci:
-    name: Frontend CI
+    name: Azure - Frontend CI
     runs-on: ubuntu-latest
 
     defaults:

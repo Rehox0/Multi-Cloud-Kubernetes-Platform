@@ -1,4 +1,4 @@
-name: Frontend CI
+name: AWS - Frontend CI
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ env:
 
 jobs:
   frontend-ci:
-    name: Frontend CI
+    name: AWS - Frontend CI
     runs-on: ubuntu-latest
     defaults:
       run:
