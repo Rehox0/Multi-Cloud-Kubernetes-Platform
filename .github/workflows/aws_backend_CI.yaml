@@ -1,4 +1,4 @@
-name: Backend CI
+name: AWS - Backend CI
 
 on:
   pull_request:
@@ -23,7 +23,7 @@ env:
 
 jobs:
   backend-ci:
-    name: Backend CI
+    name: AWS - Backend CI
     runs-on: ubuntu-latest
     environment: dev
     
