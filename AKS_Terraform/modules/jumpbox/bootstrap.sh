@@ -196,4 +196,3 @@ chown azureadmin:azureadmin /home/azureadmin/.bashrc
 # rm -rf "$${BOOTSTRAP_TMP_DIR}"
 
 echo "[bootstrap] Azure jumpbox setup completed"
-

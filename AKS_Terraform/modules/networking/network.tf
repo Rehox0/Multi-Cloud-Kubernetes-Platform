@@ -2,7 +2,7 @@
 # Virtual Network
 # ============================================================
 
-resource "azurerm_virtual_network" "main" {
+resource "azurerm_virtual_network" "aks" {
   name                = "${var.project_name}-vnet"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -24,7 +24,7 @@ resource "azurerm_subnet" "aks" {
   name = "${var.project_name}-aks-subnet-${count.index + 1}"
 
   resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.main.name
+  virtual_network_name = azurerm_virtual_network.aks.name
 
   address_prefixes = [
     var.aks_subnet_cidrs[count.index]
@@ -53,7 +53,7 @@ resource "azurerm_public_ip" "nat" {
 # NAT Gateway
 # ============================================================
 
-resource "azurerm_nat_gateway" "main" {
+resource "azurerm_nat_gateway" "aks" {
   name = "${var.project_name}-nat"
 
   resource_group_name = var.resource_group_name
@@ -67,8 +67,8 @@ resource "azurerm_nat_gateway" "main" {
 }
 
 # Attach Public IP to NAT Gateway
-resource "azurerm_nat_gateway_public_ip_association" "main" {
-  nat_gateway_id       = azurerm_nat_gateway.main.id
+resource "azurerm_nat_gateway_public_ip_association" "aks" {
+  nat_gateway_id       = azurerm_nat_gateway.aks.id
   public_ip_address_id = azurerm_public_ip.nat.id
 }
 
@@ -80,5 +80,5 @@ resource "azurerm_subnet_nat_gateway_association" "aks" {
   count = length(azurerm_subnet.aks)
 
   subnet_id      = azurerm_subnet.aks[count.index].id
-  nat_gateway_id = azurerm_nat_gateway.main.id
+  nat_gateway_id = azurerm_nat_gateway.aks.id
 }

@@ -14,6 +14,11 @@ variable "location" {
   description = "Azure region"
 }
 
+variable "resource_group_name" {
+  description = "Name of the resource group where VNet will be created"
+  type        = string
+}
+
 variable "vnet_cidr" {
   type        = string
   description = "CIDR range for Virtual Network"
@@ -24,8 +29,12 @@ variable "aks_subnet_cidrs" {
   description = "CIDR list for AKS subnets"
 }
 
-variable "resource_group_name" {
-  description = "Name of the resource group where VNet will be created"
-  type        = string
-}
+variable "jumpbox_network" {
+  description = "Network configuration for the Jumpbox VNet"
 
+  type = object({
+    location    = string
+    vnet_cidr   = string
+    subnet_cidr = string
+  })
+}

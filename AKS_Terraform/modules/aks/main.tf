@@ -8,6 +8,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   kubernetes_version  = var.kubernetes_version
 
   private_cluster_enabled   = true
+  private_dns_zone_id       = var.private_dns_zone_id
   
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
@@ -52,7 +53,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   # ----------------------------------------------------------
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [var.identity_id]
   }
 
   # ----------------------------------------------------------

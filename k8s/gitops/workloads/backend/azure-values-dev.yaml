@@ -33,10 +33,10 @@ gateway:
 
 externalSecret:
   refreshInterval: "1m"
-  remoteKey: "infra-project"
+  remoteKey: "Multi-Cloud-Project-kv"
   targetName: "eso-backend-secret"
   secretStoreRef:
-    name: "xxxxxxxxxxxxxxxxxxxxx"
+    name: "azure-keyvault"
     kind: "ClusterSecretStore"
 
 networkPolicy:
