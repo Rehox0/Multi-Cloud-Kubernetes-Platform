@@ -4,7 +4,7 @@ metadata:
   name: karpenter
   namespace: argocd
 spec:
-  project: infra-project-aws
+  project: infra-project-azure
   source:
     repoURL: public.ecr.aws/karpenter
     chart: karpenter
