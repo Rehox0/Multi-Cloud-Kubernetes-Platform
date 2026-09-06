@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
-  project: infra-project-azure
+  project: azure-infra-project
 
   source:
     repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
@@ -14,7 +14,7 @@ spec:
     path: k8s/gitops/workloads/frontend
     helm:
       valueFiles:
-        - values-dev-azure.yaml
+        - azure-values-dev.yaml
 
   destination:
     server: https://kubernetes.default.svc

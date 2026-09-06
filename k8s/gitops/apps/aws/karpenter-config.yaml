@@ -4,7 +4,7 @@ metadata:
   name: karpenter-config
   namespace: argocd
 spec:
-  project: infra-project-aws
+  project: aws-infra-project
   source:
     repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
     targetRevision: testing

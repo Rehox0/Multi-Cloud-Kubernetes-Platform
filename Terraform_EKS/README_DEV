@@ -114,3 +114,8 @@ az provider register --namespace Microsoft.ContainerService -->
 
 git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
 kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
+
+#ArgoCD
+ssh -L 8080:127.0.0.1:8080 azureadmin@IP_VM "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
