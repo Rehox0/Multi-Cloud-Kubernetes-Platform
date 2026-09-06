@@ -1,4 +1,4 @@
-name: Azure - Frontend CI test
+name: Azure - Frontend CI
 
 on:
   pull_request:
