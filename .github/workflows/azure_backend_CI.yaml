@@ -1,10 +1,10 @@
-name: Backend CI
+name: Backend CI - Azure
 
 on:
   pull_request:
     paths:
       - 'backend/**'
-      - '.github/workflows/backend_CI.yaml'
+      - '.github/workflows/azure_backend_CI.yaml'
 
   push:
     branches:
@@ -12,21 +12,21 @@ on:
       - testing
     paths:
       - 'backend/**'
-      - '.github/workflows/backend_CI.yaml'
+      - '.github/workflows/azure_backend_CI.yaml'
 
 permissions:
   contents: read
 
 env:
-  AWS_REGION: eu-north-1
-  ECR_REPOSITORY: portfolio-backend
+  AZURE_REGISTRY: acrmulticloudproject.azurecr.io
+  ACR_REPOSITORY: backend
 
 jobs:
   backend-ci:
     name: Backend CI
     runs-on: ubuntu-latest
     environment: dev
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,15 +99,16 @@ jobs:
         run: |
           docker rm -f backend-test || true
 
-  push-to-ecr:
-    name: Push image to ECR
+  push-to-acr:
+    name: Push backend image to Azure Container Registry
     needs: backend-ci
-    environment: dev
 
     if: github.event_name == 'push' &&
         (github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main')
 
     runs-on: ubuntu-latest
+
+    environment: dev
 
     permissions:
       contents: write
@@ -117,30 +118,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Azure Login
+        uses: azure/login@v2
         with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: gha-backend-${{ github.run_id }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login \
+            --name acrMultiCloudProject
 
       - name: Build Docker image
         env:
-          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG \
             ./backend
-            
+
       - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          image-ref: ${{ env.AZURE_REGISTRY }}/${{ env.ACR_REPOSITORY }}:${{ github.sha }}
           format: table
           exit-code: '1'
           ignore-unfixed: true
@@ -149,11 +150,10 @@ jobs:
 
       - name: Push Docker image
         env:
-          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker push \
-            $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
 
       - name: Update Helm image tag
         env:
@@ -164,7 +164,7 @@ jobs:
           import os
           import re
 
-          path = Path("k8s/gitops/workloads/backend/values-dev.yaml")
+          path = Path("k8s/gitops/workloads/backend/azure-values-dev.yaml")
 
           content = path.read_text()
 
@@ -177,24 +177,26 @@ jobs:
           )
 
           if count != 1:
-              raise RuntimeError("Could not find image.tag in values.yaml")
+              raise RuntimeError(
+                  "Could not find image.tag in azure-values-dev.yaml"
+              )
 
           path.write_text(content)
           PY
 
-          git diff -- k8s/gitops/workloads/backend/values-dev.yaml
+          git diff -- k8s/gitops/workloads/backend/azure-values-dev.yaml
 
       - name: Commit updated image tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add k8s/gitops/workloads/backend/values-dev.yaml
+          git add k8s/gitops/workloads/backend/azure-values-dev.yaml
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "ci: update backend image to ${{ github.sha }}"
+          git commit -m "ci: update Azure backend image to ${{ github.sha }}"
           git push
