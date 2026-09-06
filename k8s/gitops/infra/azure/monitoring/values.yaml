@@ -1,0 +1,29 @@
+crds:
+  enabled: true
+
+grafana:
+  enabled: true
+  priorityClassName: prio-medium
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    priorityClassName: prio-medium
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    priorityClassName: prio-medium
+
+kubeStateMetrics:
+  enabled: true
+  priorityClassName: prio-medium
+
+nodeExporter:
+  enabled: true
+  priorityClassName: prio-medium

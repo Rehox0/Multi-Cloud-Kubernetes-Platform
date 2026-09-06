@@ -1,0 +1,101 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backend-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: backend.rules
+      rules:
+        - alert: BackendTargetDown
+          expr: |
+            up{
+              job="workload-backend-dev",
+              namespace="backend-ns"
+            } == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: backend
+          annotations:
+            summary: "Backend target is down"
+            description: "Prometheus cannot scrape backend pod {{ $labels.pod }}."
+
+        - alert: BackendHighErrorRate
+          expr: |
+            (
+              sum(rate(app_http_requests_total{
+                job="workload-backend-dev",
+                namespace="backend-ns",
+                status=~"5.."
+              }[5m]))
+              /
+              clamp_min(
+                sum(rate(app_http_requests_total{
+                  job="workload-backend-dev",
+                  namespace="backend-ns"
+                }[5m])),
+                0.001
+              )
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            service: backend
+          annotations:
+            summary: "Backend has high 5xx error rate"
+            description: "More than 5% of backend HTTP requests are returning 5xx for 5 minutes."
+
+        # P95 > 500 ms
+        - alert: BackendHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (
+                rate(app_http_request_duration_seconds_bucket{
+                  job="workload-backend-dev",
+                  namespace="backend-ns"
+                }[5m])
+              )
+            ) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            service: backend
+          annotations:
+            summary: "Backend latency is high"
+            description: "Backend P95 HTTP latency is above 500ms for 5 minutes."
+
+        # Żaden pod backendu nie jest dostępny
+        - alert: BackendPodUnavailable
+          expr: |
+            sum(
+              up{
+                job="workload-backend-dev",
+                namespace="backend-ns"
+              }
+            ) < 1
+          for: 2m
+          labels:
+            severity: critical
+            service: backend
+          annotations:
+            summary: "Backend has no available pods"
+            description: "Prometheus reports no healthy backend targets in backend-ns."
+
+        # UDP listener
+        - alert: BackendUDPListenerDown
+          expr: |
+            app_udp_listener_active{
+              job="workload-backend-dev",
+              namespace="backend-ns"
+            } == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: backend
+          annotations:
+            summary: "Backend UDP listener is down"
+            description: "UDP listener is inactive on pod {{ $labels.pod }}."

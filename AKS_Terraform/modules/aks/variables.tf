@@ -43,3 +43,13 @@ variable "common_tags" {
   type    = map(string)
   default = {}
 }
+
+variable "private_dns_zone_id" {
+  type        = string
+  description = "Private DNS zone ID for the private AKS cluster"
+}
+
+variable "identity_id" {
+  type        = string
+  description = "User Assigned Identity ID used by AKS"
+}

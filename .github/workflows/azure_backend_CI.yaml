@@ -1,0 +1,202 @@
+name: Azure - Backend CI
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/azure_backend_CI.yaml'
+
+  push:
+    branches:
+      - main
+      - testing
+    paths:
+      - 'backend/**'
+      - '.github/workflows/azure_backend_CI.yaml'
+
+permissions:
+  contents: read
+
+env:
+  AZURE_REGISTRY: acrmulticloudproject.azurecr.io
+  ACR_REPOSITORY: backend
+
+jobs:
+  backend-ci:
+    name: Azure - Backend CI
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Python syntax check
+        run: |
+          python -m compileall backend
+
+      - name: Django system checks
+        env:
+          DJANGO_SETTINGS_MODULE: backend.settings
+          PYTHONPATH: backend
+        run: |
+          cd backend
+          python manage.py check
+
+      - name: Django tests
+        env:
+          DJANGO_SETTINGS_MODULE: backend.settings
+          PYTHONPATH: backend
+        run: |
+          cd backend
+          python manage.py test
+
+      - name: Docker build
+        run: |
+          docker build \
+            -t backend:${{ github.sha }} \
+            ./backend
+
+      - name: Docker run
+        run: |
+          docker run -d \
+            --name backend-test \
+            -p 8000:8000 \
+            -e SECRET_KEY=test-secret-key \
+            -e DEBUG=True \
+            backend:${{ github.sha }}
+
+      - name: Backend health check
+        run: |
+          for i in {1..30}; do
+            if curl --fail http://localhost:8000/api/health; then
+              echo "Backend is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for backend..."
+            sleep 2
+          done
+
+          echo "Backend failed health check"
+          docker logs backend-test
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f backend-test || true
+
+  push-to-acr:
+    name: Push backend image to Azure Container Registry
+    needs: backend-ci
+
+    if: github.event_name == 'push' &&
+        (github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main')
+
+    runs-on: ubuntu-latest
+
+    environment: dev
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login \
+            --name acrMultiCloudProject
+
+      - name: Build Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG \
+            ./backend
+
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.AZURE_REGISTRY }}/${{ env.ACR_REPOSITORY }}:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Push Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker push \
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Helm image tag
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          path = Path("k8s/gitops/workloads/backend/azure-values-dev.yaml")
+
+          content = path.read_text()
+
+          content, count = re.subn(
+              r'(^\s*tag:\s*).*$',
+              rf'\g<1>{os.environ["IMAGE_TAG"]}',
+              content,
+              count=1,
+              flags=re.MULTILINE,
+          )
+
+          if count != 1:
+              raise RuntimeError(
+                  "Could not find image.tag in azure-values-dev.yaml"
+              )
+
+          path.write_text(content)
+          PY
+
+          git diff -- k8s/gitops/workloads/backend/azure-values-dev.yaml
+
+      - name: Commit updated image tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add k8s/gitops/workloads/backend/azure-values-dev.yaml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "ci: update Azure backend image to ${{ github.sha }}"
+          git push

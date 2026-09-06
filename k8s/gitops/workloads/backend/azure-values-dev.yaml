@@ -1,0 +1,47 @@
+replicaCount: 4
+
+image:
+  repository: acrmulticloudproject.azurecr.io/backend
+  tag: 4ad04957c7bcb70a6077fbfefa2b6e977010e74d
+
+serviceAccount:
+  create: false
+  name: backend
+
+env:
+  debug: "True"
+  allowedHosts: "*"
+
+service:
+  type: ClusterIP
+  port: 8000
+  
+  containerPort: 8000
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  - protocol: UDP
+    port: 9999
+    targetPort: 9999
+
+gateway:
+  enabled: true
+  name: main-gateway
+  namespace: gateway-ns
+  host: "my-domain.com"
+
+externalSecret:
+  refreshInterval: "1m"
+  remoteKey: "Multi-Cloud-Project-kv"
+  targetName: "eso-backend-secret"
+  secretStoreRef:
+    name: "azure-keyvault"
+    kind: "ClusterSecretStore"
+
+networkPolicy:
+  enabled: true
+
+backend:
+  host: http://workload-backend-dev.backend-ns.svc.cluster.local
+  port: 8000
