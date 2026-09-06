@@ -12,13 +12,13 @@ spec:
       targetRevision: 88.3.0
       helm:
         valueFiles:
-            - $values/k8s/gitops/infra/monitoring/values.yaml
+            - $values/k8s/gitops/infra/azure/monitoring/values.yaml
     - repoURL:  'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
       targetRevision: testing
       ref: values
     - repoURL: 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
       targetRevision: testing
-      path: k8s/gitops/infra/monitoring/dashboards
+      path: k8s/gitops/infra/azure/monitoring/dashboards
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

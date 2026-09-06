@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
     targetRevision: testing
-    path: k8s/gitops/infra/karpenter
+    path: k8s/gitops/infra/aws/karpenter
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter
