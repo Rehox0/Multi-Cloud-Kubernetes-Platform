@@ -122,6 +122,7 @@ architecture are planned as the next major phase.
 - [x] Cilium Gateway API
 - [x] AWS Secrets Manager
 - [x] ECR
+- [ ] CloudFront
 
 
 ### 🔄 CI/CD & GitOps (AWS)
@@ -197,13 +198,14 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Azure networking
 - [x] Azure Container Registry
 - [x] Frontend CI
-- [ ] Frontend CD
-- [ ] Backend CI
-- [ ] Backend CD
-- [ ] HTTPS / TLS
+- [x] Frontend CD
+- [x] Backend CI
+- [x] Backend CD
+- [ ] Azure Front Door
 - [ ] Azure monitoring
 
-- [ ] Multi-Cloud Connectivity
+- [ ] Multi-Cloud Connectivity:
+
 - [ ] Multi-Cloud Security
 - [ ] Multi-Cloud Observability
 - [ ] Multi-Cloud Reliability

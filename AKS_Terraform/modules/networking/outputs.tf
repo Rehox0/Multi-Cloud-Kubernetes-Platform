@@ -26,3 +26,7 @@ output "aks_private_dns_zone_id" {
   description = "ID of the AKS private DNS zone"
   value       = azurerm_private_dns_zone.aks.id
 }
+
+output "private_link_subnet_id" {
+  value = azurerm_subnet.private_link.id
+}

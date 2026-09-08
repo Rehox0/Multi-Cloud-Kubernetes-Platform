@@ -18,7 +18,7 @@ variable "common_tags" {
 
 variable "cluster_version" {
   type        = string
-  description = "EKS control plane version"
+  description = "AKS control plane version"
   default     = "1.35"
 }
 
