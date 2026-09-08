@@ -25,7 +25,3 @@ output "backend_identity_principal_id" {
   value       = azurerm_user_assigned_identity.backend.principal_id
 }
 
-output "user_object_id" {
-  description = "Object ID of the Azure user who should manage Key Vault secrets"
-  value       = var.user_object_id
-}
