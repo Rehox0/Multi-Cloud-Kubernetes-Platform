@@ -26,3 +26,13 @@ variable "backend_keyvault_id" {
   type        = string
   description = "ID of the backend Key Vault"
 }
+
+variable "aks_vnet_id" {
+  type        = string
+  description = "ID of the AKS virtual network"
+}
+
+variable "user_object_id" {
+  description = "Object ID of the Azure user who should manage Key Vault secrets"
+  type        = string
+}

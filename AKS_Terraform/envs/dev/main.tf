@@ -29,7 +29,7 @@ module "aks" {
   subnet_id           = module.networking.aks_subnets[0]
   private_dns_zone_id = module.networking.aks_private_dns_zone_id
   identity_id         = module.identity.aks_identity_id
-
+  
   kubernetes_version = var.cluster_version
 
   node_vm_size = "Standard_B2s_v2"
@@ -40,8 +40,9 @@ module "aks" {
   node_labels = {
     env = "dev"
   }
-
   common_tags = local.tags
+
+  depends_on = [module.networking]
 }
 
 module "jumpbox" {
@@ -68,22 +69,22 @@ module "jumpbox" {
 
   common_tags = local.tags
 
-  depends_on = [
-    module.aks
-  ]
+  depends_on = [module.aks]
 }
 
 module "identity" {
   source = "../../modules/identity"
 
   project_name = var.project_name
-  common_tags  = local.tags
-
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
   aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
+  aks_vnet_id             = module.networking.aks_vnet_id
   backend_keyvault_id     = module.key_vault.id
+  user_object_id          = var.user_object_id
+
+  common_tags = local.tags
 }
 
 module "key_vault" {

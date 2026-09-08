@@ -29,3 +29,15 @@ resource "azurerm_role_assignment" "aks_private_dns" {
   role_definition_name = "Private DNS Zone Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
 }
+
+resource "azurerm_role_assignment" "aks_network_contributor" {
+  scope                = var.aks_vnet_id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_user_assigned_identity.aks.principal_id
+}
+
+resource "azurerm_role_assignment" "user_keyvault_secrets_officer" {
+  scope                = var.backend_keyvault_id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = var.user_object_id
+}
