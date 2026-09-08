@@ -1,12 +1,12 @@
+variable "project_name" {
+  type        = string
+  description = "Project name"
+}
+
 variable "common_tags" {
   description = "Tags passed from the environment"
   type        = map(string)
   default     = {}
-}
-
-variable "project_name" {
-  type        = string
-  description = "Project name"
 }
 
 variable "location" {
@@ -28,6 +28,12 @@ variable "aks_subnet_cidrs" {
   type        = list(string)
   description = "CIDR list for AKS subnets"
 }
+
+variable "private_link_subnet_cidr" {
+  description = "CIDR range dedicated to Azure Private Link Service"
+  type        = string
+}
+
 
 variable "jumpbox_network" {
   description = "Network configuration for the Jumpbox VNet"

@@ -5,6 +5,9 @@ metadata:
   namespace: gateway-ns
 spec:
   gatewayClassName: cilium
+  infrastructure:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
   listeners:
     - name: http
       protocol: HTTP

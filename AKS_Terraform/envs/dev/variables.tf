@@ -18,7 +18,7 @@ variable "common_tags" {
 
 variable "cluster_version" {
   type        = string
-  description = "EKS control plane version"
+  description = "AKS control plane version"
   default     = "1.35"
 }
 
@@ -65,3 +65,7 @@ variable "helm_sha256" {
   default     = "759c656fbd9c11e6a47784ecbeac6ad1eb16a9e76d202e51163ab78504848862"
 }
 
+variable "user_object_id" {
+  description = "Object ID of the Azure user who should manage Key Vault secrets"
+  type        = string
+}

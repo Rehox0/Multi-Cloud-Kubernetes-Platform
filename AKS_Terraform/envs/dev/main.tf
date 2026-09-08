@@ -7,7 +7,7 @@ module "networking" {
 
   vnet_cidr        = "10.0.0.0/16"
   aks_subnet_cidrs = ["10.0.4.0/22", "10.0.8.0/22"]
-
+  private_link_subnet_cidr = "10.0.12.0/24"
   jumpbox_network = {
     location    = "austriaeast"
     vnet_cidr   = "10.10.0.0/16"
@@ -29,7 +29,7 @@ module "aks" {
   subnet_id           = module.networking.aks_subnets[0]
   private_dns_zone_id = module.networking.aks_private_dns_zone_id
   identity_id         = module.identity.aks_identity_id
-
+  
   kubernetes_version = var.cluster_version
 
   node_vm_size = "Standard_B2s_v2"
@@ -40,8 +40,9 @@ module "aks" {
   node_labels = {
     env = "dev"
   }
-
   common_tags = local.tags
+
+  depends_on = [module.networking]
 }
 
 module "jumpbox" {
@@ -68,22 +69,22 @@ module "jumpbox" {
 
   common_tags = local.tags
 
-  depends_on = [
-    module.aks
-  ]
+  depends_on = [module.aks]
 }
 
 module "identity" {
   source = "../../modules/identity"
 
   project_name = var.project_name
-  common_tags  = local.tags
-
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
   aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
+  aks_vnet_id             = module.networking.aks_vnet_id
   backend_keyvault_id     = module.key_vault.id
+  user_object_id          = var.user_object_id
+
+  common_tags = local.tags
 }
 
 module "key_vault" {
@@ -95,4 +96,24 @@ module "key_vault" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
   common_tags = local.tags
+}
+
+module "front_door" {
+  source = "../../modules/front_door"
+
+  project_name            = var.project_name
+  resource_group_name     = azurerm_resource_group.main.name
+  aks_node_resource_group = module.aks.node_resource_group
+
+  aks_subnet_id = module.networking.aks_subnets[0]
+  
+  private_link_location = "germanywestcentral"
+  private_link_subnet_id = module.networking.private_link_subnet_id
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks,
+    module.networking
+  ]
 }

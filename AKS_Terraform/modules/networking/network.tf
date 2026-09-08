@@ -26,9 +26,25 @@ resource "azurerm_subnet" "aks" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.aks.name
 
+  private_link_service_network_policies_enabled = false
+
   address_prefixes = [
     var.aks_subnet_cidrs[count.index]
   ]
+}
+
+# ============================================================
+# Private Link Subnet
+# ============================================================
+
+resource "azurerm_subnet" "private_link" {
+  name                 = "${var.project_name}-private-link-subnet"
+  
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.aks.name
+  address_prefixes     = [var.private_link_subnet_cidr]
+
+  private_link_service_network_policies_enabled = false
 }
 
 # ============================================================
