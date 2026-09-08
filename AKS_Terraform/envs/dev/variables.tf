@@ -69,3 +69,15 @@ variable "user_object_id" {
   description = "Object ID of the Azure user who should manage Key Vault secrets"
   type        = string
 }
+
+variable "enable_frontdoor" {
+  description = "Enable Azure Front Door resources"
+  type        = bool
+  default     = true
+}
+
+variable "aws_cloudfront_hostname" {
+  description = "AWS CloudFront hostname"
+  type        = string
+  default     = "aws-placeholder.invalid"
+}

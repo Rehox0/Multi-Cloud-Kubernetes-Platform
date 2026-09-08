@@ -201,11 +201,13 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Frontend CD
 - [x] Backend CI
 - [x] Backend CD
-- [ ] Azure Front Door
+- [x] Azure Front Door
 - [ ] Azure monitoring
 
-- [ ] Multi-Cloud Connectivity:
-
+- [ ] Multi-Cloud Connectivity
+- [x] Azure Traffic Manager
+- [ ] Azure Multicloud Interconnect
+- [ ] AWS Interconnect
 - [ ] Multi-Cloud Security
 - [ ] Multi-Cloud Observability
 - [ ] Multi-Cloud Reliability
