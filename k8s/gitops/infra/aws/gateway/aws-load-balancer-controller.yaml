@@ -15,12 +15,24 @@ spec:
       values: |
         clusterName: Multi-Cloud-Kubernetes-Platform-eks-cluster
         region: eu-north-1
+        hostNetwork: true
 
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/Multi-Cloud-Kubernetes-Platform-backend-irsa-role
+
+        podLabels:
+          app: aws-load-balancer-controller
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
 
   destination:
     server: https://kubernetes.default.svc
