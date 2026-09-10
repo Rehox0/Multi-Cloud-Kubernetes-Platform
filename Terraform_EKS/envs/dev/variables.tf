@@ -23,11 +23,6 @@ variable "secrets_name" {
   default = "allegro-app-secrets-dev"
 }
 
-variable "alb_ingress_cidr_blocks" {
-  type        = list(string)
-  description = "Allowed CIDR ranges for the private ALB"
-}
-
 variable "cluster_version" {
   type        = string
   description = "EKS control plane version"
@@ -69,12 +64,6 @@ variable "eks_console_user_principal_arn" {
   default     = ""
 }
 
-variable "alb_controller_chart_version" {
-  type        = string
-  description = "Pinned chart version for aws-load-balancer-controller"
-  default     = "1.15.0"
-}
-
 variable "cilium_chart_version" {
   type        = string
   description = "Pinned chart version for cilium"
@@ -95,4 +84,10 @@ variable "ecr_repository_names" {
     "portfolio-backend",
     "portfolio-frontend"
   ]
+}
+
+variable "gateway_name" {
+  description = "Name for the Gateway NLB"
+  type        = string
+  default     = "terraform-gateway"
 }

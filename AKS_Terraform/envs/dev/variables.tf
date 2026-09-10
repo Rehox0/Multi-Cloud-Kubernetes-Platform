@@ -7,7 +7,7 @@ variable "project_name" {
 variable "location" {
   type        = string
   description = "Azure region"
-  default     = "polandcentral"
+  default     = "germanywestcentral"
 }
 
 variable "common_tags" {
@@ -68,4 +68,16 @@ variable "helm_sha256" {
 variable "user_object_id" {
   description = "Object ID of the Azure user who should manage Key Vault secrets"
   type        = string
+}
+
+variable "enable_frontdoor" {
+  description = "Enable Azure Front Door resources"
+  type        = bool
+  default     = true
+}
+
+variable "aws_cloudfront_hostname" {
+  description = "AWS CloudFront hostname"
+  type        = string
+  default     = "aws-placeholder.invalid"
 }

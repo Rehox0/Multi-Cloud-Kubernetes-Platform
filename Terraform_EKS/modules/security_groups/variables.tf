@@ -10,12 +10,13 @@ variable "vpc_id" {
   description = "VPC ID from the network module"
 }
 
-variable "alb_ingress_cidr_blocks" {
-  type        = list(string)
-  description = "IP ranges that can connect to the ALB"
-}
-
 variable "pod_security_group_id" {
   description = "Primary Security Group ID from EKS cluster used for Pod traffic"
   type        = string
+}
+
+variable "gateway_node_port" {
+  description = "NodePort exposed by the Cilium Gateway"
+  type        = number
+  default     = 31738
 }

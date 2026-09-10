@@ -99,6 +99,7 @@ module "key_vault" {
 }
 
 module "front_door" {
+  count  = var.enable_frontdoor ? 1 : 0
   source = "../../modules/front_door"
 
   project_name            = var.project_name
@@ -115,5 +116,24 @@ module "front_door" {
   depends_on = [
     module.aks,
     module.networking
+  ]
+}
+
+module "traffic_manager" {
+  source = "../../modules/traffic_manager"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+
+  aws_cloudfront_hostname = var.aws_cloudfront_hostname
+
+  azure_frontdoor_hostname = module.front_door[0].endpoint_hostname
+
+  health_probe_path = "/api/health"
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.front_door
   ]
 }

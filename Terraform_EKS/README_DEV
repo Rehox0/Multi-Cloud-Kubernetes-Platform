@@ -95,23 +95,6 @@ aws ssm start-session \
 
 ###################### AZURE #############################
 
-<!-- sudo apt install bash-completion
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-echo "alias k=kubectl" >> ~/.bashrc
-echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
-echo "source <(helm completion bash)" >> ~/.bashrc
-sudo chsh -s /bin/bash azureadmin
-source ~/.bashrc -->
-
-<!-- az extension add --name aks-preview
-az extension update --name aks-preview
-
-az feature register \
-  --namespace "Microsoft.ContainerService" \
-  --name "KubeProxyConfigurationPreview"
-
-az provider register --namespace Microsoft.ContainerService -->
-
 git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
 kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
 
@@ -119,3 +102,18 @@ kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-ap
 ssh -L 8080:127.0.0.1:8080 azureadmin@IP_VM "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+
+# Accept Private Endpoint
+<!-- Get the name -->
+az network private-link-service show \
+  --name multicloudproject-frontdoor-pls \
+  --resource-group Multi-Cloud-Project-rg \
+  --query "privateEndpointConnections[].name" \
+  -o tsv
+<!-- approve -->
+  az network private-link-service connection update \
+  --name "NAMEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+  --service-name multicloudproject-frontdoor-pls \
+  --resource-group Multi-Cloud-Project-rg \
+  --connection-status Approved \
+  --description "Approved Azure Front Door Premium Private Link connection"

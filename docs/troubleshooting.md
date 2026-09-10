@@ -1,4 +1,4 @@
-# The draft
+# The draft(in progress)
 # Troubleshooting & Engineering Challenges
 
 This document records the main technical problems encountered while building
@@ -7,6 +7,8 @@ and operating the Kubernetes platform.
 The goal is not to document every minor configuration issue, but to capture
 problems that required meaningful investigation, debugging, or architectural
 changes.
+
+There was also huge amout of Terraform AWS & Azure configuration problems, but not documented here
 
 ## 1. Terraform apply + Cluster in Private Subnets
 ```

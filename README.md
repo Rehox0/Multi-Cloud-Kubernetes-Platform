@@ -4,6 +4,7 @@
 </div>
 
 [![AWS](https://custom-icon-badges.demolab.com/badge/AWS-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![Azure](https://custom-icon-badges.demolab.com/badge/Azure-%230089D6.svg?logo=azure&logoColor=white)](#)
 [![Terraform](https://img.shields.io/badge/Terraform-844FBA?logo=terraform&logoColor=fff)](#)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff)](#)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](#)
@@ -30,16 +31,17 @@ architecture are planned as the next major phase.
 ---
 
 ## 🛠️ Tech Stack
-* **Cloud (AWS):** VPC, EKS, ALB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints
+* **Cloud (AWS):** VPC, EKS, NLB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints, CloudFront
+* **Cloud (Azure):** AKS, Keyvault, FrontDoor
 * **CI/CD:** ArgoCD, GitHub Actions
 * **DevOps:** Terraform, Kubernetes, Docker, Helm, Karpenter, Kyverno, ESO, Cilium, Gateway API
 * **Observability:** Prometheus, Grafana, AWS CloudWatch
-* **Languages:** Python, Bash
+* **Languages:** Python, Bash, Helm charts
 
 ---
 
 ## 🏗️ Architecture diagram
-- **Infrastructure as Code using Terraform (+100 resources)** - networking, compute, security, scaling, and observability.
+- **Infrastructure as Code using Terraform (+100 resources AWS & +45 Azure)** - networking, compute, security, scaling, and observability.
 - **Remote state** stored in S3 with AES-256 encryption; single `terraform.tfstate` scoped to `eu-north-1`.
 - **Security Groups** enforce strict inbound/outbound rules between layers
 
@@ -107,7 +109,64 @@ architecture are planned as the next major phase.
 ### AWS
 ![Current stage](./images/EKS_pods.png)
 ### Azure
-![Current stage](./images/AKS_pods.png)
+<details>
+<summary><b>🔍 Click to expand <code>kubectl get pods -A</code> output</b></summary>
+
+```bash
+NAMESPACE          NAME                                                             READY   STATUS      RESTARTS        AGE
+argocd             argocd-application-controller-0                                  1/1     Running     0               7h25m
+argocd             argocd-applicationset-controller-67c694bc9b-mwzx4                1/1     Running     0               7h25m
+argocd             argocd-dex-server-68d7788bd9-jf7tw                               1/1     Running     0               7h25m
+argocd             argocd-notifications-controller-f7d5569db-dblhg                  1/1     Running     0               7h25m
+argocd             argocd-redis-7d7468d598-2xt2g                                    1/1     Running     0               7h25m
+argocd             argocd-repo-server-698564b7cc-88dt4                              1/1     Running     0               7h25m
+argocd             argocd-server-7b7f6749c5-jlkmm                                   1/1     Running     0               7h25m
+backend-ns         azure-workload-backend-dev-5b897659c-7rwdt                       1/1     Running     0               7h7m
+backend-ns         azure-workload-backend-dev-5b897659c-g4pv4                       1/1     Running     0               7h7m
+backend-ns         azure-workload-backend-dev-5b897659c-tbqng                       1/1     Running     0               7h7m
+backend-ns         azure-workload-backend-dev-5b897659c-xrt2b                       1/1     Running     0               7h7m
+external-secrets   eso-operator-external-secrets-58784cb564-ptjvj                   1/1     Running     0               7h25m
+external-secrets   eso-operator-external-secrets-cert-controller-78698b6b8b-mv5v4   1/1     Running     0               7h25m
+external-secrets   eso-operator-external-secrets-webhook-6cf46fc9d4-krqcm           1/1     Running     0               7h25m
+frontend-ns        azure-workload-frontend-dev-797cb6f4c4-bmjzx                     1/1     Running     0               7h8m
+frontend-ns        azure-workload-frontend-dev-797cb6f4c4-qmr4g                     1/1     Running     0               7h8m
+frontend-ns        azure-workload-frontend-dev-797cb6f4c4-z5tz8                     1/1     Running     0               7h8m
+kube-system        azure-wi-webhook-controller-manager-6c8f8bb644-5xb8g             1/1     Running     2 (7h26m ago)   7h29m
+kube-system        azure-wi-webhook-controller-manager-6c8f8bb644-csgws             1/1     Running     2 (7h26m ago)   7h29m
+kube-system        cilium-4lwhb                                                     1/1     Running     0               7h26m
+kube-system        cilium-b9d6v                                                     1/1     Running     0               7h26m
+kube-system        cilium-envoy-5k7mt                                               1/1     Running     0               7h26m
+kube-system        cilium-envoy-dfffs                                               1/1     Running     0               7h26m
+kube-system        cilium-operator-67b647f48c-gx9h5                                 1/1     Running     0               7h26m
+kube-system        cilium-operator-67b647f48c-qwffg                                 1/1     Running     0               7h26m
+kube-system        cloud-node-manager-brzp6                                         1/1     Running     0               7h48m
+kube-system        cloud-node-manager-sx74f                                         1/1     Running     0               7h48m
+kube-system        coredns-5d474ff6db-kt8ct                                         1/1     Running     0               7h26m
+kube-system        coredns-5d474ff6db-xzwqz                                         1/1     Running     0               7h50m
+kube-system        coredns-autoscaler-6769f8f9b-kmgt5                               1/1     Running     0               7h50m
+kube-system        csi-azuredisk-node-8j8vm                                         3/3     Running     0               7h48m
+kube-system        csi-azuredisk-node-c864x                                         3/3     Running     0               7h48m
+kube-system        csi-azurefile-node-h48x4                                         4/4     Running     0               7h48m
+kube-system        csi-azurefile-node-qqw4t                                         4/4     Running     0               7h48m
+kube-system        konnectivity-agent-autoscaler-7c54b597d4-jfwzn                   1/1     Running     0               7h50m
+kube-system        konnectivity-agent-d678f8f46-xzg7h                               1/1     Running     0               7h40m
+kube-system        konnectivity-agent-d678f8f46-zfhm7                               1/1     Running     0               7h26m
+kube-system        metrics-server-5b879b45fc-chh7t                                  2/2     Running     0               7h23m
+kube-system        metrics-server-5b879b45fc-tdc9p                                  2/2     Running     0               7h23m
+kyverno            kyverno-admission-controller-86855869d5-s9g5c                    1/1     Running     0               7h8m
+kyverno            kyverno-background-controller-8fb8b68cf-cks96                    1/1     Running     0               7h8m
+kyverno            kyverno-cleanup-controller-fdcbbd468-pnrb5                       1/1     Running     0               7h8m
+kyverno            kyverno-reports-controller-7949866bf7-5k7fc                      1/1     Running     0               7h8m
+kyverno            kyverno-system-migrate-resources-hzhkb                           0/1     Completed   0               5h43m
+monitoring         alertmanager-kube-prometheus-stack-alertmanager-0                2/2     Running     0               7h7m
+monitoring         kube-prometheus-stack-grafana-849c9db65d-2795h                   3/3     Running     0               3h22m
+monitoring         kube-prometheus-stack-kube-state-metrics-869857b4d7-jhbgn        1/1     Running     0               7h8m
+monitoring         kube-prometheus-stack-operator-7bcd6567d9-p5hf4                  1/1     Running     0               7h8m
+monitoring         kube-prometheus-stack-prometheus-node-exporter-8rb8z             1/1     Running     0               7h8m
+monitoring         kube-prometheus-stack-prometheus-node-exporter-jsgxw             1/1     Running     0               7h8m
+monitoring         prometheus-kube-prometheus-stack-prometheus-0                    2/2     Running     0               7h7m
+```
+</details>
 ---
 
 ## ✅ Checkbox
@@ -201,12 +260,16 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Frontend CD
 - [x] Backend CI
 - [x] Backend CD
-- [ ] Azure Front Door
+- [x] Azure Front Door
 - [ ] Azure monitoring
 
-- [ ] Multi-Cloud Connectivity:
-
+- [ ] Multicloud Interconnect (AWS eu-central-1 & Azure germanywestcentral)
+- [x] Azure Traffic Manager
 - [ ] Multi-Cloud Security
 - [ ] Multi-Cloud Observability
 - [ ] Multi-Cloud Reliability
+
+- [ ] PostgreSQL extension
+- [ ] Redis/Valkey extension
+- [ ] DB Replicaset
 

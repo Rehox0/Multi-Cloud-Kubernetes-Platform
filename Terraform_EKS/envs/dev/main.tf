@@ -45,8 +45,8 @@ module "security_groups" {
   project_name            = var.project_name
   vpc_id                  = module.vpc.vpc_id
   common_tags             = local.tags
-  alb_ingress_cidr_blocks = var.alb_ingress_cidr_blocks
   pod_security_group_id   = module.eks.pod_security_group_id
+  gateway_node_port       = 31738
 }
 
 module "vpc_endpoints" {
@@ -88,4 +88,22 @@ module "management" {
   depends_on = [
     module.eks
   ]
+}
+
+module "gateway_lb" {
+  source = "../../modules/gateway_lb"
+
+  project_name       = var.project_name
+  gateway_name       = var.gateway_name
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnets
+  gateway_node_port  = 31738
+  gateway_nlb_sg_id  = module.security_groups.gateway_nlb_sg_id
+}
+
+module "cloudfront" {
+  source = "../../modules/cloudfront"
+
+  project_name    = var.project_name
+  gateway_nlb_arn = module.gateway_lb.nlb_arn
 }
