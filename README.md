@@ -4,6 +4,7 @@
 </div>
 
 [![AWS](https://custom-icon-badges.demolab.com/badge/AWS-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![Azure](https://custom-icon-badges.demolab.com/badge/Azure-%230089D6.svg?logo=azure&logoColor=white)](#)
 [![Terraform](https://img.shields.io/badge/Terraform-844FBA?logo=terraform&logoColor=fff)](#)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff)](#)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](#)
@@ -31,15 +32,16 @@ architecture are planned as the next major phase.
 
 ## 🛠️ Tech Stack
 * **Cloud (AWS):** VPC, EKS, ALB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints
+* **Cloud (Azure):** AKS, Keyvault, Front Door
 * **CI/CD:** ArgoCD, GitHub Actions
 * **DevOps:** Terraform, Kubernetes, Docker, Helm, Karpenter, Kyverno, ESO, Cilium, Gateway API
 * **Observability:** Prometheus, Grafana, AWS CloudWatch
-* **Languages:** Python, Bash
+* **Languages:** Python, Bash, Helm charts
 
 ---
 
 ## 🏗️ Architecture diagram
-- **Infrastructure as Code using Terraform (+100 resources)** - networking, compute, security, scaling, and observability.
+- **Infrastructure as Code using Terraform (+100 resources AWS & +45 Azure)** - networking, compute, security, scaling, and observability.
 - **Remote state** stored in S3 with AES-256 encryption; single `terraform.tfstate` scoped to `eu-north-1`.
 - **Security Groups** enforce strict inbound/outbound rules between layers
 
