@@ -1,11 +1,11 @@
-# Empty Security Group for ALB
-resource "aws_security_group" "alb" {
-  name_prefix = "${var.project_name}-alb-"
+# Empty Security Group for Gateway NLB
+resource "aws_security_group" "gateway_nlb" {
+  name        = "${var.project_name}-gateway-nlb-sg"
   vpc_id      = var.vpc_id
 
-  tags = merge(var.common_tags, {
-    Name = "${var.project_name}-alb-sg"
-  })
+  tags = {
+    Name = "${var.project_name}-gateway-nlb-sg"
+  }
 }
 
 # Empty Security Group for EKS Nodes

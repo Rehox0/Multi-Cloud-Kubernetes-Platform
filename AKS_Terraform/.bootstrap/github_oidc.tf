@@ -22,10 +22,9 @@ resource "azurerm_user_assigned_identity" "gha_dev" {
 
 resource "azurerm_federated_identity_credential" "gha_dev_env" {
   name                = "gha-dev-env"
-  resource_group_name = azurerm_resource_group.bootstrap.name
+  user_assigned_identity_id = azurerm_user_assigned_identity.gha_dev.id
   audience            = ["api://AzureADTokenExchange"]
   issuer              = "https://token.actions.githubusercontent.com"
-  parent_id           = azurerm_user_assigned_identity.gha_dev.id
   subject             = "repo:${var.github_oidc_repository}:environment:dev"
 }
 

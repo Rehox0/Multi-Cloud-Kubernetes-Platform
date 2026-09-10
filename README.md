@@ -31,8 +31,8 @@ architecture are planned as the next major phase.
 ---
 
 ## 🛠️ Tech Stack
-* **Cloud (AWS):** VPC, EKS, ALB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints
-* **Cloud (Azure):** AKS, Keyvault, Front Door
+* **Cloud (AWS):** VPC, EKS, NLB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints, CloudFront
+* **Cloud (Azure):** AKS, Keyvault, FrontDoor
 * **CI/CD:** ArgoCD, GitHub Actions
 * **DevOps:** Terraform, Kubernetes, Docker, Helm, Karpenter, Kyverno, ESO, Cilium, Gateway API
 * **Observability:** Prometheus, Grafana, AWS CloudWatch
@@ -263,11 +263,13 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Azure Front Door
 - [ ] Azure monitoring
 
-- [ ] Multi-Cloud Connectivity
+- [ ] Multicloud Interconnect (AWS eu-central-1 & Azure germanywestcentral)
 - [x] Azure Traffic Manager
-- [ ] Azure Multicloud Interconnect
-- [ ] AWS Interconnect
 - [ ] Multi-Cloud Security
 - [ ] Multi-Cloud Observability
 - [ ] Multi-Cloud Reliability
+
+- [ ] PostgreSQL extension
+- [ ] Redis/Valkey extension
+- [ ] DB Replicaset
 

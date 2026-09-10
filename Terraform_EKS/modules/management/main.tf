@@ -20,7 +20,6 @@ resource "aws_launch_template" "management" {
     ssh_public_keys   = var.ssh_public_keys
     aws_region        = var.aws_region
     cluster_name      = var.cluster_name
-    alb_controller_role_arn = var.alb_controller_role_arn
   }))
 }
 

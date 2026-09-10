@@ -1,19 +1,19 @@
-resource "aws_security_group_rule" "alb_http" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = var.alb_ingress_cidr_blocks
-  security_group_id = aws_security_group.alb.id
+resource "aws_security_group_rule" "nodes_from_gateway_nlb" {
+  type                     = "ingress"
+  from_port                = var.gateway_node_port
+  to_port                  = var.gateway_node_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.gateway_nlb.id
+  security_group_id        = aws_security_group.eks_nodes.id
 }
 
-resource "aws_security_group_rule" "alb_https" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = var.alb_ingress_cidr_blocks
-  security_group_id = aws_security_group.alb.id
+resource "aws_security_group_rule" "gateway_nlb_egress_all" {
+  type                     = "egress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  cidr_blocks              = ["0.0.0.0/0"]
+  security_group_id        = aws_security_group.gateway_nlb.id
 }
 
 resource "aws_security_group_rule" "rds_from_nodes" {
@@ -102,15 +102,6 @@ resource "aws_security_group_rule" "endpoints_egress_all" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.vpc_endpoints.id
-}
-
-resource "aws_security_group_rule" "alb_egress_all" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.alb.id
 }
 
 resource "aws_security_group_rule" "nodes_internal_all" {

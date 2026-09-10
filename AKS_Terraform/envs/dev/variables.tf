@@ -7,7 +7,7 @@ variable "project_name" {
 variable "location" {
   type        = string
   description = "Azure region"
-  default     = "polandcentral"
+  default     = "germanywestcentral"
 }
 
 variable "common_tags" {
