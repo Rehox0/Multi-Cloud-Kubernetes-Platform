@@ -11,6 +11,7 @@ spec:
     - 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
     - 'public.ecr.aws/karpenter'
     - 'https://prometheus-community.github.io/helm-charts'
+    - 'https://aws.github.io/eks-charts'
   destinations:
     - namespace: '*'
       server: '*'
