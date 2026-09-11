@@ -4,7 +4,17 @@ resource "aws_security_group_rule" "nodes_from_gateway_nlb" {
   to_port                  = var.gateway_node_port
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.gateway_nlb.id
-  security_group_id        = aws_security_group.eks_nodes.id
+  security_group_id        = var.pod_security_group_id
+}
+
+resource "aws_security_group_rule" "gateway_nlb_from_cloudfront" {
+  type            = "ingress"
+  from_port       = 80
+  to_port         = 80
+  protocol        = "tcp"
+  prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+
+  security_group_id = aws_security_group.gateway_nlb.id
 }
 
 resource "aws_security_group_rule" "gateway_nlb_egress_all" {

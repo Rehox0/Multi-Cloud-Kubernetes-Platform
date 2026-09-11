@@ -1,4 +1,3 @@
-# The draft(in progress)
 # Troubleshooting & Engineering Challenges
 
 This document records the main technical problems encountered while building
@@ -8,7 +7,7 @@ The goal is not to document every minor configuration issue, but to capture
 problems that required meaningful investigation, debugging, or architectural
 changes.
 
-There was also huge amout of Terraform AWS & Azure configuration problems, but not documented here
+There was also huge amout of Terraform AWS & Azure configuration problems, but not documented here.
 
 ## 1. Terraform apply + Cluster in Private Subnets
 ```
@@ -43,14 +42,21 @@ The configured `egressMasqueradeInterfaces` did not match the actual network
 interface used by the EC2 nodes.
 
 The configuration assumed:
+```
 ens+
+```
+
 while the node interface was:
+```
 enp39s0
+```
+
 
 ### Lesson Learned
 
 Never assume Linux network interface naming. Verify the actual interface with
-ip route, ip addr, or similar tools before configuring CNI networking.
+`ip route`, `ip addr`, or similar tools before configuring CNI networking.
+
 ```
 
 ## 3. ArgoCD / ESO - AWS SG connectivity
@@ -264,3 +270,11 @@ running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
       Aktualny format:
 
       repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
+
+15. tg_binding -> error: curl nie przechodzi
+      thought process: probably sg missmatch
+      ominalem sprawdzanie cilium i podow itd -> wczesniej byly podobne problemy i to jest najbardziej prawdopodobna przyczyna
+
+      sprawdzenie sg dla tg->
+      eks_node_sg =/= aws_ekscluster_sg
+      zmiana tg_sg na aws_ekscluster_sg ✅

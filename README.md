@@ -18,10 +18,14 @@
 
 
 ## 👁️ Overview
-This project focuses on GitOps, security, observability, and operational reliability - the core skill set of a platform/DevOps engineer.
+I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
 
-> 🚧 Project actively under development. An Azure-based frontend and multi-cloud
-architecture are planned as the next major phase.
+It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana** into one platform.
+
+The project is intentionally built as a learning and portfolio environment, rather than a production system serving real users.
+
+
+> 🚧 **Work in progress** the core infrastructure is implemented. Final multi-cloud validation and the live demo are still in progress
 
 ---
 
@@ -31,21 +35,21 @@ architecture are planned as the next major phase.
 ---
 
 ## 🛠️ Tech Stack
-* **Cloud (AWS):** VPC, EKS, NLB, Secrets Manager, IAM, NAT Gateway, VPC Endpoints, CloudFront
-* **Cloud (Azure):** AKS, Keyvault, FrontDoor
-* **CI/CD:** ArgoCD, GitHub Actions
-* **DevOps:** Terraform, Kubernetes, Docker, Helm, Karpenter, Kyverno, ESO, Cilium, Gateway API
-* **Observability:** Prometheus, Grafana, AWS CloudWatch
-* **Languages:** Python, Bash, Helm charts
+* **Cloud:** AWS (EKS, CloudFront, NLB), Azure (AKS, Front Door, Key Vault)
+* **Platform:** Kubernetes · Cilium · Gateway API · Karpenter · Helm
+* **Infrastructure:** Terraform, GitHub Actions, ArgoCD
+* **Security:** Kyverno, External Secrets Operator, IAM, NetworkPolicies
+* **Observability:** Prometheus, Grafana
+* **Application:** Python, Django, React, PostgreSQL, Redis
 
 ---
 
-## 🏗️ Architecture diagram
+## 🏗️ Architecture
+
 - **Infrastructure as Code using Terraform (+100 resources AWS & +45 Azure)** - networking, compute, security, scaling, and observability.
-- **Remote state** stored in S3 with AES-256 encryption; single `terraform.tfstate` scoped to `eu-north-1`.
+- **Remote state** stored in S3 with AES-256 encryption; single `terraform.tfstate` scoped to `eu-central-1`.
 - **Security Groups** enforce strict inbound/outbound rules between layers
 
-> in progress...
 ---
 
 ## 🔄 CI/CD
@@ -53,10 +57,6 @@ architecture are planned as the next major phase.
 - **Frontend:** - GitHub ➔ CI ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
 - **Backend:** - GitHub ➔ CI ➔ tests ➔ Docker ➔ ECR ➔ update Helm ➔ ArgoCD ➔ EKS
 - **Rollback:** - ⛔Failed deployment ➔ ⛔degraded Pod + healthy replicas✅ ➔ Git revert ➔ ArgoCD reconciliation ➔ recovery
----
-
-## ⭐ Code Highlights
-> in progress...
 
 ---
 
@@ -86,6 +86,17 @@ architecture are planned as the next major phase.
 - **Argo CD / cross-node communication:** switching Cilium from native routing
   to VXLAN tunneling resolved Pod-to-Pod communication issues between nodes.
 
+- **CloudFront VPC Origin ➔ NLB:**
+  CloudFront VPC Origin required explicit ingress access to the internal
+  NLB. The final configuration uses the AWS-managed CloudFront origin-facing
+  prefix list instead of exposing the NLB publicly.
+
+- **AWS NLB health checks:**
+  TargetGroupBinding successfully registered EKS nodes, but NLB health
+  checks initially failed because the ingress rule was applied to an
+  unused Terraform-managed security group instead of the EKS security
+  group actually attached to the nodes.
+
 > 📖 Detailed investigation, diagnostics, root causes and fixes:
 > **[Problems & Troubleshooting →](./docs/troubleshooting.md)**
 
@@ -96,16 +107,15 @@ architecture are planned as the next major phase.
 - **Cost allocation:** Terraform applies Project, Environment and ManagedBy tags for AWS cost tracking.
 - **Karpenter:** dynamic node provisioning reduces idle capacity; Spot can be used for fault-tolerant workloads.
 - **Cost monitoring:** AWS Cost Explorer with project/environment tags.
-- **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes uses bigger m7i-flex.large
+- **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes use bigger m7i-flex.large
 
 ---
 
-</div>
 <div align="center">
   <h1>🚀 Infrastructure Roadmap</h1>
 </div>
 
-## Current stage:
+## 📍 Current Stage:
 ### AWS
 ![Current stage](./images/EKS_pods.png)
 ### Azure
@@ -169,7 +179,7 @@ monitoring         prometheus-kube-prometheus-stack-prometheus-0                
 </details>
 ---
 
-## ✅ Checkbox
+## ✅ Progress Checklist
 
 ### ☁️ AWS
 - [x] AWS VPC
@@ -181,7 +191,11 @@ monitoring         prometheus-kube-prometheus-stack-prometheus-0                
 - [x] Cilium Gateway API
 - [x] AWS Secrets Manager
 - [x] ECR
-- [ ] CloudFront
+- [x] CloudFront
+- [x] TargetGroupBinding
+- [x] Internal NLB
+- [x] AWS Load Balancer Controller
+- [x] AWS ingress path validated end-to-end
 
 
 ### 🔄 CI/CD & GitOps (AWS)
@@ -262,8 +276,9 @@ This phase is explicitly a learning/demonstration extension - documented as such
 - [x] Backend CD
 - [x] Azure Front Door
 - [ ] Azure monitoring
+- [x] Azure ingress path validated end-to-end
 
-- [ ] Multicloud Interconnect (AWS eu-central-1 & Azure germanywestcentral)
+- [ ] Multi-Cloud Interconnect (AWS eu-central-1 & Azure germanywestcentral)
 - [x] Azure Traffic Manager
 - [ ] Multi-Cloud Security
 - [ ] Multi-Cloud Observability
