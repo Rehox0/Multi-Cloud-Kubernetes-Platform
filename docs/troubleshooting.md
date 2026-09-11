@@ -9,29 +9,33 @@ Each entry documents the symptoms, investigation path, root cause, resolution or
 
 Minor configuration issues and routine Terraform errors are intentionally omitted.
 
-## Contents
-Terraform apply + Cluster in Private Subnets
-Cilium Egress Masquerading Interface
-ArgoCD / ESO - AWS SG connectivity
-Pod IP Exhaustion on t3.small Nodes
-Gateway API CRD Version Mismatch
-Frontend → Backend Traffic Blocked
-Cluster Pool IPAM Migration
-ArgoCD Repo-Server Cross-Node Networking
-Karpenter Nodes Not Registering
-Stress Test: kubelet Unresponsive
-Node Randomly Going NotReady
-CoreDNS Pods Stuck NotReady
-GitHub Actions OIDC: "Not authorized to assume role"
-TargetGroupBinding: Health Checks Failing
+## Table of Contents
+
+1. [Terraform apply + Cluster in Private Subnets](#1-terraform-apply--cluster-in-private-subnets)
+2. [Cilium Egress Masquerading Interface](#2-cilium-egress-masquerading-interface)
+3. [ArgoCD / ESO - AWS SG connectivity](#3-argocd--eso---aws-sg-connectivity)
+4. [Pod IP Exhaustion on t3.small Nodes](#4-pod-ip-exhaustion-on-t3small-nodes)
+5. [Gateway API CRD Version Mismatch](#5-gateway-api-crd-version-mismatch)
+6. [Frontend → Backend Traffic Blocked](#6-frontend--backend-traffic-blocked)
+7. [Cluster Pool IPAM Migration](#7-cluster-pool-ipam-migration)
+8. [ArgoCD Repo-Server Cross-Node Networking](#8-argocd-repo-server-cross-node-networking)
+9. [Karpenter Nodes Not Registering](#9-karpenter-nodes-not-registering)
+10. [Stress Test: kubelet Unresponsive](#10-stress-test-kubelet-unresponsive)
+11. [Node Randomly Going NotReady](#11-node-randomly-going-notready)
+12. [CoreDNS Pods Stuck NotReady](#12-coredns-pods-stuck-notready)
+13. [GitHub Actions OIDC: "Not authorized to assume role"](#13-github-actions-oidc-not-authorized-to-assume-role)
+14. [TargetGroupBinding: Health Checks Failing](#14-targetgroupbinding-health-checks-failing)
 
 ## 1. Terraform apply + Cluster in Private Subnets
 ### Problem
 Terraform was unable to install/configure Kubernetes and Helm resources during
-the initial `terraform apply`.
+the initial `terraform apply`. The Kubernetes API and workloads were running in
+private subnets, while Terraform executed from outside the VPC (no direct
+connectivity to the API server).
 
-The Kubernetes API and workloads were running in private networking, while
-Terraform was executing from outside the VPC.
+### Root Cause
+Bootstrap resources (Kubernetes provider / Helm) required network reachability
+to the private API endpoint that was not available during the initial apply.
 
 ### Resolution
 Kubernetes/Helm resources were separated from the initial Terraform bootstrap
@@ -212,7 +216,12 @@ Switching IPAM from AWS ENI-based to Cluster Pool meant pod capacity per node wa
 ENI/IP hardware limits (for t3.small: 3 ENI * 4 IP = 12 IPs -> max 11 pods).
 
 ### Resolution & Risk
-`kubelet --max-pods` needed to be set explicitly (e.g., 11). While Cluster Pool allows bypassing ENI limits, artificially inflating `--max-pods` on small instances without adjusting Kubelet resource reservations directly leads to OOM and node failures *(see issues #10 and #11)*
+`kubelet --max-pods` must be set explicitly (e.g. 11). While Cluster Pool allows bypassing ENI limits, artificially inflating `--max-pods` on small instances **without** adjusting Kubelet resource reservations directly leads to OOM and node failures *(see issues #10 and #11)*
+
+### Lesson Learned
+Removing an artificial capacity limit (ENI) does not magically increase real
+node capacity. Always keep `--max-pods`, `--kube-reserved` and
+`--system-reserved` aligned with the actual instance size.
       
 ## 8. ArgoCD Repo-Server Cross-Node Networking
 ### Problem
@@ -236,13 +245,13 @@ VXLAN encapsulates pod traffic inside UDP traffic between node IPs, avoiding the
 ### Problem
 Karpenter provisioned nodes successfully, but they never joined the EKS cluster.
 
-### Root Cause 
-The provisioned AMI was not compatible with the userdata format Karpenter was sending. Switching to a compatible EKS-optimized AMI fixed registration.
-
-### Error Log (Node level)
+**Error Log (Node level)**
 ```
 cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
 ```
+
+### Root Cause 
+The provisioned AMI was not compatible with the userdata format Karpenter was sending. Switching to a compatible EKS-optimized AMI fixed registration.
 
 ## 10. Stress Test: kubelet Unresponsive
 ### Problem
@@ -284,6 +293,7 @@ Small instances + missing kubelet resource reservations is a dangerous combinati
 ## 12. CoreDNS Pods Stuck NotReady
 ### Problem
 CoreDNS pods were in Running state but NotReady.
+
 ### Investigation
 Checked node routing tables directly.
 ```
@@ -291,7 +301,9 @@ ip route
 default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
 ```
 ### Root Cause
-Similar to issue #2. This was caused by an instance type change. The CNI/Cilium was still configured to look for ens+ interfaces, while the new instance type used enp39s0. Updated Cilium config to match.
+Same class of issue as #2. After an instance type change the CNI/Cilium
+configuration still expected `ens+` interfaces, while the new instance type
+used `enp39s0`.
 
 ## 13. GitHub Actions OIDC: "Not authorized to assume role"
 ### Problem

@@ -61,8 +61,8 @@ The project is intentionally built as a learning and portfolio environment, rath
 ---
 
 ## ⛔ Problems & 🛠️ Troubleshooting
+**Selected challenges:**
 
-### Selected challenges:
 - **Cilium networking:** incorrect `egressMasqueradeInterfaces` configuration
   caused connectivity issues due to interface naming differences between EC2 instance types.
 
@@ -208,9 +208,9 @@ monitoring         prometheus-kube-prometheus-stack-prometheus-0                
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
 - [x] Kyverno policy expansion:
--- [x] Disallow privileged containers
--- [x] Enforce resource requests and limits
--- [x] Require mandatory labels
+- [x] Disallow privileged containers
+- [x] Enforce resource requests and limits
+- [x] Require mandatory labels
 
 ### 📊 Observability
 - [x] Prometheus
