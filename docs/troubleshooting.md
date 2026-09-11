@@ -3,58 +3,65 @@
 This document records the main technical problems encountered while building
 and operating the Kubernetes platform.
 
-The goal is not to document every minor configuration issue, but to capture
-problems that required meaningful investigation, debugging, or architectural
-changes. 
-It includes raw errors, troubleshooting paths, and thought processes for future reference.
+It focuses on issues that required non-trivial investigation, root-cause analysis, or architectural changes.
 
-*(Note: There was also a huge amount of Terraform AWS & Azure configuration problems, but they are not documented here).*
+Each entry documents the symptoms, investigation path, root cause, resolution or relevant engineering lessons.
+
+Minor configuration issues and routine Terraform errors are intentionally omitted.
+
+## Contents
+Terraform apply + Cluster in Private Subnets
+Cilium Egress Masquerading Interface
+ArgoCD / ESO - AWS SG connectivity
+Pod IP Exhaustion on t3.small Nodes
+Gateway API CRD Version Mismatch
+Frontend → Backend Traffic Blocked
+Cluster Pool IPAM Migration
+ArgoCD Repo-Server Cross-Node Networking
+Karpenter Nodes Not Registering
+Stress Test: kubelet Unresponsive
+Node Randomly Going NotReady
+CoreDNS Pods Stuck NotReady
+GitHub Actions OIDC: "Not authorized to assume role"
+TargetGroupBinding: Health Checks Failing
 
 ## 1. Terraform apply + Cluster in Private Subnets
-#### Problem
-
+### Problem
 Terraform was unable to install/configure Kubernetes and Helm resources during
-the initial Terraform apply.
+the initial `terraform apply`.
 
 The Kubernetes API and workloads were running in private networking, while
 Terraform was executing from outside the VPC.
 
-#### Resolution
-
+### Resolution
 Kubernetes/Helm resources were separated from the initial Terraform bootstrap
 and later moved to ArgoCD/GitOps management.
 
-#### Lesson Learned
-
+### Lesson Learned
 Infrastructure provisioning and Kubernetes application/platform management have
 different networking and lifecycle requirements.
 
 ## 2. Cilium Egress Masquerading Interface
-#### Problem
-
+### Problem
 Cilium networking was not behaving as expected after enabling native routing.
 
-#### Resolution
-
+### Root Cause
 The configured `egressMasqueradeInterfaces` did not match the actual network
 interface used by the EC2 nodes.
 
-The configuration assumed: ```ens+```
+Assumed interface pattern: `ens+`
+Actual interface: `enp39s0`
 
-While the node interface was: ```enp39s0```
-
-#### Lesson Learned
-
+### Lesson Learned
 Never assume Linux network interface naming. Verify the actual interface with
-`ip route`, `ip addr`, or similar tools before configuring CNI networking.
+`ip route`, `ip addr`, or `ip link` before configuring CNI networking.
 
 ## 3. ArgoCD / ESO - AWS SG connectivity
-#### Problem
-
+### Problem
 External Secrets Operator could not obtain AWS credentials through IRSA.
 ArgoCD reported an invalid provider configuration. 
 
-#### Investigation
+### Investigation
 **Error Log:**
 ```
 failed to refresh cached credentials, failed to retrieve credentials, operation error STS: AssumeRoleWithWebIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post "https://sts.eu-north-1.amazonaws.com/": dial tcp 10.0.12.31:443: i/o timeout
@@ -145,21 +152,26 @@ Added an inbound rule on the endpoint's Security Group allowing port 443 from `s
 
 ---
 
-## 4. Pod IP Exhaustion on t3.small
+## 4. Pod IP Exhaustion on t3.small Nodes
+### Problem
+EKS nodes stopped accepting new pods, logging IP allocation failures.
 
-Nodes started rejecting new pods once available IPs ran out. Bumping to `t3.medium` wasn't an option
-(blocked by free-tier ASG limits), so the workaround was adding more `t3.small` nodes instead:
-3 nodes × 3 ENIs × 4 IPs = 36 usable pod IPs.
+### Root Cause
+`t3.small` provides limited ENI/IP capacity (3 ENIs × 4 IPs = 12 IPs)
+This resulted in approximately 11 usable pod IPs per node.
+
+### Resolution
+Because vertical scaling was constrained by AWS Free Tier limits, the cluster was scaled horizontally by adding more `t3.small` nodes.
 
 ## 5. Gateway API CRD Version Mismatch
-#### Problem
-Cilium had `enable-gateway-api=true` and could see the `GatewayClass`, but never took ownership of it.
+### Problem
+Cilium logged `enable-gateway-api=true` and recognized the `GatewayClass` resource, but failed to process or own it.
 
-#### Debugging Path:
+### Investigation
 ```
 enable-gateway-api=true in Cilium         ✅
-Cilium dont took ownership GatewayClass   ❌
-Cilium see GatewayClass                   ✅
+Cilium takes ownership                    ❌
+Cilium sees GatewayClass                  ✅
 Cilium Operator 2/2                       ✅
 Gateway API CRD                           ✅
 ClusterRole                               ✅
@@ -177,71 +189,114 @@ status.supportedFeatures[0]: Invalid value: "object":
 supportedFeatures[0] in body must be of type string: "object"
 Duplicate value: {}
 ```
-#### Root Cause
-Mismatch in Gateway API CRD version. Cilium 1.17.4 only supports Gateway API up to v1.6.1. Installing the exact matching CRD version resolved the issue.
+### Root Cause
+Version mismatch between Gateway API CRDs and Cilium 1.17.4  
+(Cilium 1.17.4 supports Gateway API up to v1.6.1).
+
+### Resolution
+Installed the exact matching CRD version supported by Cilium 1.17.4.
 
 ## 6. Frontend → Backend Traffic Blocked
- 
-`HTTPRoute` was configured correctly; the missing piece was a `NetworkPolicy` allowing the traffic -
-added it and the route started working.
+### Problem
+`HTTPRoute` was configured correctly, but frontend pods could not reach backend pods.
+
+### Root Cause
+Default Cilium configuration applies a **deny-all** policy at L3/L4 when network policies are active. An explicit NetworkPolicy permitting ingress traffic from the frontend namespace/pods to backend pods was missing.
+
+### Resolution
+Created a NetworkPolicy allowing ingress traffic on backend target ports originating from frontend pod labels.
 
 ## 7. Cluster Pool IPAM Migration
-#### Problem/Context
+### Problem
 Switching IPAM from AWS ENI-based to Cluster Pool meant pod capacity per node was no longer tied to
 ENI/IP hardware limits (for t3.small: 3 ENI * 4 IP = 12 IPs -> max 11 pods).
 
-#### Resolution & Risk
-`kubelet max-pods` needed to be set explicitly (e.g., 11). While Cluster Pool allows bypassing ENI limits, artificially inflating `max-pods` on small instances without adjusting Kubelet resource reservations directly leads to OOM and node failures (see #10 & #11)
+### Resolution & Risk
+`kubelet --max-pods` needed to be set explicitly (e.g., 11). While Cluster Pool allows bypassing ENI limits, artificially inflating `--max-pods` on small instances without adjusting Kubelet resource reservations directly leads to OOM and node failures *(see issues #10 and #11)*
       
 ## 8. ArgoCD Repo-Server Cross-Node Networking
-#### Problem
+### Problem
 Pod-to-pod traffic between ArgoCD components on different nodes was silently failing.
-#### Workaround Applied
-Changed Cilium routing mode from native to tunnel (VXLAN).
 
-#### Engineering Note (Root Cause)
-Changing to Tunnel is a workaround, not a fix. Native routing failed because either AWS Route Tables lacked routes to Pod CIDRs on other nodes, or Security Groups between nodes did not allow native pod IP traffic. VXLAN works because it encapsulates pod traffic into UDP packets (port 4240) sent over the main node IPs, which the SG already allowed. For production AWS setups, native routing via Cilium ENI IPAM is preferred.
+### Investigation
+ArgoCD components scheduled on the same node communicated correctly, while communication between components scheduled on different nodes failed.
+
+This isolated the problem to the cross-node pod networking path rather than ArgoCD itself.
+Testing pod connectivity by node placement confirmed that the failure was dependent on the underlying Cilium routing mode.
+
+### Root Cause
+Native routing was unable to provide reliable cross-node pod connectivity with the current Cilium/AWS networking configuration.
+
+### Resolution
+Switched Cilium from native routing to VXLAN tunnel mode.
+
+VXLAN encapsulates pod traffic inside UDP traffic between node IPs, avoiding the failing native-routing path.
 
 ## 9. Karpenter Nodes Not Registering
-#### Problem
+### Problem
 Karpenter provisioned nodes successfully, but they never joined the EKS cluster.
-#### Error Log (Node level)
+
+### Root Cause 
+The provisioned AMI was not compatible with the userdata format Karpenter was sending. Switching to a compatible EKS-optimized AMI fixed registration.
+
+### Error Log (Node level)
 ```
 cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
 ```
-#### Root Cause 
-The provisioned AMI was not compatible with the userdata format Karpenter was sending. Switching to a compatible EKS-optimized AMI fixed registration.
 
-## 10 & 11. Resource Starvation on t3.small (Stress Test & Random NotReady)
-#### Problem
-Deploying 30 pods at once on `t3.small` nodes hit Cilium's endpoint-creation rate limit
-(`429 TooManyRequests`), and 2 of 3 nodes flipped to `NotReady` during the burst.
+## 10. Stress Test: kubelet Unresponsive
+### Problem
+Deploying 30 pods simultaneously on `t3.small` nodes triggered Cilium's endpoint-creation rate limit (`429 TooManyRequests` / `putEndpointIdTooManyRequests`). During the burst, 2 out of 3 nodes flipped to `NotReady`.
 
-#### Investigation (SSM to NotReady Node)
+### Root Cause
+The sudden burst of pod creation overloaded both Cilium and the under-provisioned nodes. Combined with missing hard resource reservations (see #11), the nodes could not handle the load gracefully.
+
+*This incident exposed a deeper node-sizing and kubelet configuration problem later confirmed in issue #11.*
+
+## 11. Node Randomly Going NotReady
+### Problem
+Nodes were randomly flipping to `NotReady` under normal-looking load.
+
+### Investigation
+SSM into an affected node and ran `free -h`:
+
 ```
-sh-5.2$ free -h
-              total        used        free      shared  buff/cache   available
+Total        used        free      shared  buff/cache   available
 Mem:          1.9Gi       1.7Gi        60Mi       3.0Mi       150Mi        50Mi
 ```
-#### Root Cause & Engineering Note
-The instance (t3.small - 2 vCPU, 2GB RAM) is simply too small for heavy Kubernetes workloads. More importantly, the nodes crashed because Kubelet lacked hard resource reservations (--kube-reserved and --system-reserved). Without these, pods consumed all OS memory, causing Kubelet (PLEG) to starve, stop reporting to the control plane, and crash the node instead of cleanly leaving pods in a Pending or Evicted state.
+Almost no free memory remained.
+
+### Root Cause
+The `t3.small` instance (2 vCPU, 2 GB RAM) is simply too small for the number of pods that were being scheduled on it. More importantly, the kubelet was started **without** hard resource reservations (`--kube-reserved` and `--system-reserved`).
+
+Without these reservations, pods were allowed to consume virtually all OS memory. This starved the kubelet itself (especially the PLEG), causing it to stop reporting node status to the control plane. The node then appeared as `NotReady` instead of cleanly evicting pods or leaving them in `Pending`.
+
+### Resolution / Engineering Note
+- Explicitly set `--kube-reserved` and `--system-reserved` on the kubelet.
+- Keep realistic `max-pods` values (see also #7 – Cluster Pool IPAM migration).
+- Avoid over-packing small instances even when Cluster Pool IPAM removes the ENI/IP hardware limit.
+
+### Lesson Learned
+Small instances + missing kubelet resource reservations is a dangerous combination. Without reservations the node fails catastrophically (NotReady) instead of failing safely (pods Pending/Evicted).
+
+*The stress test described in issue #10 reproduced the same underlying node-capacity problem under a higher workload burst.*
 
 ## 12. CoreDNS Pods Stuck NotReady
-#### Problem
+### Problem
 CoreDNS pods were in Running state but NotReady.
-#### Investigation
+### Investigation
 Checked node routing tables directly.
 ```
 ip route
 default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
 ```
-#### Root Cause
+### Root Cause
 Similar to issue #2. This was caused by an instance type change. The CNI/Cilium was still configured to look for ens+ interfaces, while the new instance type used enp39s0. Updated Cilium config to match.
 
 ## 13. GitHub Actions OIDC: "Not authorized to assume role"
-#### Problem
+### Problem
 GitHub Actions failed with: Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity
-#### Debugging Path
+### Investigation
 ```
 GitHub repository       ✅
 GitHub branch           ✅
@@ -255,20 +310,23 @@ IAM OIDC Provider       ✅
 GitHub → OIDC → AWS STS ✅ 
 ```
 
-#### Root Cause
+### Root Cause
 Renaming the GitHub repository silently changed the OIDC sub claim format generated by GitHub.
-Old format: repo:Rehox0/allegro-analytics-eks:environment:dev
 
-- New format: repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
-- Updated the IAM Trust Policy to match the new ID-based format.
+**Old format:** `repo:Rehox0/allegro-analytics-eks:environment:dev`
+
+**New format:** `repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev`
+
+### Resolution
+Updated the IAM Trust Policy to match the new ID-based format.
 
 ## 14. TargetGroupBinding: Health Checks Failing
-#### Problem
+### Problem
 AWS Target Group health checks (curl) were failing to reach the pods.
-#### Thought Process
+### Thought Process
 Based on previous network debugging (e.g., issue #3), skipped checking pods and Cilium policies and went straight to AWS Security Groups.
-#### Investigation
+### Investigation
 Checked SG attached to the Target Group.
-`eks_node_sg =/= aws_ekscluster_sg`
-#### Root Cause
+`eks_node_sg != aws_ekscluster_sg`
+### Root Cause
 The target group was pointing at an unused Terraform-managed SG instead of the actual EKS cluster SG attached to the nodes. Changing the Target Group SG to `aws_ekscluster_sg` resolved the health checks immediately.

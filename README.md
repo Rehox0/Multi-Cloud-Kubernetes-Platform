@@ -60,45 +60,33 @@ The project is intentionally built as a learning and portfolio environment, rath
 
 ---
 
-## ⛔ Problems & Troubleshooting
+## ⛔ Problems & 🛠️ Troubleshooting
 
-### Selected challenges
+### Selected challenges:
 - **Cilium networking:** incorrect `egressMasqueradeInterfaces` configuration
-  caused connectivity issues due to interface naming differences between different EC2's.
+  caused connectivity issues due to interface naming differences between EC2 instance types.
 
-- **AWS VPC Endpoint + Cilium networking:** IRSA requests to AWS STS were
-  timing out because traffic from Kubernetes Pods reached the VPC Endpoint
-  with a Security Group that was not allowed by the endpoint's inbound rules.
+- **AWS VPC Endpoint + Cilium networking:** IRSA requests to AWS STS timed out because Pod traffic was blocked by the VPC Endpoint Security Group.
 
 - **Gateway API:** Cilium initially failed to manage the GatewayClass because
   of an incompatible Gateway API CRD version.
 
 - **Cilium IPAM:** migrating from AWS ENI-based IPAM to Cluster Pool IPAM
-  required adjusting Kubernetes pod capacity and node configuration.
+  required adjusting Kubernetes Pod capacity and node configuration.
 
 - **Karpenter:** dynamically provisioned nodes initially failed to register
   because of an incompatible AMI/user-data configuration.
 
-- **Node stability:** stress testing with a large number of Pods exposed
-  resource constraints on `t3.small` nodes, including Cilium endpoint
-  creation throttling and kubelet becoming unresponsive.
+- **Node stability:** stress testing exposed resource constraints on `t3.small` nodes, including Cilium endpoint creation throttling and kubelet becoming unresponsive.
 
-- **Argo CD / cross-node communication:** switching Cilium from native routing
-  to VXLAN tunneling resolved Pod-to-Pod communication issues between nodes.
+- **Argo CD / cross-node communication:** switching Cilium from native routing to VXLAN tunneling resolved Pod-to-Pod communication across nodes.
 
-- **CloudFront VPC Origin ➔ NLB:**
-  CloudFront VPC Origin required explicit ingress access to the internal
-  NLB. The final configuration uses the AWS-managed CloudFront origin-facing
-  prefix list instead of exposing the NLB publicly.
+- **CloudFront VPC Origin ➔ NLB:** CloudFront VPC Origin required explicit ingress access to the internal NLB. The final configuration uses the AWS-managed CloudFront origin-facing prefix list instead of exposing the NLB publicly.
 
-- **AWS NLB health checks:**
-  TargetGroupBinding successfully registered EKS nodes, but NLB health
-  checks initially failed because the ingress rule was applied to an
-  unused Terraform-managed security group instead of the EKS security
-  group actually attached to the nodes.
+- **AWS NLB health checks:** TargetGroupBinding successfully registered EKS nodes, but health checks initially failed because ingress was applied to an unused Terraform-managed Security Group instead of the Security Group actually attached to the nodes.
 
-> 📖 Detailed investigation, diagnostics, root causes and fixes:
-> **[Problems & Troubleshooting →](./docs/troubleshooting.md)**
+> **📖 Detailed investigation, diagnostics, root causes and fixes:
+> **[Problems & Troubleshooting →](./docs/troubleshooting.md)****
 
 ---
 
