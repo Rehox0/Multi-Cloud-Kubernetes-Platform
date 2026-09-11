@@ -9,22 +9,6 @@ Each entry documents the symptoms, investigation path, root cause, resolution or
 
 Minor configuration issues and routine Terraform errors are intentionally omitted.
 
-## Contents
-Terraform apply + Cluster in Private Subnets
-Cilium Egress Masquerading Interface
-ArgoCD / ESO - AWS SG connectivity
-Pod IP Exhaustion on t3.small Nodes
-Gateway API CRD Version Mismatch
-Frontend → Backend Traffic Blocked
-Cluster Pool IPAM Migration
-ArgoCD Repo-Server Cross-Node Networking
-Karpenter Nodes Not Registering
-Stress Test: kubelet Unresponsive
-Node Randomly Going NotReady
-CoreDNS Pods Stuck NotReady
-GitHub Actions OIDC: "Not authorized to assume role"
-TargetGroupBinding: Health Checks Failing
-
 ## 1. Terraform apply + Cluster in Private Subnets
 ### Problem
 Terraform was unable to install/configure Kubernetes and Helm resources during
