@@ -19,7 +19,7 @@ resource "aws_cloudfront_distribution" "main" {
   comment = "${var.project_name} CloudFront"
 
   origin {
-    domain_name = "placeholder.invalid"
+    domain_name = var.gateway_nlb_dns_name
     origin_id   = "gateway-vpc-origin"
 
     vpc_origin_config {

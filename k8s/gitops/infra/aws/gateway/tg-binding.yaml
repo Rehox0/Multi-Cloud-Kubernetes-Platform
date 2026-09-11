@@ -1,0 +1,11 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: gateway-nlb
+  namespace: gateway-ns
+spec:
+  targetGroupName: terraform-gateway-tg
+  targetType: instance
+  serviceRef:
+    name: cilium-gateway-main-gateway
+    port: 80

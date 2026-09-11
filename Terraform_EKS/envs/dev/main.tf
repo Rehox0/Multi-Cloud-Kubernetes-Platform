@@ -106,4 +106,5 @@ module "cloudfront" {
 
   project_name    = var.project_name
   gateway_nlb_arn = module.gateway_lb.nlb_arn
+  gateway_nlb_dns_name = module.gateway_lb.nlb_dns_name
 }
