@@ -5,13 +5,13 @@ and operating the Kubernetes platform.
 
 The goal is not to document every minor configuration issue, but to capture
 problems that required meaningful investigation, debugging, or architectural
-changes.
+changes. 
+It includes raw errors, troubleshooting paths, and thought processes for future reference.
 
-There was also huge amout of Terraform AWS & Azure configuration problems, but not documented here.
+*(Note: There was also a huge amount of Terraform AWS & Azure configuration problems, but they are not documented here).*
 
 ## 1. Terraform apply + Cluster in Private Subnets
-```
-### Problem
+#### Problem
 
 Terraform was unable to install/configure Kubernetes and Helm resources during
 the initial Terraform apply.
@@ -19,56 +19,45 @@ the initial Terraform apply.
 The Kubernetes API and workloads were running in private networking, while
 Terraform was executing from outside the VPC.
 
-### Resolution
+#### Resolution
 
 Kubernetes/Helm resources were separated from the initial Terraform bootstrap
 and later moved to ArgoCD/GitOps management.
 
-### Lesson Learned
+#### Lesson Learned
 
 Infrastructure provisioning and Kubernetes application/platform management have
 different networking and lifecycle requirements.
-```
 
 ## 2. Cilium Egress Masquerading Interface
-```
-### Problem
+#### Problem
 
 Cilium networking was not behaving as expected after enabling native routing.
 
-### Resolution
+#### Resolution
 
 The configured `egressMasqueradeInterfaces` did not match the actual network
 interface used by the EC2 nodes.
 
-The configuration assumed:
-```
-ens+
-```
+The configuration assumed: ```ens+```
 
-while the node interface was:
-```
-enp39s0
-```
+While the node interface was: ```enp39s0```
 
-
-### Lesson Learned
+#### Lesson Learned
 
 Never assume Linux network interface naming. Verify the actual interface with
 `ip route`, `ip addr`, or similar tools before configuring CNI networking.
 
-```
-
 ## 3. ArgoCD / ESO - AWS SG connectivity
-### Problem
+#### Problem
 
 External Secrets Operator could not obtain AWS credentials through IRSA.
 ArgoCD reported an invalid provider configuration. 
 
-### Investigation
-InvalidProviderConfig:
+#### Investigation
+**Error Log:**
 ```
-      failed to refresh cached credentials, failed to retrieve credentials, operation error STS: AssumeRoleWithWebIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post "https://sts.eu-north-1.amazonaws.com/": dial tcp 10.0.12.31:443: i/o timeout
+failed to refresh cached credentials, failed to retrieve credentials, operation error STS: AssumeRoleWithWebIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post "https://sts.eu-north-1.amazonaws.com/": dial tcp 10.0.12.31:443: i/o timeout
 ```
 Worked backward from the API server down to the webhook to rule out a cert/TLS problem first:
 ```
@@ -163,37 +152,33 @@ Nodes started rejecting new pods once available IPs ran out. Bumping to `t3.medi
 3 nodes × 3 ENIs × 4 IPs = 36 usable pod IPs.
 
 ## 5. Gateway API CRD Version Mismatch
- 
-Cilium had `enable-gateway-api=true` and could see the `GatewayClass`, but never took ownership of it -
-RBAC, the operator, and the CRD were all present and healthy, and restarting Cilium (the documented fix)
-didn't help. Validation errors on `status.supportedFeatures` (expecting `string`, getting `object`)
-traced it back to the installed CRD version: Cilium 1.17.4 only supports Gateway API up to v1.6.1.
-Installing the matching CRD version fixed it.
+#### Problem
+Cilium had `enable-gateway-api=true` and could see the `GatewayClass`, but never took ownership of it.
 
-5.1(old) Problem z gateway
-      enable-gateway-api=true w Cilium ✅
-      Cilium nie przejął GatewayClass
-      Cilium widzi GatewayClass ✅
-      Cilium Operator 2/2 ✅
-      Gateway API CRD ✅
-      Cilium operator obserwuje GatewayClass:
-            Doc zaleca restart cilium -> nie pomaga
-      ClusterRole ✅
-      ClusterRoleBinding ✅
-      SA ✅
-      RBAC ok ✅
-      controllerName: io.cilium/gateway-controller ✅
+#### Debugging Path:
+```
+enable-gateway-api=true in Cilium         ✅
+Cilium dont took ownership GatewayClass   ❌
+Cilium see GatewayClass                   ✅
+Cilium Operator 2/2                       ✅
+Gateway API CRD                           ✅
+ClusterRole                               ✅
+ClusterRoleBinding                        ✅
+SA                                        ✅
+RBAC                                      ✅
+controllerName: io.cilium/gateway-controller ✅
+```
 
-      mismatch wersji Gateway API CRD -> Cilium 1.17.4. ❌
-      status.supportedFeatures[0]: Invalid value: "object":
-      supportedFeatures[0] in body must be of type string: "object"
-      status.supportedFeatures[1]: Invalid value: "object"
-      ...
-      status.supportedFeatures[26]: Invalid value: "object"
-      Duplicate value: {}
+Restarting Cilium (documented fix) did not help. Inspected Cilium Operator logs and found validation errors:
 
-      Cilium supports Gateway API v1.6.1 
-
+```
+mismatch version Gateway API CRD -> Cilium 1.17.4. ❌
+status.supportedFeatures[0]: Invalid value: "object":
+supportedFeatures[0] in body must be of type string: "object"
+Duplicate value: {}
+```
+#### Root Cause
+Mismatch in Gateway API CRD version. Cilium 1.17.4 only supports Gateway API up to v1.6.1. Installing the exact matching CRD version resolved the issue.
 
 ## 6. Frontend → Backend Traffic Blocked
  
@@ -201,114 +186,89 @@ Installing the matching CRD version fixed it.
 added it and the route started working.
 
 ## 7. Cluster Pool IPAM Migration
- 
+#### Problem/Context
 Switching IPAM from AWS ENI-based to Cluster Pool meant pod capacity per node was no longer tied to
-ENI/IP math, so `kubelet`'s max-pods needed to be set explicitly (11) instead of relying on the old default.
-      
-7.1(old) Problem z pula IP:
-      refractor from ipam: eni -> cluster-pool
-      kubelet = 11max Pod
+ENI/IP hardware limits (for t3.small: 3 ENI * 4 IP = 12 IPs -> max 11 pods).
+
+#### Resolution & Risk
+`kubelet max-pods` needed to be set explicitly (e.g., 11). While Cluster Pool allows bypassing ENI limits, artificially inflating `max-pods` on small instances without adjusting Kubelet resource reservations directly leads to OOM and node failures (see #10 & #11)
       
 ## 8. ArgoCD Repo-Server Cross-Node Networking
- 
-Pod-to-pod traffic between nodes was silently failing. Switching Cilium's routing mode from native to
-VXLAN tunneling resolved it.
+#### Problem
+Pod-to-pod traffic between ArgoCD components on different nodes was silently failing.
+#### Workaround Applied
+Changed Cilium routing mode from native to tunnel (VXLAN).
 
-8.1 Problem z ArgoCD - repo server:
-      nie dziala pod -> pod miedzy nodami.
-      ✅✅✅ zmiana z routing native na tunell ✅✅✅
+#### Engineering Note (Root Cause)
+Changing to Tunnel is a workaround, not a fix. Native routing failed because either AWS Route Tables lacked routes to Pod CIDRs on other nodes, or Security Groups between nodes did not allow native pod IP traffic. VXLAN works because it encapsulates pod traffic into UDP packets (port 4240) sent over the main node IPs, which the SG already allowed. For production AWS setups, native routing via Cilium ENI IPAM is preferred.
 
 ## 9. Karpenter Nodes Not Registering
- 
-Karpenter provisioned nodes fine, but they never joined the cluster. `cloud-init` was rejecting the
-userdata (`Unhandled unknown content-type (application/node.eks.aws)`) — the AMI didn't match what
-Karpenter expected. Switching to a compatible AMI fixed registration.
- 
-9.1 Problem z Karpenter - Nody nie rejestruja sie w EKS:
-      Nody sie scaluja ✅
-      Problem z AMI Karpenter
-      cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
-      ✅✅✅ zmiana na compatible AMI ✅✅✅
+#### Problem
+Karpenter provisioned nodes successfully, but they never joined the EKS cluster.
+#### Error Log (Node level)
+```
+cloud-init: Unhandled unknown content-type (application/node.eks.aws) userdata
+```
+#### Root Cause 
+The provisioned AMI was not compatible with the userdata format Karpenter was sending. Switching to a compatible EKS-optimized AMI fixed registration.
 
-## 10. Stress Test: kubelet Unresponsive
- 
+## 10 & 11. Resource Starvation on t3.small (Stress Test & Random NotReady)
+#### Problem
 Deploying 30 pods at once on `t3.small` nodes hit Cilium's endpoint-creation rate limit
 (`429 TooManyRequests`), and 2 of 3 nodes flipped to `NotReady` during the burst.
 
-
-10.1(old) Stress Test: kubelet no response
-        A deployment containing 30 Pods was created simultaneously on a cluster
-running on `t3.small` nodes -> cilium [429] putEndpointIdTooManyRequests
-        2/3 Node Ready, next 1/3
-
-## 11. Node Randomly Going NotReady
- 
-SSM'd into the affected instance and ran `free -h`: 60Mi free out of 1.9Gi. The instance was simply
-too small for the number of pods scheduled on it.
-
-11.1(old) Problem z losowym wylaczaniem sie Node:
-      inspekcja node when NotReady:
-      ssm to instacje ->  sh-5.2$ free -h
-      total 1.9Gi, free 60Mi.
-      Instancja jest za mała na tyle podów
+#### Investigation (SSM to NotReady Node)
+```
+sh-5.2$ free -h
+              total        used        free      shared  buff/cache   available
+Mem:          1.9Gi       1.7Gi        60Mi       3.0Mi       150Mi        50Mi
+```
+#### Root Cause & Engineering Note
+The instance (t3.small - 2 vCPU, 2GB RAM) is simply too small for heavy Kubernetes workloads. More importantly, the nodes crashed because Kubelet lacked hard resource reservations (--kube-reserved and --system-reserved). Without these, pods consumed all OS memory, causing Kubelet (PLEG) to starve, stop reporting to the control plane, and crash the node instead of cleanly leaving pods in a Pending or Evicted state.
 
 ## 12. CoreDNS Pods Stuck NotReady
- 
-Same root cause as the earlier Cilium interface issue (see #2), just triggered again by a later
-instance type change: `ip route` showed `enp39s0`, but Cilium was still configured for the `ens+`
-naming pattern from the old instance type.
-
-12.1(old) Problem z CoreDNS
-      coredns pody - running, NotReady
-      szybkie sprawdzenie logow.
-      problemem byla zmiana typu instancji.
-      problem z dopasowaniem konfiguracji do instancji.
-      sprawdzenie ip route na node:
-            default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
-      ens+ =/= enp
-      zmiana konfiguracji cilium
+#### Problem
+CoreDNS pods were in Running state but NotReady.
+#### Investigation
+Checked node routing tables directly.
+```
+ip route
+default via 10.0.10.1 dev enp39s0 proto dhcp src 10.0.10.33 metric 512
+```
+#### Root Cause
+Similar to issue #2. This was caused by an instance type change. The CNI/Cilium was still configured to look for ens+ interfaces, while the new instance type used enp39s0. Updated Cilium config to match.
 
 ## 13. GitHub Actions OIDC: "Not authorized to assume role"
- 
-Repo, branch, environment, token claims, IAM role, trust policy, OIDC provider — checked all of it,
-all correct. Turned out renaming the GitHub repo changed the OIDC `sub` claim format:
+#### Problem
+GitHub Actions failed with: Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity
+#### Debugging Path
 ```
-old: repo:Rehox0/allegro-analytics-eks:environment:dev
-new: repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
+GitHub repository       ✅
+GitHub branch           ✅
+GitHub Environment      ✅
+OIDC token              ✅
+token aud               ✅
+token sub               ✅
+IAM Role ARN            ✅
+IAM Trust Policy        ✅
+IAM OIDC Provider       ✅
+GitHub → OIDC → AWS STS ✅ 
 ```
 
-13.1(old) Problem z GHA "Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity"
-      ✅ GitHub repository
-      ✅ GitHub branch
-      ✅ GitHub Environment
-      ✅ OIDC token
-      ✅ token aud
-      ✅ token sub
-      ✅ IAM Role ARN
-      ✅ IAM Trust Policy
-      ✅ IAM OIDC Provider
-      ✅ GitHub → OIDC → AWS STS
-      
-      Po zmianie nazwy repozytorium GitHub OIDC sub zmienił format.
-      Stary format:
+#### Root Cause
+Renaming the GitHub repository silently changed the OIDC sub claim format generated by GitHub.
+Old format: repo:Rehox0/allegro-analytics-eks:environment:dev
 
-      repo:Rehox0/allegro-analytics-eks:environment:dev
-
-      Aktualny format:
-
-      repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
+- New format: repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev
+- Updated the IAM Trust Policy to match the new ID-based format.
 
 ## 14. TargetGroupBinding: Health Checks Failing
- 
-Recognized this one from the earlier SG issues (#3) and went straight for Security Groups instead of
-re-checking Cilium/pods first. Correct guess: the target group was pointing at an unused
-Terraform-managed SG instead of the actual EKS cluster SG attached to the nodes. Pointed it at the
-right SG and health checks passed.
-
-14.1(old) tg_binding -> error: curl nie przechodzi
-      thought process: probably sg missmatch
-      ominalem sprawdzanie cilium i podow itd -> wczesniej byly podobne problemy i to jest najbardziej prawdopodobna przyczyna
-
-      sprawdzenie sg dla tg->
-      eks_node_sg =/= aws_ekscluster_sg
-      zmiana tg_sg na aws_ekscluster_sg ✅
+#### Problem
+AWS Target Group health checks (curl) were failing to reach the pods.
+#### Thought Process
+Based on previous network debugging (e.g., issue #3), skipped checking pods and Cilium policies and went straight to AWS Security Groups.
+#### Investigation
+Checked SG attached to the Target Group.
+`eks_node_sg =/= aws_ekscluster_sg`
+#### Root Cause
+The target group was pointing at an unused Terraform-managed SG instead of the actual EKS cluster SG attached to the nodes. Changing the Target Group SG to `aws_ekscluster_sg` resolved the health checks immediately.
