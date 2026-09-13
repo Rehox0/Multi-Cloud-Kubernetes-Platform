@@ -112,9 +112,10 @@ One of the main goals of the project was to document the **engineering process b
 
 ## 📍 Current Cluster Stage:
 ### AWS
-![Current stage](./doc/images/EKS_pods.png)
+![Current stage](./docs/images/EKS_pods.png)
+
 ### Azure
-**[Current stage →](./doc/images/AKS_pods.md)**
+**[Current stage →](./docs/images/AKS_pods.md)**
 
 ---
 
