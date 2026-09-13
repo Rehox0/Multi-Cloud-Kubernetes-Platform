@@ -25,7 +25,7 @@ It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Kar
 The project is intentionally built as a learning and portfolio environment, rather than a production system serving real users.
 
 
-> 🚧 **Work in progress** the core infrastructure is implemented. Final multi-cloud validation and the live demo are still in progress
+> 🚧 **Work in progress**. The core infrastructure is implemented. Final multi-cloud validation and the live demo are still in progress
 
 ---
 
