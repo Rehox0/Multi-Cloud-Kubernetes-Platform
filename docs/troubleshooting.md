@@ -8,8 +8,6 @@ Each entry documents the symptoms, investigation path, root cause, resolution or
 
 Minor configuration issues and routine Terraform errors are intentionally omitted.
 
-**Impact format:** Time to resolve · Severity · Blast radius / effect
-
 ## Table of Contents
 
 1. [Terraform apply + Cluster in Private Subnets](#1-terraform-apply--cluster-in-private-subnets)
@@ -30,7 +28,7 @@ Minor configuration issues and routine Terraform errors are intentionally omitte
 ---
 
 ## 1. Terraform apply + Cluster in Private Subnets
-**Impact:** ~20h · Medium · Blocked full cluster bootstrap
+**Time to solve:** ~20h
 ### Problem
 Terraform was unable to install/configure Kubernetes and Helm resources during
 the initial `terraform apply`. The Kubernetes API and workloads were running in
@@ -52,7 +50,7 @@ different networking and lifecycle requirements.
 ---
 
 ## 2. Cilium Egress Masquerading Interface
-**Impact:** ~30h · High · Native routing completely non-functional
+**Time to solve:** ~30h
 ### Problem
 Cilium networking was not behaving as expected after enabling native routing.
 
@@ -70,7 +68,7 @@ Never assume Linux network interface naming. Verify the actual interface with
 ---
 
 ## 3. ArgoCD / ESO - AWS SG connectivity
-**Impact:** ~40h · High · External Secrets + ArgoCD unable to fetch credentials
+**Time to solve:** ~40h
 ### Problem
 External Secrets Operator could not obtain AWS credentials through IRSA.
 ArgoCD reported an invalid provider configuration. 
@@ -167,7 +165,7 @@ Added an inbound rule on the endpoint's Security Group allowing port 443 from `s
 ---
 
 ## 4. Pod IP Exhaustion on t3.small Nodes
-**Impact:** ~5h · Medium · Nodes stopped accepting new pods
+**Time to solve:** ~5h
 ### Problem
 EKS nodes stopped accepting new pods, logging IP allocation failures.
 
@@ -181,7 +179,7 @@ Because vertical scaling was constrained by AWS Free Tier limits, the cluster wa
 ---
 
 ## 5. Gateway API CRD Version Mismatch
-**Impact:** ~10h · Medium · Cilium failed to take ownership of GatewayClass
+**Time to solve:** ~10h
 ### Problem
 Cilium logged `enable-gateway-api=true` and recognized the `GatewayClass` resource, but failed to process or own it.
 
@@ -218,7 +216,7 @@ Installed the exact matching CRD version supported by Cilium 1.17.4.
 ---
 
 ## 6. Frontend → Backend Traffic Blocked
-**Impact:** ~2h · Low-Medium · Frontend could not reach backend pods
+**Time to solve:** ~2h
 ### Problem
 `HTTPRoute` was configured correctly, but frontend pods could not reach backend pods.
 
@@ -231,7 +229,7 @@ Created a NetworkPolicy allowing ingress traffic on backend target ports origina
 ---
 
 ## 7. Cluster Pool IPAM Migration
-**Impact:** ~5h · Medium · Risk of OOM and NotReady with incorrect max-pods
+**Time to solve:** ~5h
 ### Problem
 Switching IPAM from AWS ENI-based to Cluster Pool meant pod capacity per node was no longer tied to
 ENI/IP hardware limits (for t3.small: 3 ENI * 4 IP = 12 IPs -> max 11 pods).
@@ -247,7 +245,7 @@ node capacity. Always keep `--max-pods`, `--kube-reserved` and
 ---
 
 ## 8. ArgoCD Repo-Server Cross-Node Networking
-**Impact:** ~2h · Medium · Cross-node communication between ArgoCD components failed
+**Time to solve:** ~2h
 ### Problem
 Pod-to-pod traffic between ArgoCD components on different nodes was silently failing.
 
@@ -268,7 +266,7 @@ VXLAN encapsulates pod traffic inside UDP traffic between node IPs, avoiding the
 ---
 
 ## 9. Karpenter Nodes Not Registering
-**Impact:** ~30h · High · Karpenter-provisioned nodes never joined the cluster
+**Time to solve:** ~30h
 ### Problem
 Karpenter provisioned nodes successfully, but they never joined the EKS cluster.
 
@@ -299,7 +297,7 @@ Pin critical node images to a specific, validated AMI version and update them de
 ---
 
 ## 10. Stress Test: kubelet Unresponsive
-**Impact:** ~5h · Medium · 2 out of 3 nodes flipped to NotReady during pod burst
+**Time to solve:** ~5h
 ### Problem
 Deploying 30 pods simultaneously on `t3.small` nodes triggered Cilium's endpoint-creation rate limit (`429 TooManyRequests` / `putEndpointIdTooManyRequests`). During the burst, 2 out of 3 nodes flipped to `NotReady`.
 
@@ -312,7 +310,7 @@ The node-level remediation is covered in **#11**; the stress test was the incide
 ---
 
 ## 11. Node Randomly Going NotReady
-**Impact:** ~5h · High · Nodes randomly flipped to NotReady under normal load
+**Time to solve:** ~5h
 ### Problem
 Nodes were randomly flipping to `NotReady` under normal-looking load.
 
@@ -344,7 +342,7 @@ This was a platform reliability issue, not just an application capacity issue. K
 ---
 
 ## 12. CoreDNS Pods Stuck NotReady
-**Impact:** ~1h · Low · CoreDNS pods Running but NotReady
+**Time to solve:** ~1h
 
 *Related to **#2** - this was another manifestation of the Cilium interface mismatch after an instance type change.*
 ### Problem
@@ -363,7 +361,7 @@ used `enp39s0`.
 ---
 
 ## 13. GitHub Actions OIDC: "Not authorized to assume role"
-**Impact:** ~5h · Medium · CI/CD pipeline blocked
+**Time to solve:** ~5h
 ### Problem
 GitHub Actions failed with: Error: Could not assume role with OIDC: Not authorized to perform sts:AssumeRoleWithWebIdentity
 ### Investigation
@@ -393,7 +391,7 @@ Updated the IAM Trust Policy to match the new ID-based format.
 ---
 
 ## 14. TargetGroupBinding: Health Checks Failing
-**Impact:** ~2h · Low-Medium · Target Group health checks failing
+**Time to solve:** ~2h
 ### Problem
 AWS Target Group health checks (curl) were failing to reach the pods.
 ### Investigation
@@ -401,5 +399,6 @@ Based on previous network debugging (e.g., issue **#3**), skipped checking pods 
 
 Checked SG attached to the Target Group.
 `eks_node_sg != aws_ekscluster_sg`
+
 ### Root Cause
 The target group was pointing at an unused Terraform-managed SG instead of the actual EKS cluster SG attached to the nodes. Changing the Target Group SG to `aws_ekscluster_sg` resolved the health checks immediately.
