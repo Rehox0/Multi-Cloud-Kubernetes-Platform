@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 env:
-  AZURE_REGISTRY: acrmulticloudproject.azurecr.io
+  AZURE_REGISTRY: multicloudprojectacr.azurecr.io
   ACR_REPOSITORY: backend
 
 jobs:
