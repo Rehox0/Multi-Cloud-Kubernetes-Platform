@@ -6,8 +6,8 @@ spec:
   provider:
     azurekv:
       authType: WorkloadIdentity
-      vaultUrl: "https://Multi-Cloud-Project-kv.vault.azure.net"
-      tenantId: "233e44a8-c869-47f2-8284-001a7d61f32c"
+      vaultUrl: "https://Multi-Cloud-ProjectKV.vault.azure.net"
+      tenantId: "25ff8005-af8a-4c5e-88d9-399d69f25b52"
       serviceAccountRef:
         name: backend
         namespace: backend-ns
