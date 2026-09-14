@@ -17,6 +17,9 @@ spec:
         admissionController:
           hostNetwork: true
           dnsPolicy: ClusterFirstWithHostNet
+          container:
+            ports:
+              metrics: 8081
         priorityClassName: prio-high
   destination:
     server: https://kubernetes.default.svc
