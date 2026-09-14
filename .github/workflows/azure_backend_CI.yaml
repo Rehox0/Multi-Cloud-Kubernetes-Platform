@@ -128,7 +128,7 @@ jobs:
       - name: Login to Azure Container Registry
         run: |
           az acr login \
-            --name acrMultiCloudProject
+            --name MultiCloudProjectACR
 
       - name: Build Docker image
         env:
