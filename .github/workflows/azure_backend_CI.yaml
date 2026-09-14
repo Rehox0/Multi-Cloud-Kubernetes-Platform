@@ -200,3 +200,4 @@ jobs:
 
           git commit -m "ci: update Azure backend image to ${{ github.sha }}"
           git push
+
