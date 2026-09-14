@@ -97,7 +97,11 @@ aws ssm start-session \
 ---
  
 ## ☁️ Azure Deployment
- 
+
+<!-- SSH to jumpbox -->
+ssh azureadmin@<IP_JUMPBOX>
+
+
 ### 1. Deploy the GitOps root app
 ```bash
 git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git

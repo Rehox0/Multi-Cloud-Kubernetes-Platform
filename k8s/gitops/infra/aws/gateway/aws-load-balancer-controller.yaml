@@ -14,7 +14,7 @@ spec:
     helm:
       values: |
         clusterName: Multi-Cloud-Kubernetes-Platform-eks-cluster
-        region: eu-north-1
+        region: eu-central-1
         hostNetwork: true
 
         serviceAccount:

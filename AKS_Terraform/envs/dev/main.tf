@@ -32,7 +32,7 @@ module "aks" {
   
   kubernetes_version = var.cluster_version
 
-  node_vm_size = "Standard_B2s_v2"
+  node_vm_size = "Standard_D2s_v7"
 
   node_min_size = 2
   node_max_size = 2
@@ -98,15 +98,32 @@ module "key_vault" {
   common_tags = local.tags
 }
 
+module "gateway_lb" {
+  source = "../../modules/gateway_lb"
+
+  project_name        = var.project_name
+  resource_group_name = module.aks.node_resource_group
+  location            = var.location
+
+  aks_subnet_id = module.networking.aks_subnets[0]
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks,
+    module.networking
+  ]
+}
+
 module "front_door" {
   count  = var.enable_frontdoor ? 1 : 0
   source = "../../modules/front_door"
 
   project_name            = var.project_name
   resource_group_name     = azurerm_resource_group.main.name
-  aks_node_resource_group = module.aks.node_resource_group
 
-  aks_subnet_id = module.networking.aks_subnets[0]
+  gateway_lb_frontend_ip = module.gateway_lb.frontend_ip
+  gateway_lb_frontend_ip_configuration_id = module.gateway_lb.frontend_ip_configuration_id
   
   private_link_location = "germanywestcentral"
   private_link_subnet_id = module.networking.private_link_subnet_id
@@ -114,7 +131,7 @@ module "front_door" {
   common_tags = local.tags
 
   depends_on = [
-    module.aks,
+    module.gateway_lb,
     module.networking
   ]
 }

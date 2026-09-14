@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "backend" {
-  name                = "${var.project_name}-kv"
+  name                = "${var.project_name}KV"
   location            = var.location
   resource_group_name = var.resource_group_name
   tenant_id           = var.tenant_id
@@ -12,6 +12,6 @@ resource "azurerm_key_vault" "backend" {
   rbac_authorization_enabled = true
 
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-kv"
+    Name = "${var.project_name}KV"
   })
 }

@@ -47,8 +47,8 @@ Infrastructure is provisioned using **Terraform**, covering networking, compute,
 
 Current infrastructure footprint:
 
-* **100+ AWS resources**
-* **45+ Azure resources**
+* **110+ AWS resources**
+* **55+ Azure resources**
 
 **Terraform state** is stored remotely in Amazon S3 with AES-256 encryption.
 
@@ -172,6 +172,7 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Node Exporter
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
+- [ ] Loki
 - [ ] Centralized logging
 - [ ] Full alerting workflow
 

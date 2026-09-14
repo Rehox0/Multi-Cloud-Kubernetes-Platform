@@ -8,11 +8,6 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "aks_node_resource_group" {
-  description = "AKS managed resource group containing the Cilium-created Load Balancer"
-  type        = string
-}
-
 variable "private_link_location" {
   description = "Azure region used by Azure Front Door for the Private Link connection"
   type        = string
@@ -25,13 +20,17 @@ variable "common_tags" {
   default     = {}
 }
 
-variable "aks_subnet_id" {
-  description = "AKS subnet containing the Cilium Gateway Load Balancer frontend"
-  type        = string
-}
-
 variable "private_link_subnet_id" {
   description = "Dedicated subnet for the Azure Private Link Service"
   type        = string
 }
 
+variable "gateway_lb_frontend_ip" {
+  description = "Private frontend IP of the Terraform-managed AKS Gateway Load Balancer"
+  type        = string
+}
+
+variable "gateway_lb_frontend_ip_configuration_id" {
+  description = "Frontend IP configuration ID of the AKS Gateway Load Balancer"
+  type        = string
+}

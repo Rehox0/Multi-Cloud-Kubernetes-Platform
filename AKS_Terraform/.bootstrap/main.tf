@@ -46,7 +46,7 @@ resource "azurerm_storage_container" "bootstrap" {
 ########## 3. Azure Container Registry (Analogue to ECR) ##########
 # Azure Container Registry (ACR) is a managed Docker registry service based on the open-source Docker Registry 2.0. It allows you to store and manage container images for all types of container deployments.
 resource "azurerm_container_registry" "acr" {
-  name                = replace("acr${var.project_name}", "-", "")
+  name                = replace("${var.project_name}ACR", "-", "")
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
   sku                 = "Standard"

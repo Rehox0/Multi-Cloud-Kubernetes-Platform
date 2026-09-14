@@ -1,10 +1,10 @@
 resource "azurerm_private_link_service" "front_door" {
   name                = "${lower(replace(var.project_name, "-", ""))}-frontdoor-pls"
-  location            = data.azurerm_lb.aks_gateway.location
+  location            = var.private_link_location
   resource_group_name = var.resource_group_name
 
   load_balancer_frontend_ip_configuration_ids = [
-    local.lb_frontend.id
+    var.gateway_lb_frontend_ip_configuration_id
   ]
 
   visibility_subscription_ids = [
@@ -69,12 +69,12 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   enabled = true
   certificate_name_check_enabled = true
 
-  host_name = local.lb_frontend.private_ip_address
+  host_name = var.gateway_lb_frontend_ip
 
   http_port  = 80
   https_port = 443
 
-  origin_host_header = local.lb_frontend.private_ip_address
+  origin_host_header = var.gateway_lb_frontend_ip
 
   priority = 1
   weight   = 1000
