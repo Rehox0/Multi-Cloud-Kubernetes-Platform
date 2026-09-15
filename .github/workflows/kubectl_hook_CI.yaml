@@ -20,7 +20,7 @@ permissions:
 env:
   AZURE_REGISTRY: multicloudprojectacr.azurecr.io
   ACR_REPOSITORY: kubectl-hook
-  KUBECTL_VERSION: v1.35.0
+  KUBECTL_VERSION: v1.35.8
 
 jobs:
   kubectl-hook-ci:
@@ -102,7 +102,7 @@ jobs:
       - name: Push Docker image
         env:
           IMAGE_TAG: ${{ github.sha }}
-          VERSION_TAG: v1.35.0
+          VERSION_TAG: v1.35.8
         run: |
           docker push \
             $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
