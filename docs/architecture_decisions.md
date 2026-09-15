@@ -6,6 +6,7 @@ Initially, Terraform managed both cloud infrastructure and Kubernetes components
 The project was therefore split into two responsibilities:
 
 **Terraform** - provisions and manages cloud infrastructure.
+
 **Jumpbox** - provides controlled access to the private AKS cluster and handles cluster-level operations and bootstrap.
 
 The resulting architecture is:
@@ -36,7 +37,7 @@ In practice, SSH on Azure proved significantly faster and more responsive for in
 
 The final model therefore keeps the infrastructure reproducible through Terraform while providing a dedicated environment for cluster administration. Cluster access no longer depends on a particular developer workstation or requires exposing the Kubernetes API publicly.
 
-Cost consideration: The jumpbox introduces an additional cloud resource, but the relatively small infrastructure cost is justified by simpler and faster cluster administration without exposing the private Kubernetes API.
+**Cost consideration:** The jumpbox introduces an additional cloud resource, but the relatively small infrastructure cost is justified by simpler and faster cluster administration without exposing the private Kubernetes API.
 
 
 ## Azure Ingress Architecture - Design Decision
@@ -98,7 +99,7 @@ The resulting architecture provides a stable integration point between the Azure
 
 The main design principle was to integrate with the interfaces provided by AKS and Kubernetes rather than taking ownership of resources managed internally by AKS.
 
-Cost consideration: This architecture introduces additional Azure networking and Application Gateway costs compared with a simpler direct Load Balancer approach, but the additional cost is accepted in exchange for a stable ingress integration and clear separation between Azure infrastructure and AKS-managed resources.
+**Cost consideration:** This architecture introduces additional Azure networking and Application Gateway costs compared with a simpler direct Load Balancer approach, but the additional cost is accepted in exchange for a stable ingress integration and clear separation between Azure infrastructure and AKS-managed resources.
 
 
 
@@ -134,7 +135,7 @@ The architecture also keeps cloud-specific responsibilities within their respect
 
 The result is a separation between secret storage and secret consumption: cloud providers remain responsible for securely storing secrets, while ESO handles synchronizing them into Kubernetes.
 
-Cost consideration: Using the native secret store of each cloud avoids introducing the operational and infrastructure cost of a separate centralized Vault deployment, while still providing a consistent Kubernetes integration through ESO.
+**Cost consideration:** Using the native secret store of each cloud avoids introducing the operational and infrastructure cost of a separate centralized Vault deployment, while still providing a consistent Kubernetes integration through ESO.
 
 
 
