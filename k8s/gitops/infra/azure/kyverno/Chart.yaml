@@ -1,6 +1,6 @@
 apiVersion: v2
-name: azure-infra
-description: Helm Chart for Azure infrastructure
+name: azure-kyverno
+description: Helm Chart for Azure kyverno
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
