@@ -33,3 +33,7 @@ output "node_resource_group" {
   description = "Managed resource group created by AKS"
   value       = azurerm_kubernetes_cluster.main.node_resource_group
 }
+
+output "vmss_resources" {
+  value = data.azurerm_resources.aks_vmss.resources
+}

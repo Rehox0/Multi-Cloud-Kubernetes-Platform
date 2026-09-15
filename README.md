@@ -54,6 +54,21 @@ Current infrastructure footprint:
 
 The current AWS infrastructure uses a state scoped to `eu-central-1`.
 
+### Architecture & Design Decisions
+
+The project includes several architecture decisions made during implementation and validated through research, testing and iteration.
+
+These decisions cover topics such as:
+
+- Terraform execution and private AKS access
+- Argo CD bootstrap strategy
+- Cilium networking and routing
+- Multi-cloud secrets management
+- Azure ingress architecture
+
+> **📖 Detailed decisions and alternatives considered:**
+> **[Architecture & Design Decisions →](./docs/architecture_decisions.md.md)**
+
 ---
 
 ## 🔄 CI/CD

@@ -108,8 +108,13 @@ module "gateway_lb" {
   project_name        = var.project_name
   resource_group_name = module.aks.node_resource_group
   location            = var.location
-
   aks_subnet_id = module.networking.aks_subnets[0]
+aks_vmss_id   = module.aks.vmss_resources[0].id
+aks_vmss_name = module.aks.vmss_resources[0].name
+
+  protocol            = "Tcp"
+  gateway_frontend_port = 80
+  gateway_node_port     = 32767
 
   common_tags = local.tags
 

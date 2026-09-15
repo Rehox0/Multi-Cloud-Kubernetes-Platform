@@ -1,3 +1,0 @@
-to prevent questions breath over depth:
-    
-added own image for kubectl and sh (bitnami no support it anymore)

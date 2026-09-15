@@ -22,3 +22,27 @@ variable "common_tags" {
   description = "A map of tags to apply to all resources"
   type        = map(string)
 }
+
+variable "gateway_node_port" {
+  description = "NodePort exposed by the Cilium Gateway"
+  type        = number
+}
+
+variable "gateway_frontend_port" {
+  description = "Frontend port for the load balancer"
+  type        = number
+}
+
+variable "protocol" {
+  description = "Protocol for the load balancer (TCP/UDP)"
+  type        = string
+}
+variable "aks_vmss_id" {
+  description = "The ID of the AKS VMSS to which the load balancer backend pool will be associated"
+  type        = string
+}
+
+variable "aks_vmss_name" {
+  description = "The name of the AKS VMSS to which the load balancer backend pool will be associated"
+  type        = string
+}
