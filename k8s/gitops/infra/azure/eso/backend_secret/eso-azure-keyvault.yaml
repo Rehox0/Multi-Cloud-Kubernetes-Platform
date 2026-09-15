@@ -6,8 +6,8 @@ spec:
   provider:
     azurekv:
       authType: WorkloadIdentity
-      vaultUrl: " {{ .Values.spec.provider.azurekv.vaultUrl }}"
-      tenantId: " {{ .Values.spec.provider.azurekv.tenantId }}"
+      vaultUrl: {{ .Values.spec.provider.azurekv.vaultUrl | quote }}
+      tenantId: {{ .Values.spec.provider.azurekv.tenantId | quote }}
       serviceAccountRef:
         name: backend
         namespace: backend-ns
