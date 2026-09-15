@@ -5,9 +5,9 @@ module "networking" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  vnet_cidr        = "10.0.0.0/16"
-  aks_subnet_cidrs = ["10.0.4.0/22", "10.0.8.0/22"]
-  private_link_subnet_cidr = "10.0.12.0/24"
+  vnet_cidr        = "10.20.0.0/16"
+  aks_subnet_cidrs = ["10.20.4.0/22", "10.20.8.0/22"]
+  private_link_subnet_cidr = "10.20.12.0/24"
   jumpbox_network = {
     location    = "polandcentral"
     vnet_cidr   = "10.10.0.0/16"
