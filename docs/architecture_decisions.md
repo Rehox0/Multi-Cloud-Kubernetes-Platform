@@ -10,6 +10,7 @@ The project was therefore split into two responsibilities:
 
 The resulting architecture is:
 
+```
 Developer
     │
     │ controlled access
@@ -23,6 +24,7 @@ Jumpbox
           │
           ▼
       Private AKS
+```
 
 As part of the decision, I deliberately tested two approaches for remote cluster administration.
 
@@ -47,14 +49,17 @@ Azure required a different approach. The Cilium Gateway did not initially provid
 
 The initial concept was:
 
+```
 Cilium Gateway
       ↓
 No clear Azure backend endpoint
       ↓
 Azure Front Door
+```
 
 Because of this, the first implementation introduced a Terraform-managed internal Azure Load Balancer:
 
+```
 Front Door
     ↓
 Azure Load Balancer
@@ -62,6 +67,7 @@ Azure Load Balancer
 AKS VMSS / NodePort
     ↓
 Cilium Gateway
+```
 
 This worked, but required Terraform to modify the network configuration of the AKS-managed VMSS and attach its NICs to the Load Balancer backend pool.
 
@@ -69,6 +75,7 @@ This introduced an unnecessary dependency on AKS-managed resources and created a
 
 After further research, the architecture was redesigned around Azure Application Gateway and a Cilium LoadBalancer Service with a static private IP:
 
+```
 Front Door
     ↓
 Application Gateway
@@ -78,6 +85,7 @@ Internal Azure Load Balancer
 Cilium Gateway
     ↓
 Applications / Services
+```
 
 The final responsibilities are clearly separated:
 
@@ -100,6 +108,7 @@ A separate architectural decision was how Kubernetes workloads should access sec
 
 Several approaches were considered:
 
+```
 Kubernetes
     │
     ├── direct integration with a cloud secret store
@@ -109,6 +118,7 @@ Kubernetes
             │
             ├── AWS Secrets Manager
             └── Azure Key Vault
+```
 
 The multi-cloud architecture introduced an additional question: should both environments use one centralized secret provider, or should each cloud use its native secret management service?
 
@@ -159,6 +169,7 @@ While these approaches could provide more control over synchronization, they wou
 
 The final decision was to move the initial bootstrap dependency outside Argo CD.
 
+```
 Cluster Bootstrap
        │
        ├── Cilium
@@ -174,6 +185,7 @@ Cluster Bootstrap
        ├── Monitoring
        ├── Gateways
        └── Workloads
+```
 
 Components required to make the cluster operational are installed by the initialization layer before Argo CD starts managing the remaining platform.
 
