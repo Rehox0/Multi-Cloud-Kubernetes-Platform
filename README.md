@@ -88,9 +88,7 @@ One of the main goals of the project was to document the **engineering process b
 
 - **Argo CD / cross-node communication:** switching Cilium from native routing to VXLAN tunneling resolved Pod-to-Pod communication across nodes.
 
-- **CloudFront VPC Origin ➔ NLB:** CloudFront VPC Origin required explicit ingress access to the internal NLB. The final configuration uses the AWS-managed CloudFront origin-facing prefix list instead of exposing the NLB publicly.
-
-- **AWS NLB health checks:** TargetGroupBinding successfully registered EKS nodes, but health checks initially failed because ingress was applied to an unused Terraform-managed Security Group instead of the Security Group actually attached to the nodes.
+- **Github Actions OIDC:** GitHub Actions Could not assume role with OIDC. After renaming repo - token sub format changed to unusual format.
 
 > **📖 Detailed investigation, diagnostics, root causes and fixes:
 > **[Problems & Troubleshooting →](./docs/troubleshooting.md)****

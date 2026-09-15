@@ -9,7 +9,7 @@ module "networking" {
   aks_subnet_cidrs = ["10.0.4.0/22", "10.0.8.0/22"]
   private_link_subnet_cidr = "10.0.12.0/24"
   jumpbox_network = {
-    location    = "austriaeast"
+    location    = "polandcentral"
     vnet_cidr   = "10.10.0.0/16"
     subnet_cidr = "10.10.0.0/24"
   }
@@ -49,10 +49,19 @@ module "jumpbox" {
   source = "../../modules/jumpbox"
 
   project_name        = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = "austriaeast"
+  location            = "polandcentral"
 
-  subnet_id         = module.networking.jumpbox_subnet_id
+  resource_group_name = azurerm_resource_group.main.name
+  subnet_id           = module.networking.jumpbox_subnet_id
+
+  vm_size           = "Standard_D2als_v6"
+  priority          = "Spot"
+  eviction_policy   = "Deallocate"
+  max_bid_price     = -1
+
+  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
+  admin_username  = "azureadmin"
+  admin_source_ip = var.admin_source_ip
 
   kubectl_version   = var.kubectl_version
   kubectl_sha256    = var.kubectl_sha256
@@ -60,12 +69,6 @@ module "jumpbox" {
   kubelogin_sha256  = var.kubelogin_sha256
   helm_version      = var.helm_version
   helm_sha256       = var.helm_sha256
-
-  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
-  admin_username  = "azureadmin"
-  admin_source_ip = var.admin_source_ip
-
-  vm_size = "Standard_B2ls_v2"
 
   common_tags = local.tags
 

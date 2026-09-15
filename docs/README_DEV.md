@@ -108,10 +108,6 @@ git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.g
 kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
 ```
 
-
-git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
-kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
-
 ### 2. Access the ArgoCD UI
 ```bash
 ssh -L 8080:127.0.0.1:8080 azureadmin@<azure-vm-ip> "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"

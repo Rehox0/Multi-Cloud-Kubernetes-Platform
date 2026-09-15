@@ -1,1 +1,2 @@
-Dependency cycle - jak rozwiazac problem zeby terraform zarzadzal LB a nie Cilium gateway?
+to prevent questions breath over depth:
+    
