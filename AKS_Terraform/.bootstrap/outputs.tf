@@ -28,3 +28,19 @@ output "github_actions_client_id_dev" {
   value       = azurerm_user_assigned_identity.gha_dev.client_id
   description = "Client ID used by GitHub Actions in `azure/login` action for Dev"
 }
+
+
+output "backend_identity_id" {
+  value       = azurerm_user_assigned_identity.backend.id
+  description = "Resource ID of the persistent backend User Assigned Managed Identity"
+}
+
+output "backend_identity_client_id" {
+  value       = azurerm_user_assigned_identity.backend.client_id
+  description = "Client ID used by Kubernetes Workload Identity"
+}
+
+output "backend_identity_principal_id" {
+  value       = azurerm_user_assigned_identity.backend.principal_id
+  description = "Principal ID of the persistent backend User Assigned Managed Identity"
+}

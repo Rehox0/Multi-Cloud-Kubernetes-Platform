@@ -85,8 +85,9 @@ module "identity" {
   aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
   aks_vnet_id             = module.networking.aks_vnet_id
   backend_keyvault_id     = module.key_vault.id
-  user_object_id          = var.user_object_id
+  backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
 
+  user_object_id          = var.user_object_id
   common_tags = local.tags
 }
 
