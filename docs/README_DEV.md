@@ -97,16 +97,16 @@ aws ssm start-session \
 ---
  
 ## ☁️ Azure Deployment
- 
+
+<!-- SSH to jumpbox -->
+ssh azureadmin@<IP_JUMPBOX>
+
+
 ### 1. Deploy the GitOps root app
 ```bash
 git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
 kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
 ```
-
-
-git clone -b testing https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
-kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-app.yaml
 
 ### 2. Access the ArgoCD UI
 ```bash

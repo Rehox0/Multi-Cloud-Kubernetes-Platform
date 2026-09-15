@@ -381,9 +381,10 @@ GitHub → OIDC → AWS STS ✅
 ### Root Cause
 The repository rename changed the sub claim format used by the workflow, causing the existing IAM trust condition to stop matching.
 
-**Old format:** `repo:Rehox0/allegro-analytics-eks:environment:dev`
+**Rename repo:** `repo:Rehox0/allegro-analytics-eks:environment:dev` ➔ `repo:Rehox0/Multi-Cloud-Kubernetes-Platform:environment:dev`
 
-**New format:** `repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev`
+
+**Actual sub format:** `repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev`
 
 ### Resolution
 Updated the IAM Trust Policy to match the new ID-based format.

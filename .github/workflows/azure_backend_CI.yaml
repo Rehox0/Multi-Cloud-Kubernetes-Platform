@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 env:
-  AZURE_REGISTRY: acrmulticloudproject.azurecr.io
+  AZURE_REGISTRY: multicloudprojectacr.azurecr.io
   ACR_REPOSITORY: backend
 
 jobs:
@@ -128,7 +128,7 @@ jobs:
       - name: Login to Azure Container Registry
         run: |
           az acr login \
-            --name acrMultiCloudProject
+            --name MultiCloudProjectACR
 
       - name: Build Docker image
         env:
@@ -200,3 +200,4 @@ jobs:
 
           git commit -m "ci: update Azure backend image to ${{ github.sha }}"
           git push
+

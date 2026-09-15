@@ -4,10 +4,7 @@ metadata:
   name: main-gateway
   namespace: gateway-ns
 spec:
-  gatewayClassName: cilium
-  infrastructure:
-    annotations:
-      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  gatewayClassName: cilium-nodeport
   listeners:
     - name: http
       protocol: HTTP

@@ -36,3 +36,8 @@ variable "user_object_id" {
   description = "Object ID of the Azure user who should manage Key Vault secrets"
   type        = string
 }
+
+variable "backend_identity_principal_id" {
+  description = "Principal ID of the persistent backend User Assigned Managed Identity"
+  type        = string
+}

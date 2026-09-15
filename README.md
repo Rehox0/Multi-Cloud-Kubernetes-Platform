@@ -47,12 +47,27 @@ Infrastructure is provisioned using **Terraform**, covering networking, compute,
 
 Current infrastructure footprint:
 
-* **100+ AWS resources**
-* **45+ Azure resources**
+* **110+ AWS resources**
+* **55+ Azure resources**
 
 **Terraform state** is stored remotely in Amazon S3 with AES-256 encryption.
 
 The current AWS infrastructure uses a state scoped to `eu-central-1`.
+
+### Architecture & Design Decisions
+
+The project includes several architecture decisions made during implementation and validated through research, testing and iteration.
+
+These decisions cover topics such as:
+
+- Terraform execution and private AKS access
+- Argo CD bootstrap strategy
+- Cilium networking and routing
+- Multi-cloud secrets management
+- Azure ingress architecture
+
+> **📖 Detailed decisions and alternatives considered:**
+> **[Architecture & Design Decisions →](./docs/architecture_decisions.md.md)**
 
 ---
 
@@ -88,9 +103,7 @@ One of the main goals of the project was to document the **engineering process b
 
 - **Argo CD / cross-node communication:** switching Cilium from native routing to VXLAN tunneling resolved Pod-to-Pod communication across nodes.
 
-- **CloudFront VPC Origin ➔ NLB:** CloudFront VPC Origin required explicit ingress access to the internal NLB. The final configuration uses the AWS-managed CloudFront origin-facing prefix list instead of exposing the NLB publicly.
-
-- **AWS NLB health checks:** TargetGroupBinding successfully registered EKS nodes, but health checks initially failed because ingress was applied to an unused Terraform-managed Security Group instead of the Security Group actually attached to the nodes.
+- **Github Actions OIDC:** GitHub Actions Could not assume role with OIDC. After renaming repo - token sub format changed to unusual format.
 
 > **📖 Detailed investigation, diagnostics, root causes and fixes:
 > **[Problems & Troubleshooting →](./docs/troubleshooting.md)****
@@ -172,6 +185,7 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Node Exporter
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
+- [ ] Loki
 - [ ] Centralized logging
 - [ ] Full alerting workflow
 

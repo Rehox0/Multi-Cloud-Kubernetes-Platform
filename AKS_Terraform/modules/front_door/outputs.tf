@@ -35,5 +35,5 @@ output "private_link_service_alias" {
 
 output "origin_private_ip" {
   description = "Private IP of the AKS internal Load Balancer frontend"
-  value       = local.lb_frontend.private_ip_address
+  value       = var.gateway_lb_frontend_ip
 }

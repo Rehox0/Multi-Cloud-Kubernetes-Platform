@@ -1,0 +1,115 @@
+name: Azure - kubectl Hook CI
+
+on:
+  pull_request:
+    paths:
+      - 'docker/kubectl-hook/**'
+      - '.github/workflows/azure_kubectl_hook_CI.yaml'
+
+  push:
+    branches:
+      - main
+      - testing
+    paths:
+      - 'docker/kubectl-hook/**'
+      - '.github/workflows/azure_kubectl_hook_CI.yaml'
+
+permissions:
+  contents: read
+
+env:
+  AZURE_REGISTRY: multicloudprojectacr.azurecr.io
+  ACR_REPOSITORY: kubectl-hook
+  KUBECTL_VERSION: v1.35.8
+
+jobs:
+  kubectl-hook-ci:
+    name: Azure - kubectl Hook CI
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg KUBECTL_VERSION=${KUBECTL_VERSION} \
+            -t kubectl-hook:${{ github.sha }} \
+            ./docker/kubectl-hook
+
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: kubectl-hook:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+  push-to-acr:
+    name: Push kubectl Hook image to Azure Container Registry
+    needs: kubectl-hook-ci
+
+    if: github.event_name == 'push' &&
+        (github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main')
+
+    runs-on: ubuntu-latest
+
+    environment: dev
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login \
+            --name MultiCloudProjectACR
+
+      - name: Build Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --build-arg KUBECTL_VERSION=${KUBECTL_VERSION} \
+            -t $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG \
+            ./docker/kubectl-hook
+
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.AZURE_REGISTRY }}/${{ env.ACR_REPOSITORY }}:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Push Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          VERSION_TAG: v1.35.8
+        run: |
+          docker push \
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
+
+          docker tag \
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG \
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$VERSION_TAG
+
+          docker push \
+            $AZURE_REGISTRY/$ACR_REPOSITORY:$VERSION_TAG

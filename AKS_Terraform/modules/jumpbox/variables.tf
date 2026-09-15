@@ -16,7 +16,6 @@ variable "subnet_id" {
 
 variable "admin_username" {
   type    = string
-  default = "azureadmin"
 }
 
 variable "ssh_public_key" {
@@ -25,13 +24,11 @@ variable "ssh_public_key" {
 }
 
 variable "admin_source_ip" {
-  description = "Public IP address allowed to SSH into the jumpbox"
   type        = string
 }
 
 variable "vm_size" {
   type    = string
-  default = "Standard_B2s_v2"
 }
 
 variable "common_tags" {
@@ -45,3 +42,7 @@ variable "kubelogin_version" { type = string }
 variable "kubelogin_sha256" { type = string }
 variable "helm_version" { type = string }
 variable "helm_sha256" { type = string }
+
+variable "priority" { type = string }
+variable "eviction_policy" { type = string }
+variable "max_bid_price" { type = number }

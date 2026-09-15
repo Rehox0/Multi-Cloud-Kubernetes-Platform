@@ -63,6 +63,10 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   location            = var.location
   size                = var.vm_size
 
+  priority        = var.priority
+  eviction_policy = var.eviction_policy
+  max_bid_price   = var.max_bid_price
+
   admin_username = var.admin_username
   network_interface_ids = [ azurerm_network_interface.jumpbox.id ]
   disable_password_authentication = true

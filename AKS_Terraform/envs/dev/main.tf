@@ -5,11 +5,11 @@ module "networking" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  vnet_cidr        = "10.0.0.0/16"
-  aks_subnet_cidrs = ["10.0.4.0/22", "10.0.8.0/22"]
-  private_link_subnet_cidr = "10.0.12.0/24"
+  vnet_cidr        = "10.20.0.0/16"
+  aks_subnet_cidrs = ["10.20.4.0/22", "10.20.8.0/22"]
+  private_link_subnet_cidr = "10.20.12.0/24"
   jumpbox_network = {
-    location    = "austriaeast"
+    location    = "polandcentral"
     vnet_cidr   = "10.10.0.0/16"
     subnet_cidr = "10.10.0.0/24"
   }
@@ -32,7 +32,7 @@ module "aks" {
   
   kubernetes_version = var.cluster_version
 
-  node_vm_size = "Standard_B2s_v2"
+  node_vm_size = "Standard_D2s_v7"
 
   node_min_size = 2
   node_max_size = 2
@@ -49,10 +49,19 @@ module "jumpbox" {
   source = "../../modules/jumpbox"
 
   project_name        = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = "austriaeast"
+  location            = "polandcentral"
 
-  subnet_id         = module.networking.jumpbox_subnet_id
+  resource_group_name = azurerm_resource_group.main.name
+  subnet_id           = module.networking.jumpbox_subnet_id
+
+  vm_size           = "Standard_D2als_v6"
+  priority          = "Spot"
+  eviction_policy   = "Deallocate"
+  max_bid_price     = -1
+
+  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
+  admin_username  = "azureadmin"
+  admin_source_ip = var.admin_source_ip
 
   kubectl_version   = var.kubectl_version
   kubectl_sha256    = var.kubectl_sha256
@@ -60,12 +69,6 @@ module "jumpbox" {
   kubelogin_sha256  = var.kubelogin_sha256
   helm_version      = var.helm_version
   helm_sha256       = var.helm_sha256
-
-  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
-  admin_username  = "azureadmin"
-  admin_source_ip = var.admin_source_ip
-
-  vm_size = "Standard_B2ls_v2"
 
   common_tags = local.tags
 
@@ -82,8 +85,9 @@ module "identity" {
   aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
   aks_vnet_id             = module.networking.aks_vnet_id
   backend_keyvault_id     = module.key_vault.id
-  user_object_id          = var.user_object_id
+  backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
 
+  user_object_id          = var.user_object_id
   common_tags = local.tags
 }
 
@@ -98,15 +102,37 @@ module "key_vault" {
   common_tags = local.tags
 }
 
+module "gateway_lb" {
+  source = "../../modules/gateway_lb"
+
+  project_name        = var.project_name
+  resource_group_name = module.aks.node_resource_group
+  location            = var.location
+  aks_subnet_id = module.networking.aks_subnets[0]
+aks_vmss_id   = module.aks.vmss_resources[0].id
+aks_vmss_name = module.aks.vmss_resources[0].name
+
+  protocol            = "Tcp"
+  gateway_frontend_port = 80
+  gateway_node_port     = 32767
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks,
+    module.networking
+  ]
+}
+
 module "front_door" {
   count  = var.enable_frontdoor ? 1 : 0
   source = "../../modules/front_door"
 
   project_name            = var.project_name
   resource_group_name     = azurerm_resource_group.main.name
-  aks_node_resource_group = module.aks.node_resource_group
 
-  aks_subnet_id = module.networking.aks_subnets[0]
+  gateway_lb_frontend_ip = module.gateway_lb.frontend_ip
+  gateway_lb_frontend_ip_configuration_id = module.gateway_lb.frontend_ip_configuration_id
   
   private_link_location = "germanywestcentral"
   private_link_subnet_id = module.networking.private_link_subnet_id
@@ -114,7 +140,7 @@ module "front_door" {
   common_tags = local.tags
 
   depends_on = [
-    module.aks,
+    module.gateway_lb,
     module.networking
   ]
 }

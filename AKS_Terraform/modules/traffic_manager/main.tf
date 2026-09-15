@@ -4,7 +4,7 @@ resource "azurerm_traffic_manager_profile" "main" {
   traffic_routing_method = "Priority"
 
   dns_config {
-    relative_name = lower(replace("${var.project_name}-traffic", "-", ""))
+    relative_name = lower(replace("${var.project_name}tm", "-", ""))
     ttl           = 30
   }
 

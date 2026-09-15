@@ -1,0 +1,10 @@
+backend:
+  workloadIdentity:
+    clientId: "182644bb-351f-4205-9067-740bd838ea23"
+
+spec:
+  provider:
+    azurekv:
+      authType: WorkloadIdentity
+      vaultUrl: "https://Multi-Cloud-ProjectKV.vault.azure.net"
+      tenantId: "25ff8005-af8a-4c5e-88d9-399d69f25b52"

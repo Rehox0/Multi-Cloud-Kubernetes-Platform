@@ -15,7 +15,7 @@ spec:
       values: |
         installCRDs: true
         admissionController:
-          hostNetwork: true
+          hostNetwork: false
           dnsPolicy: ClusterFirstWithHostNet
         priorityClassName: prio-high
   destination:
