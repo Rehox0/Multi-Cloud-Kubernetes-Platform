@@ -1,4 +1,18 @@
-## Terraform & AKS Access - Design Decision
+# Architecture & Design Decisions
+
+This document captures the main architectural decisions made while building the multi-cloud Kubernetes platform (AWS EKS + Azure AKS).
+
+## Table of Contents
+
+1. [Terraform & AKS Access](#terraform--aks-access---design-decision)
+2. [Azure Ingress Architecture](#azure-ingress-architecture---design-decision)
+3. [Secrets Management](#secrets-management---design-decision)
+4. [Cilium Networking](#cilium-networking---design-decision)
+5. [Argo CD Bootstrap](#argo-cd-bootstrap---design-decision)
+
+---
+
+# Terraform & AKS Access - Design Decision
 One of the first architectural decisions was how to manage a private AKS cluster while keeping infrastructure provisioning reproducible and cluster administration practical.
 
 Initially, Terraform managed both cloud infrastructure and Kubernetes components such as Cilium and Helm releases, with Terraform execution performed through GitHub Actions. This provided a remote and reproducible execution environment, but became relatively slow and introduced additional complexity when accessing the private cluster.
@@ -39,107 +53,198 @@ The final model therefore keeps the infrastructure reproducible through Terrafor
 
 **Cost consideration:** The jumpbox introduces an additional cloud resource, but the relatively small infrastructure cost is justified by simpler and faster cluster administration without exposing the private Kubernetes API.
 
+---
 
-## Azure Ingress Architecture - Design Decision
+# Azure Ingress Architecture - Design Decision
 
-The Azure ingress architecture evolved through several iterations while solving a key integration problem: how to provide Azure Front Door with a stable backend endpoint for the Cilium Gateway without coupling Terraform to AKS-managed infrastructure.
+The Azure ingress architecture went through several iterations while solving a key integration problem: how to expose the Cilium Gateway to Azure Front Door without tightly coupling Terraform to AKS-managed infrastructure.
 
-One of the factors behind the initial approach was the difference between the AWS and Azure networking models. In AWS, a similar integration can be relatively straightforward: a Load Balancer can use a Target Group containing the required targets, providing a clear and stable integration point.
-
-Azure required a different approach. The Cilium Gateway did not initially provide the type of endpoint required for the planned Front Door integration, and creating an equivalent Terraform-managed Load Balancer meant integrating it with resources already managed by AKS.
-
-The initial concept was:
+The target architecture is:
 
 ```
-Cilium Gateway
-      ↓
-No clear Azure backend endpoint
-      ↓
-Azure Front Door
+                Internet
+                    ↓
+         Azure Front Door Premium
+                    ↓
+              Private Link
+                    ↓
+       Azure Private Link Service
+                    ↓
+      Azure Internal Load Balancer
+                    ↓
+              Cilium Gateway
+                    ↓
+                   AKS
+```
+## Design constraints
+
+The main challenge was the ownership boundary between Terraform and AKS.
+
+The Cilium Gateway creates a Kubernetes LoadBalancer service, which in Azure results in AKS/Cilium-managed Load Balancer infrastructure. Terraform cannot simply create an arbitrary Azure Load Balancer and then have AKS transparently adopt and manage it as its own.
+
+Several alternatives were evaluated.
+
+## Rejected approaches
+
+### Terraform-managed Load Balancer → AKS VMSS nodes
+
+```
+               Front Door
+                    ↓
+          Terraform-managed ILB
+                    ↓
+           AKS VMSS / NodePort
+                    ↓
+              Cilium Gateway
 ```
 
-Because of this, the first implementation introduced a Terraform-managed internal Azure Load Balancer:
+This required Terraform to manage AKS VMSS NICs and backend pool membership.
+
+It introduced unnecessary coupling to AKS-managed resources and created additional problems around node lifecycle, autoscaling, permissions and Azure API behaviour.
+
+A related limitation is that Azure Load Balancer backend pools using explicit IP addresses cannot be used as the backend of an Azure Private Link Service:
+
+`PrivateLinkServiceIsNotSupportedForIPBasedLoadBalancer`
+
+Therefore, this approach was discarded.
+
+### Application Gateway
+
+Another option was:
 
 ```
-Front Door
-    ↓
-Azure Load Balancer
-    ↓
-AKS VMSS / NodePort
-    ↓
-Cilium Gateway
+            Front Door
+                ↓
+        Application Gateway
+                ↓
+          Cilium Gateway
+                ↓
+               AKS
 ```
 
-This worked, but required Terraform to modify the network configuration of the AKS-managed VMSS and attach its NICs to the Load Balancer backend pool.
+This avoids some of the Load Balancer ownership problems, but introduces a significant additional component and cost.
 
-This introduced an unnecessary dependency on AKS-managed resources and created additional complexity around VMSS updates, Azure API behavior and permissions.
+There is also an important Azure limitation: at the time of implementation, Private Link tunnelling to an Application Gateway with only private frontend IPs was not supported.
 
-After further research, the architecture was redesigned around Azure Application Gateway and a Cilium LoadBalancer Service with a static private IP:
+Using a public Application Gateway would therefore introduce additional exposure and cost while also making the Application Gateway WAF largely redundant with Front Door Premium WAF.
+
+For this project, the additional complexity and cost were not justified.
+
+### Final approach
+
+The final design keeps ownership aligned with the platform that creates the resource.
+
+Cilium creates the Gateway Load Balancer and its Private Link Service as part of the Kubernetes deployment:
 
 ```
-Front Door
-    ↓
-Application Gateway
-    ↓
-Internal Azure Load Balancer
-    ↓
-Cilium Gateway
-    ↓
-Applications / Services
+            Terraform
+                ↓
+               AKS
+                ↓
+            Bootstrap
+                ↓
+          Cilium Gateway
+                ↓
+   Azure Internal Load Balancer
+                ↓
+    Azure Private Link Service
 ```
 
-The final responsibilities are clearly separated:
+Terraform then waits for the PLS to become available before creating the dependent Front Door resources:
 
-Argo CD / Kubernetes manages the Cilium Gateway and its LoadBalancer Service.
-Azure provides the internal Load Balancer and its reserved private IP.
-Terraform manages Application Gateway and uses the fixed Cilium Gateway IP as its backend.
-AKS-managed VMSS remains completely untouched by Terraform.
+```
+               AKS
+                ↓
+          Cilium Gateway
+                ↓
+        Internal LB + PLS
+                ↓
+          Terraform wait
+                ↓
+     Azure Front Door Premium
+```
 
-The resulting architecture provides a stable integration point between the Azure infrastructure and Kubernetes ingress layers, while avoiding direct modification of AKS-managed resources.
+The dependency is therefore explicit rather than attempting to make Terraform manage infrastructure owned by AKS.
 
-The main design principle was to integrate with the interfaces provided by AKS and Kubernetes rather than taking ownership of resources managed internally by AKS.
+The Terraform workflow becomes:
 
-**Cost consideration:** This architecture introduces additional Azure networking and Application Gateway costs compared with a simpler direct Load Balancer approach, but the additional cost is accepted in exchange for a stable ingress integration and clear separation between Azure infrastructure and AKS-managed resources.
+1. Create Azure infrastructure
+2. Create AKS
+3. Create and configure jumpbox
+4. Bootstrap Cilium and Gateway
+5. Wait for the PLS to become ready
+6. Create Azure Front Door
 
+The bootstrap success becomes the integration point between AKS-managed infrastructure and Terraform-managed infrastructure.
 
+## Trade-offs
 
-## Secrets Management - Design Decision
+This approach has several advantages:
+
+- no manual modification of AKS VMSS resources
+- no hardcoded AKS node IP addresses
+- no additional Application Gateway
+- Cilium/AKS owns its own Load Balancer
+- Terraform retains ownership of Front Door
+- the architecture is created in a single Terraform deployment
+- significantly lower cost than introducing Application Gateway
+- fewer networking components and less operational overhead
+
+The main trade-off is that Front Door creation depends on successful cluster bootstrap.
+
+If Cilium or the Gateway deployment fails, Terraform will stop while waiting for the Private Link Service rather than continuing to create the remaining ingress infrastructure.
+
+This is intentional: the dependency represents a real infrastructure requirement rather than hiding it through manual deployment steps.
+
+## Cost consideration
+
+The selected architecture avoids the additional cost of Application Gateway WAF v2.
+
+The main Azure ingress-related costs are therefore approximately:
+
+| Component | Approximate cost |
+|---|---:|
+| Azure Front Door Premium | ~$330/month |
+| Standard Azure Load Balancer | ~$18/month + data processing |
+| Azure Private Endpoint | ~$7/month |
+| Application Gateway WAF v2 | **Not required** |
+
+Prices are approximate and depend on region, traffic and Azure pricing changes.
+
+## Design conclusion
+
+Azure does not provide an equivalent of the simple AWS integration initially considered for this architecture.
+
+The final solution therefore follows Azure's resource ownership model instead of attempting to force Terraform to manage AKS-created networking resources.
+
+---
+
+# Secrets Management - Design Decision
 
 A separate architectural decision was how Kubernetes workloads should access secrets without storing sensitive values directly in Git or tightly coupling the cluster to a single cloud provider.
 
 Several approaches were considered:
 
-```
-Kubernetes
-    │
-    ├── direct integration with a cloud secret store
-    ├── custom secret retrieval mechanism
-    ├── HashiCorp Vault
-    └── External Secrets Operator
-            │
-            ├── AWS Secrets Manager
-            └── Azure Key Vault
-```
+- direct integration with a cloud secret store
+- custom secret retrieval mechanism
+- HashiCorp Vault
+- External Secrets Operator (ESO)
 
 The multi-cloud architecture introduced an additional question: should both environments use one centralized secret provider, or should each cloud use its native secret management service?
 
-The final decision was to use External Secrets Operator (ESO) as the Kubernetes integration layer, while keeping the actual secret stores cloud-specific:
+After a relatively quick evaluation, the decision was to use External Secrets Operator as the Kubernetes integration layer, while keeping the actual secret stores cloud-specific:
 
-AWS → AWS Secrets Manager
-Azure → Azure Key Vault
-Kubernetes → ESO-managed Kubernetes Secrets
+- AWS → AWS Secrets Manager
+- Azure → Azure Key Vault
+- Kubernetes → ESO-managed Kubernetes Secrets
 
-This avoided introducing a separate centralized Vault infrastructure while preserving a consistent Kubernetes-facing interface.
-
-The architecture also keeps cloud-specific responsibilities within their respective environments. If one cloud becomes unavailable, the other does not depend on the same external secret-management platform for its workloads.
-
-The result is a separation between secret storage and secret consumption: cloud providers remain responsible for securely storing secrets, while ESO handles synchronizing them into Kubernetes.
+This avoided introducing a separate centralized Vault infrastructure while preserving a consistent Kubernetes-facing interface. It also keeps cloud-specific responsibilities within their respective environments — if one cloud becomes unavailable, the other does not depend on the same external secret-management platform.
 
 **Cost consideration:** Using the native secret store of each cloud avoids introducing the operational and infrastructure cost of a separate centralized Vault deployment, while still providing a consistent Kubernetes integration through ESO.
 
+---
 
-
-## Cilium Networking - Design Decision
+# Cilium Networking - Design Decision
 
 When configuring Cilium networking on AWS, I initially chose native routing after researching the available networking models. It appeared to be the most natural approach for an AWS environment because pod traffic could be routed through the underlying VPC network without an overlay.
 
@@ -153,7 +258,9 @@ The main lesson was that choosing a networking model based only on its architect
 
 The final approach favored a slightly less direct networking model in exchange for predictable pod networking and compatibility with the available node capacity
 
-## Argo CD Bootstrap - Design Decision
+---
+
+# Argo CD Bootstrap - Design Decision
 
 During the initial Argo CD setup, a dependency problem appeared: some platform components, including External Secrets Operator (ESO), required infrastructure that was not yet available, while Argo CD was attempting to synchronize Applications concurrently.
 
@@ -161,14 +268,14 @@ The initial approach was to look for a Terraform-like dependency mechanism betwe
 
 Several alternatives were considered:
 
-custom controllers,
-webhooks,
-sync checks and health conditions,
-ApplicationSets and synchronization ordering.
+- custom controllers
+- webhooks
+- sync checks and health conditions
+- ApplicationSets and synchronization ordering
 
 While these approaches could provide more control over synchronization, they would also introduce additional logic and operational complexity for a relatively small bootstrap problem.
 
-The final decision was to move the initial bootstrap dependency outside Argo CD.
+The final decision was to move the initial bootstrap dependency outside ArgoCD.
 
 ```
 Cluster Bootstrap

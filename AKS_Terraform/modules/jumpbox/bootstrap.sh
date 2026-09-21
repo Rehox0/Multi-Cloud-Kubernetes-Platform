@@ -25,27 +25,51 @@ apt-get install -y \
   unzip
 
 # Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+curl -fsSL \
+  --connect-timeout 30 \
+  --max-time 300 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  https://aka.ms/InstallAzureCLIDeb | bash
 
 # kubectl
-curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/kubectl" "https://dl.k8s.io/release/$${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+curl -fSL \
+  --connect-timeout 30 \
+  --max-time 300 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  -o "$${BOOTSTRAP_TMP_DIR}/kubectl" \
+  "https://dl.k8s.io/release/$${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 echo "$${KUBECTL_SHA256}  $${BOOTSTRAP_TMP_DIR}/kubectl" | sha256sum -c -
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/kubectl" /usr/local/bin/kubectl
 
 # kubelogin
-echo "[bootstrap] Installing kubelogin"
-
-curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/kubelogin.zip" \
+curl -fSL \
+  --connect-timeout 30 \
+  --max-time 300 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  -o "$${BOOTSTRAP_TMP_DIR}/kubelogin.zip" \
   "https://github.com/Azure/kubelogin/releases/download/$${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip"
-
 echo "$${KUBELOGIN_SHA256}  $${BOOTSTRAP_TMP_DIR}/kubelogin.zip" | sha256sum -c -
 unzip -q "$${BOOTSTRAP_TMP_DIR}/kubelogin.zip" -d "$${BOOTSTRAP_TMP_DIR}/kubelogin"
 KUBELOGIN_BIN=$(find "$${BOOTSTRAP_TMP_DIR}/kubelogin" -type f -name kubelogin -print -quit)
 test -n "$${KUBELOGIN_BIN}"
 install -o root -g root -m 0755 "$${KUBELOGIN_BIN}" /usr/local/bin/kubelogin
 
-#helm installation
-curl -fsSLo "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz"
+#helm
+echo "[bootstrap] Installing Helm"
+curl -fSL \
+  --connect-timeout 30 \
+  --max-time 300 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  -o "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" \
+  "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz"
 echo "$${HELM_SHA256}  $${BOOTSTRAP_TMP_DIR}/helm.tar.gz" | sha256sum -c -
 tar -xzf "$${BOOTSTRAP_TMP_DIR}/helm.tar.gz" -C "$${BOOTSTRAP_TMP_DIR}"
 install -o root -g root -m 0755 "$${BOOTSTRAP_TMP_DIR}/linux-amd64/helm" /usr/local/bin/helm
@@ -94,11 +118,27 @@ CLUSTER_INFO=$(az aks show \
   --query "privateFqdn" \
   --output tsv)
 
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CILIUM_CLI_VERSION=$(
+  curl -fsSL \
+    --connect-timeout 30 \
+    --max-time 120 \
+    --retry 5 \
+    --retry-delay 10 \
+    --retry-all-errors \
+    https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt
+)
 CLI_ARCH=amd64
 if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/$${CILIUM_CLI_VERSION}/cilium-linux-$${CLI_ARCH}.tar.gz{,.sha256sum}
-sha256sum --check cilium-linux-$${CLI_ARCH}.tar.gz.sha256sum
+curl -fSL \
+  --connect-timeout 30 \
+  --max-time 300 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  --remote-name-all \
+  "https://github.com/cilium/cilium-cli/releases/download/$${CILIUM_CLI_VERSION}/cilium-linux-$${CLI_ARCH}.tar.gz" \
+  "https://github.com/cilium/cilium-cli/releases/download/$${CILIUM_CLI_VERSION}/cilium-linux-$${CLI_ARCH}.tar.gz.sha256sum"
+sha256sum --check "cilium-linux-$${CLI_ARCH}.tar.gz.sha256sum"
 sudo tar xzvfC cilium-linux-$${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-$${CLI_ARCH}.tar.gz{,.sha256sum}
 
@@ -120,7 +160,134 @@ helm upgrade --install cilium cilium/cilium \
   --set k8sServiceHost="$${CLUSTER_INFO}" \
   --set k8sServicePort=443 \
   --wait \
-  --timeout 3m
+  --timeout 5m
+
+echo "[bootstrap] Waiting for Cilium..."
+
+for i in $(seq 1 60); do
+
+  if kubectl -n kube-system get daemonset cilium >/dev/null 2>&1 && \
+     kubectl -n kube-system get deployment cilium-operator >/dev/null 2>&1; then
+    echo "[bootstrap] Cilium resources exist."
+    break
+  fi
+
+  echo "[bootstrap] Cilium resources not available yet. Attempt $i/60..."
+  sleep 5
+
+  if [ "$i" -eq 60 ]; then
+    echo "[bootstrap] ERROR: Cilium resources did not appear within 5 minutes."
+    exit 1
+  fi
+
+done
+
+echo "[bootstrap] Waiting for Cilium CRDs..."
+
+for i in $(seq 1 60); do
+
+  if kubectl get crd ciliumgatewayclassconfigs.cilium.io >/dev/null 2>&1; then
+    echo "[bootstrap] CiliumGatewayClassConfig CRD is available."
+    break
+  fi
+
+  echo "[bootstrap] CiliumGatewayClassConfig CRD not available yet. Attempt $i/60..."
+  sleep 5
+
+  if [ "$i" -eq 60 ]; then
+    echo "[bootstrap] ERROR: CiliumGatewayClassConfig CRD did not become available within 5 minutes."
+    exit 1
+  fi
+
+done
+
+echo "[bootstrap] Creating Gateway namespace..."
+kubectl create namespace gateway-ns \
+  --dry-run=client \
+  -o yaml | kubectl apply -f -
+
+echo "[bootstrap] Creating Gateway API infrastructure"
+kubectl apply -f - <<'EOF'
+apiVersion: cilium.io/v2alpha1
+kind: CiliumGatewayClassConfig
+metadata:
+  name: loadbalancer-gateway-config
+  namespace: gateway-ns
+spec:
+  service:
+    type: LoadBalancer
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: cilium-loadbalancer
+spec:
+  controllerName: io.cilium/gateway-controller
+  parametersRef:
+    group: cilium.io
+    kind: CiliumGatewayClassConfig
+    name: loadbalancer-gateway-config
+    namespace: gateway-ns
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway
+  namespace: gateway-ns
+spec:
+  gatewayClassName: cilium-loadbalancer
+  infrastructure:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      service.beta.kubernetes.io/azure-pls-create: "true"
+      service.beta.kubernetes.io/azure-pls-name: "Multi-Cloud-Project-gateway-pls"
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+EOF
+
+echo "[bootstrap] Waiting for Gateway to become programmed..."
+
+kubectl wait \
+  --namespace gateway-ns \
+  --for=condition=Programmed \
+  gateway/main-gateway \
+  --timeout=5m
+
+echo "[bootstrap] Waiting for Gateway LoadBalancer..."
+until kubectl get svc -n gateway-ns \
+  -l gateway.networking.k8s.io/gateway-name=main-gateway \
+  -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null \
+  | grep -q .; do
+
+  echo "[bootstrap] Waiting for Azure LoadBalancer IP..."
+  sleep 10
+done
+echo "[bootstrap] Gateway LoadBalancer is ready"
+
+echo "[bootstrap] Waiting for Azure Private Link Service..."
+AKS_NODE_RESOURCE_GROUP=$(az aks show \
+  --resource-group Multi-Cloud-Project-rg \
+  --name Multi-Cloud-Project-aks-cluster \
+  --query "nodeResourceGroup" \
+  --output tsv)
+
+until az network private-link-service show \
+  --resource-group "$${AKS_NODE_RESOURCE_GROUP}" \
+  --name "Multi-Cloud-Project-gateway-pls" \
+  --query "provisioningState" \
+  --output tsv 2>/dev/null \
+  | grep -q "^Succeeded$"; do
+
+  echo "[bootstrap] Waiting for Azure Private Link Service..."
+  sleep 10
+done
+echo "[bootstrap] Azure Private Link Service is ready"
+
 
 #PrioClass
 kubectl apply -f - <<'EOF'

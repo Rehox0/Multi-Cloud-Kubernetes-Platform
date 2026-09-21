@@ -98,3 +98,33 @@ resource "azurerm_subnet_nat_gateway_association" "aks" {
   subnet_id      = azurerm_subnet.aks[count.index].id
   nat_gateway_id = azurerm_nat_gateway.aks.id
 }
+
+# # ============================================================
+# # App Gateway Subnet
+# # ============================================================
+
+# resource "azurerm_subnet" "application_gateway" {
+#   name                 = "${var.project_name}-appgw-subnet"
+#   resource_group_name  = var.resource_group_name
+#   virtual_network_name = azurerm_virtual_network.aks.name
+
+#   address_prefixes = [var.application_gateway_subnet_cidr]
+
+#   delegation {
+#     name = "appgw-delegation"
+
+#     service_delegation {
+#       name = "Microsoft.Network/applicationGateways"
+#     }
+#   }
+# }
+
+# resource "azurerm_subnet" "application_gateway_private_link" {
+#   name                 = "${var.project_name}-appgw-pl-subnet"
+#   resource_group_name  = var.resource_group_name
+#   virtual_network_name = azurerm_virtual_network.aks.name
+
+#   address_prefixes = [var.application_gateway_private_link_subnet_cidr]
+
+#   private_link_service_network_policies_enabled = false
+# }

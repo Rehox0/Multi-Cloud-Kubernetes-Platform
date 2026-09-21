@@ -7,12 +7,44 @@ module "networking" {
 
   vnet_cidr        = "10.20.0.0/16"
   aks_subnet_cidrs = ["10.20.4.0/22", "10.20.8.0/22"]
+
   private_link_subnet_cidr = "10.20.12.0/24"
+
+  # application_gateway_subnet_cidr = "10.20.13.0/24"
+  # application_gateway_private_link_subnet_cidr = "10.20.14.0/24"
+
   jumpbox_network = {
     location    = "polandcentral"
     vnet_cidr   = "10.10.0.0/16"
     subnet_cidr = "10.10.0.0/24"
   }
+
+  common_tags = local.tags
+}
+
+module "identity" {
+  source = "../../modules/identity"
+
+  project_name = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
+  aks_vnet_id             = module.networking.aks_vnet_id
+  backend_keyvault_id     = module.key_vault.id
+  backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
+
+  user_object_id          = var.user_object_id
+  common_tags = local.tags
+}
+
+module "key_vault" {
+  source = "../../modules/key_vault"
+
+  project_name       = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
 
   common_tags = local.tags
 }
@@ -53,6 +85,8 @@ module "jumpbox" {
 
   resource_group_name = azurerm_resource_group.main.name
   subnet_id           = module.networking.jumpbox_subnet_id
+  aks_node_resource_group_id = module.aks.node_resource_group_id
+  aks_cluster_id = module.aks.cluster_id
 
   vm_size           = "Standard_D2als_v6"
   priority          = "Spot"
@@ -72,76 +106,44 @@ module "jumpbox" {
 
   common_tags = local.tags
 
-  depends_on = [module.aks]
-}
-
-module "identity" {
-  source = "../../modules/identity"
-
-  project_name = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-
-  aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
-  aks_vnet_id             = module.networking.aks_vnet_id
-  backend_keyvault_id     = module.key_vault.id
-  backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
-
-  user_object_id          = var.user_object_id
-  common_tags = local.tags
-}
-
-module "key_vault" {
-  source = "../../modules/key_vault"
-
-  project_name       = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-
-  common_tags = local.tags
-}
-
-module "gateway_lb" {
-  source = "../../modules/gateway_lb"
-
-  project_name        = var.project_name
-  resource_group_name = module.aks.node_resource_group
-  location            = var.location
-  aks_subnet_id = module.networking.aks_subnets[0]
-aks_vmss_id   = module.aks.vmss_resources[0].id
-aks_vmss_name = module.aks.vmss_resources[0].name
-
-  protocol            = "Tcp"
-  gateway_frontend_port = 80
-  gateway_node_port     = 32767
-
-  common_tags = local.tags
-
   depends_on = [
-    module.aks,
-    module.networking
+    module.aks
   ]
 }
 
+
+
+# module "application_gateway" {
+#   source = "../../modules/application_gateway"
+
+#   project_name        = var.project_name
+#   resource_group_name = azurerm_resource_group.main.name
+#   location            = azurerm_resource_group.main.location
+
+#   application_gateway_subnet_id = module.networking.application_gateway_subnet_id
+#   application_gateway_private_link_subnet_id = module.networking.application_gateway_private_link_subnet_id
+
+#   common_tags = local.tags
+
+#   depends_on = [
+#     module.networking,
+#     module.aks
+#   ]
+# }
+
 module "front_door" {
-  count  = var.enable_frontdoor ? 1 : 0
   source = "../../modules/front_door"
 
-  project_name            = var.project_name
-  resource_group_name     = azurerm_resource_group.main.name
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
 
-  gateway_lb_frontend_ip = module.gateway_lb.frontend_ip
-  gateway_lb_frontend_ip_configuration_id = module.gateway_lb.frontend_ip_configuration_id
-  
-  private_link_location = "germanywestcentral"
-  private_link_subnet_id = module.networking.private_link_subnet_id
+  aks_node_resource_group = module.aks.node_resource_group
 
   common_tags = local.tags
 
   depends_on = [
-    module.gateway_lb,
-    module.networking
+    null_resource.wait_for_gateway_pls
   ]
 }
 
@@ -153,7 +155,7 @@ module "traffic_manager" {
 
   aws_cloudfront_hostname = var.aws_cloudfront_hostname
 
-  azure_frontdoor_hostname = module.front_door[0].endpoint_hostname
+  azure_frontdoor_hostname = module.front_door.endpoint_hostname
 
   health_probe_path = "/api/health"
 

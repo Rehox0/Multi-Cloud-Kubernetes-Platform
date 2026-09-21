@@ -30,3 +30,13 @@ output "aks_private_dns_zone_id" {
 output "private_link_subnet_id" {
   value = azurerm_subnet.private_link.id
 }
+
+# output "application_gateway_subnet_id" {
+#   description = "Subnet ID for Application Gateway"
+#   value       = azurerm_subnet.application_gateway.id
+# }
+
+# output "application_gateway_private_link_subnet_id" {
+#   description = "Subnet ID for Application Gateway Private Link"
+#   value       = azurerm_subnet.application_gateway_private_link.id
+# }
