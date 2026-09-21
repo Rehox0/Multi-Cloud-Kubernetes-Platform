@@ -71,7 +71,10 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   network_interface_ids = [ azurerm_network_interface.jumpbox.id ]
   disable_password_authentication = true
 
-  identity { type = "SystemAssigned" }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.jumpbox.id]
+  }
 
   admin_ssh_key {
     username   = var.admin_username
@@ -103,8 +106,13 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     helm_sha256        = var.helm_sha256
   }))
 
-
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-jumpbox"
   })
+
+  depends_on = [
+    azurerm_role_assignment.jumpbox_aks_user,
+    azurerm_role_assignment.jumpbox_reader,
+    azurerm_role_assignment.jumpbox_network_contributor
+  ]
 }

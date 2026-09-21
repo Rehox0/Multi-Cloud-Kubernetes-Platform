@@ -46,3 +46,13 @@ variable "helm_sha256" { type = string }
 variable "priority" { type = string }
 variable "eviction_policy" { type = string }
 variable "max_bid_price" { type = number }
+
+variable "aks_node_resource_group_id" {
+  description = "Resource ID of the AKS managed node resource group"
+  type        = string
+}
+
+variable "aks_cluster_id" {
+  description = "AKS cluster resource ID"
+  type        = string
+}

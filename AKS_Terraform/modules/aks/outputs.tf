@@ -34,6 +34,6 @@ output "node_resource_group" {
   value       = azurerm_kubernetes_cluster.main.node_resource_group
 }
 
-output "vmss_resources" {
-  value = data.azurerm_resources.aks_vmss.resources
+output "node_resource_group_id" {
+  value = azurerm_kubernetes_cluster.main.node_resource_group_id
 }

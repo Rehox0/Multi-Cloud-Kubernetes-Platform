@@ -44,3 +44,13 @@ variable "jumpbox_network" {
     subnet_cidr = string
   })
 }
+
+# variable "application_gateway_subnet_cidr" {
+#   type        = string
+#   description = "Dedicated subnet for Azure Application Gateway"
+# }
+
+# variable "application_gateway_private_link_subnet_cidr" {
+#   type        = string
+#   description = "Dedicated subnet for Application Gateway Private Link"
+# }

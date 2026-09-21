@@ -67,7 +67,7 @@ These decisions cover topics such as:
 - Azure ingress architecture
 
 > **📖 Detailed decisions and alternatives considered:**
-> **[Architecture & Design Decisions →](./docs/architecture_decisions.md.md)**
+> **[Architecture & Design Decisions →](./docs/architecture_decisions.md)**
 
 ---
 
