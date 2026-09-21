@@ -208,8 +208,8 @@ One of the main goals of the project was to document the **engineering process b
 
 ### 📖 Documentation & Presentation
 - [ ] Final architecture diagram
-- [ ] Design decisions and trade-offs
-- [ ] Known limitations documented
+- [x] Design decisions and trade-offs
+- [x] Known limitations documented
 - [ ] Short deployment demo
 - [ ] Final code cleanup
 
