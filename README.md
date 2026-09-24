@@ -234,9 +234,9 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] Azure Traffic Manager
 - [x] Azure ingress path validated end-to-end
 - [ ] Azure monitoring
+
 - [ ] Multi-Cloud interconnect
 - [ ] Multi-Cloud security model
-- [ ] Multi-Cloud observability
 - [ ] Multi-Cloud reliability model
 - [ ] PostgreSQL extension
 - [ ] Redis/Valkey extension

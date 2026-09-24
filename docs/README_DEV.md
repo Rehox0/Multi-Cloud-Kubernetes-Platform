@@ -19,7 +19,7 @@ This project uses remote state stored in S3 with a lock in DynamoDB.
 
 ---
  
-## ☁️ AWS Deployment
+# ☁️ AWS Deployment
 
 ### 1. Bootstrap remote state
 ```bash
@@ -96,7 +96,7 @@ aws ssm start-session \
 ```
 ---
  
-## ☁️ Azure Deployment
+# ☁️ Azure Deployment
 
 <!-- SSH to jumpbox -->
 ssh azureadmin@<IP_JUMPBOX>
@@ -116,8 +116,14 @@ Get the initial admin password:
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
 ```
- 
-### 3. Approve the Front Door Private Link connection
+
+### 3. Access the Grafana UI
+```bash
+ssh -L 3000:127.0.0.1:3000 azureadmin@<azure-vm-ip> \
+  "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
+```
+
+### 4. Approve the Front Door Private Link connection
 Get the pending connection name:
 ```bash
 az network private-link-service show \
