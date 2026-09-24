@@ -57,7 +57,15 @@ singleBinary:
     size: 20Gi
     storageClass: managed-csi
 
-# Disable all other deployment modes
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+# Disable distributed components
 backend:
   replicas: 0
 
@@ -98,15 +106,23 @@ bloomGateway:
   replicas: 0
 
 gateway:
-  enabled: true
-  replicas: 1
+  enabled: false
 
-monitoring:
-  serviceMonitor:
-    enabled: true
+lokiCanary:
+  enabled: false
 
-test:
+chunksCache:
+  enabled: false
+
+resultsCache:
   enabled: false
 
 minio:
   enabled: false
+
+test:
+  enabled: false
+
+monitoring:
+  serviceMonitor:
+    enabled: true
