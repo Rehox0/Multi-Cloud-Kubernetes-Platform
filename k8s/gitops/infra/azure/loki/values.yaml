@@ -31,7 +31,7 @@ loki:
       useFederatedToken: true
     
     ruler:
-      enable_api: false
+      enabled: false
 
 singleBinary:
   replicas: 1
