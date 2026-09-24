@@ -424,7 +424,7 @@
         "renameByName": {
           "deployment": "Deployment",
           "namespace": "Namespace",
-          "Value": "Available",
+          "Value #A": "Available",
           "Value #B": "Desired"
         },
         "indexByName": {
