@@ -29,6 +29,9 @@ loki:
       accountKey: ""
       useManagedIdentity: false
       useFederatedToken: true
+    
+    ruler:
+      enable_api: false
 
 singleBinary:
   replicas: 1
