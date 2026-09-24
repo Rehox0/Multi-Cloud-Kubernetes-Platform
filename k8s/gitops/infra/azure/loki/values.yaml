@@ -1,4 +1,4 @@
-deploymentMode: Monolithic
+deploymentMode: SingleBinary
 
 loki:
   auth_enabled: false
@@ -51,6 +51,9 @@ loki:
 
 singleBinary:
   replicas: 1
+
+  podLabels:
+    app: loki
 
   persistence:
     enabled: true
