@@ -44,9 +44,6 @@ loki:
 
   pattern_ingester:
     enabled: true
-    
-    ruler:
-      enabled: false
 
 singleBinary:
   replicas: 1
@@ -74,6 +71,9 @@ sidecar:
     limits:
       cpu: 100m
       memory: 128Mi
+
+ruler:
+  enabled: false
 
 write:
   replicas: 0
