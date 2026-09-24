@@ -1,5 +1,20 @@
 deploymentMode: SingleBinary
 
+loki:
+  storage:
+    type: azure
+
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+
+    azure:
+      accountName: ""
+      accountKey: ""
+      useManagedIdentity: false
+      useFederatedToken: true
+
 singleBinary:
   replicas: 1
   podLabels:
