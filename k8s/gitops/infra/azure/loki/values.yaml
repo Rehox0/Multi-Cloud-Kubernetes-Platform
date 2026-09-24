@@ -59,9 +59,11 @@ backend:
 
 lokiCanary:
   enabled: false
+  replicas: 0
 
 gateway:
   enabled: false
+  replicas: 0
 
 chunksCache:
   enabled: false
