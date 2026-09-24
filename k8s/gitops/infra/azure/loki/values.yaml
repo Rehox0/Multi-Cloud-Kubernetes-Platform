@@ -32,6 +32,14 @@ loki:
     retention_period: 168h
     allow_structured_metadata: true
     volume_enabled: true
+  
+  rulerConfig:
+    wal:
+      dir: /var/loki/ruler-wal
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
 
   compactor:
     working_directory: /var/loki/compactor
