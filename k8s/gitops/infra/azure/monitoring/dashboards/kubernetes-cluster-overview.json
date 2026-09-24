@@ -417,7 +417,8 @@
           "job #A": true,
           "job #B": true,
           "instance #A": true,
-          "instance #B": true
+          "instance #B": true,
+          "namespace #B": true
         },
         "renameByName": {
           "deployment": "Deployment",

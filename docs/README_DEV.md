@@ -122,6 +122,10 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ssh -L 3000:127.0.0.1:3000 azureadmin@<azure-vm-ip> \
   "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
 ```
+Get the admin password:
+```bash
+kubectl get secret -n monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
+```
 
 ### 4. Approve the Front Door Private Link connection
 Get the pending connection name:
