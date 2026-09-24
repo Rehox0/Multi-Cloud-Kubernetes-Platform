@@ -81,7 +81,8 @@ sidecar:
       memory: 128Mi
 
 ruler:
-  enabled: false
+  enabled: true
+  replicas: 0
 
 write:
   replicas: 0
