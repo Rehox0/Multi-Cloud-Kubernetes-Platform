@@ -418,6 +418,7 @@
           "job #B": true,
           "instance #A": true,
           "instance #B": true,
+          "namespace #A": true,
           "namespace #B": true
         },
         "renameByName": {
