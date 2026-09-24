@@ -15,7 +15,7 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-          
+
   storage:
     type: azure
 
@@ -56,3 +56,23 @@ read:
 
 backend:
   replicas: 0
+
+lokiCanary:
+  enabled: false
+
+gateway:
+  enabled: false
+
+chunksCache:
+  enabled: false
+  replicas: 0
+
+resultsCache:
+  enabled: false
+  replicas: 0
+
+minio:
+  enabled: false
+
+test:
+  enabled: false
