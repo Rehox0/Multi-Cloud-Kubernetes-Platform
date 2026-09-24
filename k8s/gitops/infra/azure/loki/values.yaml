@@ -69,55 +69,16 @@ singleBinary:
       memory: 512Mi
 
 # Disable distributed components
-backend:
-  replicas: 0
+chunksCache:
+  enabled: false
 
-read:
-  replicas: 0
-
-write:
-  replicas: 0
-
-ingester:
-  replicas: 0
-
-querier:
-  replicas: 0
-
-queryFrontend:
-  replicas: 0
-
-queryScheduler:
-  replicas: 0
-
-distributor:
-  replicas: 0
-
-compactor:
-  replicas: 0
-
-indexGateway:
-  replicas: 0
-
-bloomPlanner:
-  replicas: 0
-
-bloomBuilder:
-  replicas: 0
-
-bloomGateway:
-  replicas: 0
+resultsCache:
+  enabled: false
 
 gateway:
   enabled: false
 
 lokiCanary:
-  enabled: false
-
-chunksCache:
-  enabled: false
-
-resultsCache:
   enabled: false
 
 minio:
