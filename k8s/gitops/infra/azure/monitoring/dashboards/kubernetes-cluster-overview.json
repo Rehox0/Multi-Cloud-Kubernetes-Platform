@@ -378,13 +378,13 @@
   },
   "targets": [
     {
-      "expr": "max by (namespace, deployment) (kube_deployment_status_replicas_available)",
+      "expr": "label_join(max by (namespace, deployment) (kube_deployment_status_replicas_available), \"join_key\", \"/\", \"namespace\", \"deployment\")",
       "format": "table",
       "instant": true,
       "refId": "A"
     },
     {
-      "expr": "max by (namespace, deployment) (kube_deployment_spec_replicas)",
+      "expr": "max by (join_key) (label_join(max by (namespace, deployment) (kube_deployment_spec_replicas), \"join_key\", \"/\", \"namespace\", \"deployment\"))",
       "format": "table",
       "instant": true,
       "refId": "B"
@@ -394,7 +394,7 @@
     {
       "id": "joinByField",
       "options": {
-        "byField": "deployment",
+        "byField": "join_key",
         "mode": "outer"
       }
     },
@@ -406,7 +406,11 @@
           "Time #A": true,
           "Time #B": true,
           "job": true,
+          "job #A": true,
+          "job #B": true,
           "instance": true,
+          "instance #A": true,
+          "instance #B": true,
           "endpoint": true,
           "pod": true,
           "service": true,
@@ -414,17 +418,13 @@
           "__name__": true,
           "__name__ #A": true,
           "__name__ #B": true,
-          "job #A": true,
-          "job #B": true,
-          "instance #A": true,
-          "instance #B": true,
-          "namespace #A": true,
-          "namespace #B": true
+          "join_key": true,
+          "join_key #B": true
         },
         "renameByName": {
           "deployment": "Deployment",
           "namespace": "Namespace",
-          "Value #A": "Available",
+          "Value": "Available",
           "Value #B": "Desired"
         },
         "indexByName": {
