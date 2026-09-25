@@ -12,7 +12,11 @@ spec:
       - name: alertname
         matchType: "="
         value: PortfolioTestAlert
+
   receivers:
     - name: default
-      webhookConfigs:
-        - url: "https://webhook.site/749d876d-5248-47d5-8538-e3600cabb749"
+      discordConfigs:
+        - apiURL:
+            name: eso-discord-alertmanager-webhook
+            key: webhook-url
+          sendResolved: true
