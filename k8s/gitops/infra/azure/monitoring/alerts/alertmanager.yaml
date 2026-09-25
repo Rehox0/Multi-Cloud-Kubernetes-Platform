@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: default-alerts
+  namespace: monitoring
+spec:
+  route:
+    receiver: default
+  receivers:
+    - name: default

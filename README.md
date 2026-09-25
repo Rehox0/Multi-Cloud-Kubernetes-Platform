@@ -186,7 +186,7 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
 - [x] Loki
-- [ ] Centralized logging
+- [x] Centralized logging
 - [ ] Full alerting workflow
 
 ### 💰 Cost Visibility
