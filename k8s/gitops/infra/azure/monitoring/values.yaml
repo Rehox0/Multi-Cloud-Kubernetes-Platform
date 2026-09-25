@@ -1,6 +1,12 @@
 crds:
   enabled: true
 
+defaultRules:
+  disabled:
+    KubeControllerManagerDown: true
+    KubeSchedulerDown: true
+    KubeProxyDown: true
+    
 grafana:
   enabled: true
   priorityClassName: prio-medium
