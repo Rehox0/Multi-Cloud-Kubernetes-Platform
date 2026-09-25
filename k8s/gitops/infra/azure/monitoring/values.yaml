@@ -4,11 +4,21 @@ crds:
 grafana:
   enabled: true
   priorityClassName: prio-medium
+  admin:
+    existingSecret: eso-grafana-secret
+    userKey: grafana-admin-user
+    passwordKey: grafana-admin-password
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
       labelValue: "1"
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.loki.svc.cluster.local:3100
+      isDefault: false
 
 prometheus:
   enabled: true
@@ -27,11 +37,3 @@ kubeStateMetrics:
 nodeExporter:
   enabled: true
   priorityClassName: prio-medium
-
-grafana:
-  additionalDataSources:
-    - name: Loki
-      type: loki
-      access: proxy
-      url: http://loki.loki.svc.cluster.local:3100
-      isDefault: false
