@@ -160,11 +160,11 @@ az network private-link-service connection update \
 
 
 ### Alertmanager webhook
-set webhook url:
+set discord webhook url:
 ```
 read -s DISCORD_WEBHOOK_URL
 ```
-paste url, then:
+paste url, enter, then:
 ```
 az keyvault secret set \
   --vault-name Multi-Cloud-ProjectKV \
