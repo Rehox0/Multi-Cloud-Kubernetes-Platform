@@ -185,9 +185,9 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Node Exporter
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
-- [ ] Loki
-- [ ] Centralized logging
-- [ ] Full alerting workflow
+- [x] Loki
+- [x] Centralized logging
+- [x] Full alerting workflow
 
 ### 💰 Cost Visibility
 - [x] Cost allocation tags across resources
@@ -208,8 +208,8 @@ One of the main goals of the project was to document the **engineering process b
 
 ### 📖 Documentation & Presentation
 - [ ] Final architecture diagram
-- [ ] Design decisions and trade-offs
-- [ ] Known limitations documented
+- [x] Design decisions and trade-offs
+- [x] Known limitations documented
 - [ ] Short deployment demo
 - [ ] Final code cleanup
 
@@ -234,9 +234,9 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] Azure Traffic Manager
 - [x] Azure ingress path validated end-to-end
 - [ ] Azure monitoring
+
 - [ ] Multi-Cloud interconnect
 - [ ] Multi-Cloud security model
-- [ ] Multi-Cloud observability
 - [ ] Multi-Cloud reliability model
 - [ ] PostgreSQL extension
 - [ ] Redis/Valkey extension

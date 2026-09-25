@@ -1,14 +1,30 @@
 crds:
   enabled: true
 
+defaultRules:
+  disabled:
+    KubeControllerManagerDown: true
+    KubeSchedulerDown: true
+    KubeProxyDown: true
+    
 grafana:
   enabled: true
   priorityClassName: prio-medium
+  admin:
+    existingSecret: eso-grafana-secret
+    userKey: grafana-admin-user
+    passwordKey: grafana-admin-password
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
       labelValue: "1"
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.loki.svc.cluster.local:3100
+      isDefault: false
 
 prometheus:
   enabled: true
@@ -19,6 +35,15 @@ alertmanager:
   enabled: true
   alertmanagerSpec:
     priorityClassName: prio-medium
+
+    alertmanagerConfigMatcherStrategy:
+      type: None
+
+    alertmanagerConfigSelector:
+      matchLabels:
+        alertmanagerconfig: default
+        
+    alertmanagerConfigNamespaceSelector: {}
 
 kubeStateMetrics:
   enabled: true

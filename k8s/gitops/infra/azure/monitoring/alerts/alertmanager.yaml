@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: default-alerts
+  namespace: monitoring
+  labels:
+    alertmanagerconfig: default
+spec:
+  route:
+    receiver: default
+
+  receivers:
+    - name: default
+      discordConfigs:
+        - apiURL:
+            name: eso-discord-alertmanager-webhook
+            key: webhook-url
+          sendResolved: true

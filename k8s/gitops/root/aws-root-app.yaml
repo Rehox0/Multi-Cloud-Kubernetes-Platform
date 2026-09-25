@@ -12,6 +12,7 @@ spec:
     - 'public.ecr.aws/karpenter'
     - 'https://prometheus-community.github.io/helm-charts'
     - 'https://aws.github.io/eks-charts'
+    - 'https://grafana-community.github.io/helm-charts'
   destinations:
     - namespace: '*'
       server: '*'

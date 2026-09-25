@@ -23,3 +23,5 @@ __pycache__
 *.pyc
 
 .vscode/
+
+draft.txt

@@ -1,0 +1,123 @@
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: azure
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  storage:
+    type: azure
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+    azure:
+      accountName: multicloudlokidev
+      accountKey: ""
+      useManagedIdentity: false
+      useFederatedToken: true
+    
+  limits_config:
+    retention_period: 168h
+    allow_structured_metadata: true
+    volume_enabled: true
+  
+  rulerConfig:
+    wal:
+      dir: /var/loki/ruler-wal
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+
+  compactor:
+    working_directory: /var/loki/compactor
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: azure
+
+  ingester:
+    chunk_encoding: snappy
+
+  pattern_ingester:
+    enabled: true
+
+singleBinary:
+  replicas: 1
+  podLabels:
+    app: loki
+    azure.workload.identity/use: "true"
+
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: managed-csi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+sidecar:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+ruler:
+  enabled: true
+  replicas: 0
+
+write:
+  replicas: 0
+
+read:
+  replicas: 0
+
+backend:
+  replicas: 0
+
+lokiCanary:
+  enabled: false
+  replicas: 0
+
+gateway:
+  enabled: false
+  replicas: 0
+
+chunksCache:
+  enabled: false
+  replicas: 0
+
+resultsCache:
+  enabled: false
+  replicas: 0
+
+minio:
+  enabled: false
+
+test:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: loki
+  annotations:
+    azure.workload.identity/client-id: "60aabaeb-16c5-4556-8c2c-ec332ef1c9c0"
