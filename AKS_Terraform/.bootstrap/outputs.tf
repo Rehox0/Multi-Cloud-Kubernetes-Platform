@@ -44,3 +44,19 @@ output "backend_identity_principal_id" {
   value       = azurerm_user_assigned_identity.backend.principal_id
   description = "Principal ID of the persistent backend User Assigned Managed Identity"
 }
+
+#Loki
+output "loki_identity_id" {
+  value       = azurerm_user_assigned_identity.loki.id
+  description = "Resource ID of the persistent Loki User Assigned Managed Identity"
+}
+
+output "loki_identity_client_id" {
+  value       = azurerm_user_assigned_identity.loki.client_id
+  description = "Client ID used by Loki Kubernetes Workload Identity"
+}
+
+output "loki_identity_principal_id" {
+  value       = azurerm_user_assigned_identity.loki.principal_id
+  description = "Principal ID of the persistent Loki User Assigned Managed Identity"
+}

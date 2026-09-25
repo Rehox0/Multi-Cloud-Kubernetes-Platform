@@ -9,3 +9,16 @@ resource "azurerm_user_assigned_identity" "backend" {
     ManagedBy   = "Terraform"
   }
 }
+
+resource "azurerm_user_assigned_identity" "loki" {
+  name                = "${var.project_name}-loki-identity"
+  resource_group_name = azurerm_resource_group.bootstrap.name
+  location            = azurerm_resource_group.bootstrap.location
+
+  tags = {
+    Project     = var.project_name
+    Environment = "bootstrap"
+    ManagedBy   = "Terraform"
+    Name        = "${var.project_name}-loki-identity"
+  }
+}

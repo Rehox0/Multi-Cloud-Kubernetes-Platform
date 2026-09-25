@@ -25,23 +25,23 @@ module "networking" {
 module "identity" {
   source = "../../modules/identity"
 
-  project_name = var.project_name
+  project_name        = var.project_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
-  aks_private_dns_zone_id = module.networking.aks_private_dns_zone_id
-  aks_vnet_id             = module.networking.aks_vnet_id
-  backend_keyvault_id     = module.key_vault.id
+  aks_private_dns_zone_id       = module.networking.aks_private_dns_zone_id
+  aks_vnet_id                   = module.networking.aks_vnet_id
+  backend_keyvault_id           = module.key_vault.id
   backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
 
-  user_object_id          = var.user_object_id
-  common_tags = local.tags
+  user_object_id = var.user_object_id
+  common_tags    = local.tags
 }
 
 module "key_vault" {
   source = "../../modules/key_vault"
 
-  project_name       = var.project_name
+  project_name        = var.project_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -61,7 +61,7 @@ module "aks" {
   subnet_id           = module.networking.aks_subnets[0]
   private_dns_zone_id = module.networking.aks_private_dns_zone_id
   identity_id         = module.identity.aks_identity_id
-  
+
   kubernetes_version = var.cluster_version
 
   node_vm_size = "Standard_D2s_v7"
@@ -77,21 +77,45 @@ module "aks" {
   depends_on = [module.networking]
 }
 
+module "loki_storage" {
+  source = "../../modules/loki_storage"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  storage_account_name = "multicloudlokidev"
+
+  aks_oidc_issuer_url = module.aks.oidc_issuer_url
+
+  kubernetes_namespace       = "loki"
+  kubernetes_service_account = "loki"
+
+  loki_identity_id           = data.terraform_remote_state.bootstrap.outputs.loki_identity_id
+  loki_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.loki_identity_principal_id
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks
+  ]
+}
+
 module "jumpbox" {
   source = "../../modules/jumpbox"
 
-  project_name        = var.project_name
-  location            = "polandcentral"
+  project_name = var.project_name
+  location     = "polandcentral"
 
-  resource_group_name = azurerm_resource_group.main.name
-  subnet_id           = module.networking.jumpbox_subnet_id
+  resource_group_name        = azurerm_resource_group.main.name
+  subnet_id                  = module.networking.jumpbox_subnet_id
   aks_node_resource_group_id = module.aks.node_resource_group_id
-  aks_cluster_id = module.aks.cluster_id
+  aks_cluster_id             = module.aks.cluster_id
 
-  vm_size           = "Standard_D2als_v6"
-  priority          = "Spot"
-  eviction_policy   = "Deallocate"
-  max_bid_price     = -1
+  vm_size         = "Standard_D2als_v6"
+  priority        = "Spot"
+  eviction_policy = "Deallocate"
+  max_bid_price   = -1
 
   ssh_public_key  = file("~/.ssh/id_ed25519.pub")
   admin_username  = "azureadmin"
