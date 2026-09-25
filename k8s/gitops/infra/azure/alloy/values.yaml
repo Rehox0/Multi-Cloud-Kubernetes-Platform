@@ -25,6 +25,7 @@ alloy:
   mounts:
     varlog: true
 
+
   resources:
     requests:
       cpu: 100m
