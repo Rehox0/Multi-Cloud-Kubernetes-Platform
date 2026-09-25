@@ -13,6 +13,18 @@ alloy:
 
       loki.source.kubernetes "pods" {
         targets    = discovery.kubernetes.pods.targets
+        forward_to = [loki.process.kubernetes.receiver]
+      }
+
+      loki.process "kubernetes" {
+        stage.labels {
+          values = {
+            namespace = "namespace",
+            pod       = "pod",
+            container = "container",
+          }
+        }
+
         forward_to = [loki.write.default.receiver]
       }
 
