@@ -3,6 +3,8 @@ kind: AlertmanagerConfig
 metadata:
   name: default-alerts
   namespace: monitoring
+  labels:
+    alertmanagerconfig: default
 spec:
   route:
     receiver: default

@@ -29,6 +29,10 @@ alertmanager:
   enabled: true
   alertmanagerSpec:
     priorityClassName: prio-medium
+    alertmanagerConfigSelector:
+      matchLabels:
+        alertmanagerconfig: default
+    alertmanagerConfigNamespaceSelector: {}
 
 kubeStateMetrics:
   enabled: true
