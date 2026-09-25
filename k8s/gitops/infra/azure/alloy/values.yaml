@@ -4,6 +4,10 @@ controller:
   podLabels:
     app: alloy
 
+alloy:
+  configMap:
+    create: true
+
   resources:
     requests:
       cpu: 100m
@@ -11,7 +15,3 @@ controller:
     limits:
       cpu: 250m
       memory: 256Mi
-
-alloy:
-  configMap:
-    create: true
