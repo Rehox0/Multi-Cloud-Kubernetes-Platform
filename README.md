@@ -187,7 +187,7 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Application-level metrics
 - [x] Loki
 - [x] Centralized logging
-- [ ] Full alerting workflow
+- [x] Full alerting workflow
 
 ### 💰 Cost Visibility
 - [x] Cost allocation tags across resources

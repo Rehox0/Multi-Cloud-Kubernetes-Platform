@@ -157,3 +157,19 @@ az network private-link-service connection update \
   --connection-status Approved \
   --description "Approved Azure Front Door Premium Private Link connection"
 ```
+
+
+### Alertmanager webhook
+set webhook url:
+```
+read -s DISCORD_WEBHOOK_URL
+```
+paste url, then:
+```
+az keyvault secret set \
+  --vault-name Multi-Cloud-ProjectKV \
+  --name discord-alertmanager-webhook \
+  --value "$DISCORD_WEBHOOK_URL"
+
+unset DISCORD_WEBHOOK_URL
+```
