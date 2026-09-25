@@ -20,23 +20,24 @@
 ## 👁️ Overview
 I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
 
-It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana** into one platform.
+It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
 
 The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
 
 
-> 🚧 **Work in progress**. The core AWS and Azure infrastructure is implemented and both ingress paths have been validated end-to-end.
-The final multi-cloud interconnect, cross-cloud security/observability model and architecture documentation are still in progress.
+> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
+
+Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity and security model, together with the remaining architecture documentation and project polish.
 
 ---
 
 ## 🛠️ Tech Stack
 * **AWS Cloud:** VPC · EKS · ECR · CloudFront · Network Load Balancer · Secrets Manager · IAM/IRSA
-* **Azure Cloud:** AKS · Container Registry · Front Door · Key Vault · Traffic Manager
+* **Azure Cloud:** AKS · ACR · Front Door · Key Vault · Workload Identity
 * **Platform:** Kubernetes · Cilium · Gateway API · Karpenter · Helm
 * **Infrastructure & Delivery:** Terraform · GitHub Actions · ArgoCD · Docker
-* **Security:** Kyverno · Trivy · External Secrets Operator · IAM · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
-* **Observability:** Prometheus · Grafana · Node Exporter
+* **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
+* **Observability:** Prometheus · Grafana · Alertmanager · Loki · Grafana Alloy · kube-state-metrics · Node Exporter
 * **Application:** Python · Django · React
 
 ---
@@ -75,7 +76,7 @@ These decisions cover topics such as:
 The application delivery model follows a **CI + GitOps** approach.
 - **Frontend:** - GitHub ➔ GitHub Actions ➔ build & test ➔ Docker image ➔ AWS/Azure registry ➔ Helm version/tag update ➔ ArgoCD ➔ EKS 
 - **Backend:** - GitHub ➔ GitHub Actions ➔ build & test ➔ Docker image ➔ AWS/Azure registry ➔ Helm version/tag update ➔ ArgoCD ➔ EKS
-- **ArgoCD (~10 apps):** - Kyverno, Karpenter *(AWS only)*, ESO, Gateway, Monitoring, Backend, Frontend
+- **ArgoCD (~10 apps):** - Kyverno, Karpenter *(AWS only)*, ESO, Gateway, Monitoring, Backend, Frontend, Loki
 - **Rollback:** - Deployment ➔ ⛔Unhealthy Pod ✅ Healthy replicas ➔ Git revert ➔ ArgoCD reconciliation ➔ Previous version restored
 
 ---
