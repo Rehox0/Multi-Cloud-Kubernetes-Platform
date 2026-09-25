@@ -1,0 +1,6 @@
+controller:
+  type: daemonset
+
+alloy:
+  configMap:
+    create: true
