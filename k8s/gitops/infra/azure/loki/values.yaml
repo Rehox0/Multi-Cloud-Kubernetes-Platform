@@ -121,5 +121,3 @@ serviceAccount:
   name: loki
   annotations:
     azure.workload.identity/client-id: "94f1e6f7-db69-44c8-b919-a47d7b56bd27"
-  labels:
-    azure.workload.identity/use: "true"
