@@ -120,4 +120,4 @@ serviceAccount:
   create: true
   name: loki
   annotations:
-    azure.workload.identity/client-id: "94f1e6f7-db69-44c8-b919-a47d7b56bd27"
+    azure.workload.identity/client-id: "60aabaeb-16c5-4556-8c2c-ec332ef1c9c0"
