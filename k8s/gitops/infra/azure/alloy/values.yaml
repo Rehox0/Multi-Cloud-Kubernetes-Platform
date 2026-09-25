@@ -19,9 +19,9 @@ alloy:
       loki.process "kubernetes" {
         stage.labels {
           values = {
-            namespace = "namespace",
-            pod       = "pod",
-            container = "container",
+            namespace = "__meta_kubernetes_namespace",
+            pod       = "__meta_kubernetes_pod_name",
+            container = "__meta_kubernetes_pod_container_name",
           }
         }
 
