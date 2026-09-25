@@ -57,6 +57,7 @@ singleBinary:
   replicas: 1
   podLabels:
     app: loki
+    azure.workload.identity/use: "true"
 
   persistence:
     enabled: true
