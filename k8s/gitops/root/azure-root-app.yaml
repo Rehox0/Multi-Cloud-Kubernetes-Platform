@@ -11,6 +11,7 @@ spec:
     - 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
     - 'https://prometheus-community.github.io/helm-charts'
     - 'https://grafana-community.github.io/helm-charts'
+    - 'https://grafana.github.io/helm-charts'
   destinations:
     - namespace: '*'
       server: '*'

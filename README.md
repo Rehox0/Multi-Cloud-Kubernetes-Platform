@@ -185,7 +185,7 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Node Exporter
 - [x] Kubernetes dashboards
 - [x] Application-level metrics
-- [ ] Loki
+- [x] Loki
 - [ ] Centralized logging
 - [ ] Full alerting workflow
 

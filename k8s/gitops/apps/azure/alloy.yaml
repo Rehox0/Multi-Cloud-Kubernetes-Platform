@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alloy
+  namespace: argocd
+spec:
+  project: azure-infra-project
+
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: alloy
+      targetRevision: 1.12.1
+      helm:
+        valueFiles:
+          - $values/k8s/gitops/infra/azure/alloy/values.yaml
+
+    - repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
+      targetRevision: testing
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: alloy
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
