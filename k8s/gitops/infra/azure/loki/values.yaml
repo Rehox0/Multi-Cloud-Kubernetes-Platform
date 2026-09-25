@@ -23,7 +23,7 @@ loki:
       ruler: loki-ruler
       admin: loki-admin
     azure:
-      accountName: ""
+      accountName: multicloudlokidev
       accountKey: ""
       useManagedIdentity: false
       useFederatedToken: true
