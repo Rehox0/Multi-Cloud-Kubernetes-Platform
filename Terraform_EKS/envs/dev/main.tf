@@ -42,11 +42,11 @@ module "eks" {
 module "security_groups" {
   source = "../../modules/security_groups"
 
-  project_name            = var.project_name
-  vpc_id                  = module.vpc.vpc_id
-  common_tags             = local.tags
-  pod_security_group_id   = module.eks.pod_security_group_id
-  gateway_node_port       = 31738
+  project_name          = var.project_name
+  vpc_id                = module.vpc.vpc_id
+  common_tags           = local.tags
+  pod_security_group_id = module.eks.pod_security_group_id
+  gateway_node_port     = 31738
 }
 
 module "vpc_endpoints" {
@@ -104,7 +104,7 @@ module "gateway_lb" {
 module "cloudfront" {
   source = "../../modules/cloudfront"
 
-  project_name    = var.project_name
-  gateway_nlb_arn = module.gateway_lb.nlb_arn
+  project_name         = var.project_name
+  gateway_nlb_arn      = module.gateway_lb.nlb_arn
   gateway_nlb_dns_name = module.gateway_lb.nlb_dns_name
 }

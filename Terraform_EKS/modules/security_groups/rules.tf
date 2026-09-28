@@ -18,12 +18,12 @@ resource "aws_security_group_rule" "gateway_nlb_from_cloudfront" {
 }
 
 resource "aws_security_group_rule" "gateway_nlb_egress_all" {
-  type                     = "egress"
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
-  cidr_blocks              = ["0.0.0.0/0"]
-  security_group_id        = aws_security_group.gateway_nlb.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.gateway_nlb.id
 }
 
 resource "aws_security_group_rule" "rds_from_nodes" {

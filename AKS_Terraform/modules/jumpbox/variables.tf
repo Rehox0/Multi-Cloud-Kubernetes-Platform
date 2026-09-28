@@ -15,7 +15,7 @@ variable "subnet_id" {
 }
 
 variable "admin_username" {
-  type    = string
+  type = string
 }
 
 variable "ssh_public_key" {
@@ -24,11 +24,11 @@ variable "ssh_public_key" {
 }
 
 variable "admin_source_ip" {
-  type        = string
+  type = string
 }
 
 variable "vm_size" {
-  type    = string
+  type = string
 }
 
 variable "common_tags" {

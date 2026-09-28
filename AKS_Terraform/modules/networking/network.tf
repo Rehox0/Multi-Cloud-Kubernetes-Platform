@@ -38,8 +38,8 @@ resource "azurerm_subnet" "aks" {
 # ============================================================
 
 resource "azurerm_subnet" "private_link" {
-  name                 = "${var.project_name}-private-link-subnet"
-  
+  name = "${var.project_name}-private-link-subnet"
+
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.aks.name
   address_prefixes     = [var.private_link_subnet_cidr]
@@ -128,3 +128,23 @@ resource "azurerm_subnet_nat_gateway_association" "aks" {
 
 #   private_link_service_network_policies_enabled = false
 # }
+
+resource "azurerm_subnet" "postgresql" {
+  name                 = "${var.project_name}-postgresql-subnet"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.jumpbox.name
+
+  address_prefixes = [var.postgresql_subnet_cidr]
+
+  delegation {
+    name = "postgresql-delegation"
+
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action"
+      ]
+    }
+  }
+}

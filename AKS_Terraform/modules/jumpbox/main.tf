@@ -17,14 +17,14 @@ resource "azurerm_network_security_group" "jumpbox" {
   resource_group_name = var.resource_group_name
 
   security_rule {
-    name                       = "allow-ssh"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
+    name      = "allow-ssh"
+    priority  = 100
+    direction = "Inbound"
+    access    = "Allow"
+    protocol  = "Tcp"
 
-    source_port_range          = "*"
-    destination_port_range     = "22"
+    source_port_range      = "*"
+    destination_port_range = "22"
 
     source_address_prefix      = "${var.admin_source_ip}/32"
     destination_address_prefix = "*"
@@ -67,8 +67,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   eviction_policy = var.eviction_policy
   max_bid_price   = var.max_bid_price
 
-  admin_username = var.admin_username
-  network_interface_ids = [ azurerm_network_interface.jumpbox.id ]
+  admin_username                  = var.admin_username
+  network_interface_ids           = [azurerm_network_interface.jumpbox.id]
   disable_password_authentication = true
 
   identity {
@@ -94,16 +94,16 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     version   = "latest"
   }
 
-  custom_data = base64encode(templatefile("${path.module}/bootstrap.sh",{
+  custom_data = base64encode(templatefile("${path.module}/bootstrap.sh", {
 
-    kubectl_version    = var.kubectl_version
-    kubectl_sha256     = var.kubectl_sha256
+    kubectl_version = var.kubectl_version
+    kubectl_sha256  = var.kubectl_sha256
 
-    kubelogin_version  = var.kubelogin_version
-    kubelogin_sha256   = var.kubelogin_sha256
+    kubelogin_version = var.kubelogin_version
+    kubelogin_sha256  = var.kubelogin_sha256
 
-    helm_version       = var.helm_version
-    helm_sha256        = var.helm_sha256
+    helm_version = var.helm_version
+    helm_sha256  = var.helm_sha256
   }))
 
   tags = merge(var.common_tags, {

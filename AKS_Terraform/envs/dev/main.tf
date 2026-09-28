@@ -5,10 +5,10 @@ module "networking" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  vnet_cidr        = "10.20.0.0/16"
-  aks_subnet_cidrs = ["10.20.4.0/22", "10.20.8.0/22"]
-
+  vnet_cidr                = "10.20.0.0/16"
+  aks_subnet_cidrs         = ["10.20.4.0/22", "10.20.8.0/22"]
   private_link_subnet_cidr = "10.20.12.0/24"
+
 
   # application_gateway_subnet_cidr = "10.20.13.0/24"
   # application_gateway_private_link_subnet_cidr = "10.20.14.0/24"
@@ -18,6 +18,8 @@ module "networking" {
     vnet_cidr   = "10.10.0.0/16"
     subnet_cidr = "10.10.0.0/24"
   }
+
+  postgresql_subnet_cidr = "10.10.16.0/24"
 
   common_tags = local.tags
 }
@@ -47,6 +49,32 @@ module "key_vault" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
   common_tags = local.tags
+}
+
+module "postgresql" {
+  source = "../../modules/postgresql"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = "polandcentral"
+
+  subnet_id           = module.networking.postgresql_subnet_id
+  private_dns_zone_id = module.networking.postgresql_private_dns_zone_id
+  key_vault_id        = module.key_vault.id
+
+  postgresql_administrator_login = var.postgresql_administrator_login
+
+  storage_mb            = 32768
+  sku_name              = "B_Standard_B1ms"
+  backup_retention_days = 7
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.networking,
+    module.identity,
+    module.key_vault
+  ]
 }
 
 module "aks" {

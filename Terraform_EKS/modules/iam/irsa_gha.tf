@@ -16,8 +16,8 @@ resource "aws_iam_role" "github_actions" {
 
         Condition = {
           StringEquals = {
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub": "repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev"
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com",
+            "token.actions.githubusercontent.com:sub" : "repo:Rehox0@68498256/Multi-Cloud-Kubernetes-Platform@1205820214:environment:dev"
           }
         }
       }
@@ -56,8 +56,8 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
         ]
 
         Resource = [
-            for repo in var.ecr_repository_names :
-            "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${repo}"
+          for repo in var.ecr_repository_names :
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${repo}"
         ]
       }
     ]

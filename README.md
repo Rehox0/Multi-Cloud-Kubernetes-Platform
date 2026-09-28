@@ -24,10 +24,8 @@ It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Kar
 
 The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
 
-
 > 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
-
-Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity and security model, together with the remaining architecture documentation and project polish.
+> Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity and security model, together with the remaining architecture documentation and project polish.
 
 ---
 

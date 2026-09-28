@@ -15,5 +15,5 @@ output "management_sg_id" {
 }
 
 output "gateway_nlb_sg_id" {
-  value       = aws_security_group.gateway_nlb.id
+  value = aws_security_group.gateway_nlb.id
 }

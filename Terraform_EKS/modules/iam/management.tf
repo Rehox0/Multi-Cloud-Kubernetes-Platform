@@ -152,8 +152,8 @@ resource "aws_iam_role_policy" "management_eni_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "ec2:ModifyNetworkInterfaceAttribute",
           "ec2:DescribeNetworkInterfaces"
         ]

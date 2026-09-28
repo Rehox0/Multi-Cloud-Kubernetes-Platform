@@ -81,3 +81,9 @@ variable "aws_cloudfront_hostname" {
   type        = string
   default     = "aws-placeholder.invalid"
 }
+
+variable "postgresql_administrator_login" {
+  description = "Administrator login for PostgreSQL Flexible Server"
+  type        = string
+  sensitive   = true
+}

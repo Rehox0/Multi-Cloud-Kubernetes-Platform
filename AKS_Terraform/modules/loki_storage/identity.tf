@@ -13,7 +13,7 @@ resource "azurerm_federated_identity_credential" "loki" {
 }
 
 resource "azurerm_role_assignment" "loki_blob" {
-  scope                = azurerm_storage_account.loki.id
+  scope = azurerm_storage_account.loki.id
 
   role_definition_name = "Storage Blob Data Contributor"
 

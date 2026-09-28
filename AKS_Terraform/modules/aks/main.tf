@@ -3,23 +3,23 @@ resource "azurerm_kubernetes_cluster" "main" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  dns_prefix          = var.cluster_name
+  dns_prefix = var.cluster_name
 
-  kubernetes_version  = var.kubernetes_version
+  kubernetes_version = var.kubernetes_version
 
-  private_cluster_enabled   = true
-  private_dns_zone_id       = var.private_dns_zone_id
-  
+  private_cluster_enabled = true
+  private_dns_zone_id     = var.private_dns_zone_id
+
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
-  
+
   # ----------------------------------------------------------
   # Default node pool
   # ----------------------------------------------------------
 
   node_provisioning_profile {
-    mode                = "Manual"
-    default_node_pools  = "Auto"
+    mode               = "Manual"
+    default_node_pools = "Auto"
   }
 
   default_node_pool {
@@ -42,8 +42,8 @@ resource "azurerm_kubernetes_cluster" "main" {
     )
 
     upgrade_settings {
-      max_surge = "10%"
-      drain_timeout_in_minutes = 0
+      max_surge                     = "10%"
+      drain_timeout_in_minutes      = 0
       node_soak_duration_in_minutes = 0
     }
   }
@@ -66,7 +66,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 
     load_balancer_sku = "standard"
 
-    outbound_type  = "userAssignedNATGateway"
+    outbound_type = "userAssignedNATGateway"
 
     service_cidr   = "10.1.0.0/16"
     dns_service_ip = "10.1.0.10"

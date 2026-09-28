@@ -98,6 +98,35 @@ aws ssm start-session \
  
 # ☁️ Azure Deployment
 
+## Key Vault
+### Grafana password
+Generate the password for grafana UI:
+```
+PASSWORD=$(openssl rand -base64 32)
+
+az keyvault secret set \
+  --vault-name Multi-Cloud-ProjectKV \
+  --name grafana-admin-password \
+  --value "$PASSWORD"
+
+unset PASSWORD
+```
+### Alertmanager webhook
+set discord webhook url:
+```
+read -s DISCORD_WEBHOOK_URL
+```
+paste url, enter, then:
+```
+az keyvault secret set \
+  --vault-name Multi-Cloud-ProjectKV \
+  --name discord-alertmanager-webhook \
+  --value "$DISCORD_WEBHOOK_URL"
+
+unset DISCORD_WEBHOOK_URL
+```
+
+
 <!-- SSH to jumpbox -->
 ssh azureadmin@<IP_JUMPBOX>
 
@@ -122,17 +151,6 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ssh -L 3000:127.0.0.1:3000 azureadmin@<azure-vm-ip> \
   "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
 ```
-Generate the password:
-```
-PASSWORD=$(openssl rand -base64 32)
-
-az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
-  --name grafana-admin-password \
-  --value "$PASSWORD"
-
-unset PASSWORD
-```
 Get the admin password:
 ```
 kubectl -n monitoring get secret eso-grafana-secret -o jsonpath="{.data.grafana-admin-password}" | base64 --decode; echo
@@ -156,20 +174,4 @@ az network private-link-service connection update \
   --resource-group Multi-Cloud-Project-rg \
   --connection-status Approved \
   --description "Approved Azure Front Door Premium Private Link connection"
-```
-
-
-### Alertmanager webhook
-set discord webhook url:
-```
-read -s DISCORD_WEBHOOK_URL
-```
-paste url, enter, then:
-```
-az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
-  --name discord-alertmanager-webhook \
-  --value "$DISCORD_WEBHOOK_URL"
-
-unset DISCORD_WEBHOOK_URL
 ```

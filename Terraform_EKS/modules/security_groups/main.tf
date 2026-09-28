@@ -1,7 +1,7 @@
 # Empty Security Group for Gateway NLB
 resource "aws_security_group" "gateway_nlb" {
-  name        = "${var.project_name}-gateway-nlb-sg"
-  vpc_id      = var.vpc_id
+  name   = "${var.project_name}-gateway-nlb-sg"
+  vpc_id = var.vpc_id
 
   tags = {
     Name = "${var.project_name}-gateway-nlb-sg"
