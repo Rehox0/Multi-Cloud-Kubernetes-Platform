@@ -49,13 +49,46 @@ spec:
           env:
             - name: DEBUG
               value: {{ .Values.env.debug | quote }}
+
             - name: ALLOWED_HOSTS
               value: {{ .Values.env.allowedHosts | quote }}
+              
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: SECRET_KEY
+
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: POSTGRES_HOST
+
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: POSTGRES_PORT
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: POSTGRES_DB
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalSecret.targetName }}
+                  key: POSTGRES_PASSWORD
+
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
