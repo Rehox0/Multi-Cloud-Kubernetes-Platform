@@ -1,4 +1,5 @@
 import time
+import json
 
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
