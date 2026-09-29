@@ -177,17 +177,21 @@
                         value: parseFloat(eventValue) 
                     }) 
                 }); 
+
+                const data = await response.json();
                 
                 if (!response.ok) { 
                     throw new Error( 
-                        `Backend returned HTTP ${response.status} ${response.statusText}` 
+                        data.error || `HTTP ${response.status} ${response.statusText}` 
                     ); 
-                } 
+                }
                 
-                const data = await response.json(); 
-                
-                resultBlock.style.color = '#9cdcfe'; 
-                resultBlock.innerText = JSON.stringify(data, null, 2); 
+                resultBlock.style.color = '#4ec9b0';
+                resultBlock.innerText =
+                    `✓ Event saved successfully\n\n` +
+                    `ID: ${data.id}\n` +
+                    `Type: ${data.event_type}\n` +
+                    `Value: ${data.value}`;
                 
                 document.getElementById('eventType').value = ''; 
                 document.getElementById('eventValue').value = ''; 
