@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Event
+from .core.models import Event
 from core.metrics import (
     VIDEO_REQUESTS,
     SHOP_REQUESTS,
