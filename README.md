@@ -36,7 +36,7 @@ The project is intentionally built as a **learning and portfolio environment**, 
 * **Infrastructure & Delivery:** Terraform · GitHub Actions · ArgoCD · Docker
 * **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
 * **Observability:** Prometheus · Grafana · Alertmanager · Loki · Grafana Alloy · kube-state-metrics · Node Exporter
-* **Application:** Python · Django · React
+* **Application:** Python · Django · React · PostgreSQL
 
 ---
 

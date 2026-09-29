@@ -128,6 +128,8 @@ unset DISCORD_WEBHOOK_URL
 
 
 <!-- SSH to jumpbox -->
+IP_JUMPBOX=$(az vm list-ip-addresses --resource-group Multi-Cloud-Project-rg --name Multi-Cloud-Project-jumpbox --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" -o tsv)
+
 ssh azureadmin@<IP_JUMPBOX>
 
 
