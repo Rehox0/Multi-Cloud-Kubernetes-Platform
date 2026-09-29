@@ -6,7 +6,7 @@ from django.apps import AppConfig
 
 class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "core"
+    name = "backend.core"
 
     def ready(self):
         print("\n\n>>> APPS.PY READY() READY! <<<\n\n", flush=True)
@@ -16,7 +16,7 @@ class CoreConfig(AppConfig):
             threading.Thread(target=self._start_udp_listener, daemon=True).start()
 
     def _start_udp_listener(self):
-        from core.metrics import (
+        from backend.core.metrics import (
             UDP_PACKETS_RECEIVED,
             UDP_BYTES_RECEIVED,
             UDP_LISTENER_ACTIVE,
