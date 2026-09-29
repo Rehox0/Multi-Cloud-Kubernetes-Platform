@@ -14,5 +14,6 @@ urlpatterns = [
     path("api/health", views.health),
     path("api/ready", views.health),
 
+    path("api/events", views.create_event),
     path("api/metrics", views.metrics),
 ]
