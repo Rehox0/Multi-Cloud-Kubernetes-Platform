@@ -11,8 +11,8 @@ grafana:
   enabled: true
   priorityClassName: prio-medium
   admin:
-    user: admin
     existingSecret: eso-grafana-secret
+    userKey: grafana-admin-user
     passwordKey: grafana-admin-password
   sidecar:
     dashboards:

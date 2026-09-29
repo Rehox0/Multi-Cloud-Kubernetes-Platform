@@ -18,7 +18,7 @@ variable "private_dns_zone_id" {
   type = string
 }
 
-variable "postgresql_administrator_login" {
+variable "postgresql_admin_login" {
   type = string
 }
 
@@ -50,4 +50,10 @@ variable "common_tags" {
 variable "postgresql_port" {
   type = string
   default = 5432
+}
+
+variable "postgresql_admin_password" {
+  description = "PostgreSQL administrator password"
+  type        = string
+  sensitive   = true
 }

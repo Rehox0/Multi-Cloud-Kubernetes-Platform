@@ -9,3 +9,8 @@ output "name" {
 output "uri" {
   value = azurerm_key_vault.backend.vault_uri
 }
+
+output "postgresql_admin_password" {
+  value     = random_password.postgresql.result
+  sensitive = true
+}

@@ -48,6 +48,8 @@ module "key_vault" {
   location            = azurerm_resource_group.main.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  grafana_admin_user  = var.grafana_admin_user
+
   common_tags = local.tags
 }
 
@@ -62,7 +64,8 @@ module "postgresql" {
   private_dns_zone_id = module.networking.postgresql_private_dns_zone_id
   key_vault_id        = module.key_vault.id
 
-  postgresql_administrator_login = var.postgresql_administrator_login
+  postgresql_admin_login    = var.postgresql_admin_login
+  postgresql_admin_password = module.key_vault.postgresql_admin_password
 
   storage_mb            = 32768
   sku_name              = "B_Standard_B1ms"
