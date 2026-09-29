@@ -130,7 +130,7 @@ unset DISCORD_WEBHOOK_URL
 <!-- SSH to jumpbox -->
 IP_JUMPBOX=$(az vm list-ip-addresses --resource-group Multi-Cloud-Project-rg --name Multi-Cloud-Project-jumpbox --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" -o tsv)
 
-ssh azureadmin@<IP_JUMPBOX>
+ssh azureadmin@$IP_JUMPBOX
 
 
 ### 1. Deploy the GitOps root app
@@ -141,7 +141,7 @@ kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-ap
 
 ### 2. Access the ArgoCD UI
 ```bash
-ssh -L 8080:127.0.0.1:8080 azureadmin@<azure-vm-ip> "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+ssh -L 8080:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 ```
 Get the initial admin password:
 ```bash
@@ -150,7 +150,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ### 3. Access the Grafana UI
 ```bash
-ssh -L 3000:127.0.0.1:3000 azureadmin@<azure-vm-ip> \
+ssh -L 3000:127.0.0.1:3000 azureadmin@$IP_JUMPBOX \
   "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
 ```
 Get the admin password:
