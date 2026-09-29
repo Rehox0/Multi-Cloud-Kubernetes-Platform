@@ -158,6 +158,8 @@ Get the admin password:
 kubectl -n monitoring get secret eso-grafana-secret -o jsonpath="{.data.grafana-admin-password}" | base64 --decode; echo
 ```
 
+### Frontend
+ssh -L 5000:127.0.0.1:5000 azureadmin@$IP_JUMPBOX "kubectl port-forward -n frontend-ns svc/azure-workload-frontend-dev 5000:80 --address 127.0.0.1"
 
 ### 4. Approve the Front Door Private Link connection
 Get the pending connection name:
