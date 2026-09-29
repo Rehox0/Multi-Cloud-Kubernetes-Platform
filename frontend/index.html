@@ -179,10 +179,7 @@
                     })
                 });
 
-                const responseText = await response.text();
-
-                console.log("HTTP status:", response.status);
-                console.log("Response:", responseText);
+                const data = await response.json();
 
                 if (!response.ok) {
                     throw new Error(
@@ -202,7 +199,6 @@
 
             } catch (error) {
                 console.error('Event creation failed:', error);
-
                 resultBlock.style.color = '#e74c3c';
                 resultBlock.innerText =
                     `❌ Failed to save event\n\n` +
