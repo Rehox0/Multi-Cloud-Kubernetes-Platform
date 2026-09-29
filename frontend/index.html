@@ -179,7 +179,10 @@
                     })
                 });
 
-                const data = await response.json();
+                const responseText = await response.text();
+
+                console.log("HTTP status:", response.status);
+                console.log("Response:", responseText);
 
                 if (!response.ok) {
                     throw new Error(
