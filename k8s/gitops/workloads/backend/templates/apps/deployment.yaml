@@ -1,57 +1,58 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-migrate
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
-  backoffLimit: 3
-  ttlSecondsAfterFinished: 300
-
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-migration
+        app: {{ .Release.Name }}
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
         pod-security.kubernetes.io/warn: restricted
-
     spec:
-      restartPolicy: Never
-      priorityClassName: prio-high
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-
+      priorityClassName: prio-high
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
-        - name: migration
+        - name: backend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-
-          command:
-            - python
-            - manage.py
-            - migrate
-            - --noinput
-
+          ports:
+            - containerPort: {{ .Values.service.containerPort }}
           resources:
             requests:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "250m"
+              cpu: "500m"
               memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
 
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
           env:
             - name: DEBUG
               value: {{ .Values.env.debug | quote }}
 
             - name: ALLOWED_HOSTS
               value: {{ .Values.env.allowedHosts | quote }}
-
+              
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
