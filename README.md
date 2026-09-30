@@ -116,6 +116,29 @@ One of the main goals of the project was to document the **engineering process b
 - **Cost monitoring:** AWS Cost Explorer with project/environment tags.
 - **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes use bigger m7i-flex.large
 
+## Reliability & Disaster Recovery
+
+### PostgreSQL
+The Azure PostgreSQL Flexible Server is configured with zone-redundant high availability, with the primary server running in Availability Zone 1 and a managed standby in Availability Zone 2.
+
+HA failover was tested using a forced failover and measured from the client side:
+
+* **Primary:** Availability Zone 1
+* **Standby:** Availability Zone 2
+* **Failover:** successful
+* **Database hostname:** unchanged after failover
+* **Backend configuration:** no changes required during failover
+* **Azure CLI failover time:** ~10m10.3s
+* **Observed database downtime:** ~39.2 seconds
+* **Observed application downtime (end-to-end):** ~45 seconds
+
+Point-in-time recovery was also tested by restoring the PostgreSQL server to a new instance from an earlier recovery point. The restored database was accessed through the private network and the application data was verified successfully.
+
+This provides two complementary recovery mechanisms:
+
+* **High availability** - protects against infrastructure and availability-zone failures through automatic failover.
+* **Point-in-time recovery** - provides recovery from data loss or corruption using PostgreSQL backups.
+
 ---
 
 <div align="center">
@@ -123,8 +146,6 @@ One of the main goals of the project was to document the **engineering process b
 </div>
 
 ## 📍 Current Cluster Stage:
-### AWS
-![Current stage](./docs/images/EKS_pods.png)
 
 ### Azure
 **[Current stage →](./docs/images/AKS_pods.md)**
@@ -200,10 +221,10 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Pod failure testing
 - [x] Node failure testing
 - [x] Workload rescheduling
-- [ ] Database backup and restore testing
-- [ ] Disaster recovery runbook
-- [ ] RTO definition
-- [ ] RPO definition
+- [x] Database backup and restore testing
+- [x] RTO definition
+- [x] RPO definition
+- [ ] Automated backup health monitoring
 
 ### 📖 Documentation & Presentation
 - [ ] Final architecture diagram
@@ -232,7 +253,7 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] Azure Front Door
 - [x] Azure Traffic Manager
 - [x] Azure ingress path validated end-to-end
-- [ ] Azure monitoring
+- [x] Azure monitoring
 
 - [ ] Multi-Cloud interconnect
 - [ ] Multi-Cloud security model

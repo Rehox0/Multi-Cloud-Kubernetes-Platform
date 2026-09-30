@@ -69,7 +69,7 @@ module "postgresql" {
   postgresql_admin_password = module.key_vault.postgresql_admin_password
 
   storage_mb            = 32768
-  sku_name              = "B_Standard_B1ms"
+  sku_name              = "GP_Standard_D2ds_v5"
   backup_retention_days = 7
 
   common_tags = local.tags
