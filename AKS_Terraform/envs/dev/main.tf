@@ -63,6 +63,7 @@ module "postgresql" {
   subnet_id           = module.networking.postgresql_subnet_id
   private_dns_zone_id = module.networking.postgresql_private_dns_zone_id
   key_vault_id        = module.key_vault.id
+  key_vault_name      = module.key_vault.name
 
   postgresql_admin_login    = var.postgresql_admin_login
   postgresql_admin_password = module.key_vault.postgresql_admin_password

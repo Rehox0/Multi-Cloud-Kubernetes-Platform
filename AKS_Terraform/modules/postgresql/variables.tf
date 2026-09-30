@@ -57,3 +57,7 @@ variable "postgresql_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "key_vault_name" {
+  type = string
+}

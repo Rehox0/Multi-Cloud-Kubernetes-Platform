@@ -13,11 +13,10 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-migration
+        app: {{ .Release.Name }}-migrate
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
         pod-security.kubernetes.io/warn: restricted
-
     spec:
       restartPolicy: Never
       priorityClassName: prio-high
@@ -28,7 +27,7 @@ spec:
           type: RuntimeDefault
 
       containers:
-        - name: migration
+        - name: migrate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 
           command:
@@ -36,14 +35,6 @@ spec:
             - manage.py
             - migrate
             - --noinput
-
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "250m"
-              memory: "512Mi"
 
           env:
             - name: DEBUG
@@ -87,6 +78,14 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: POSTGRES_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
 
           securityContext:
             runAsNonRoot: true
