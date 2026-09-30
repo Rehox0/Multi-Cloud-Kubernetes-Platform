@@ -20,12 +20,12 @@
 ## 👁️ Overview
 I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
 
-It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
+It brings together **Terraform, Kubernetes, Cilium, ArgoCD, PostgreSQL, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
 
 The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
 
-> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
-> Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity and security model, together with the remaining architecture documentation and project polish.
+> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, failover tests, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
+> Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity, together with the remaining architecture documentation and project polish.
 
 ---
 
@@ -145,7 +145,7 @@ This provides two complementary recovery mechanisms:
   <h1>🚀 Infrastructure Roadmap</h1>
 </div>
 
-## 📍 Current Cluster Stage:
+## Current Cluster Stage:
 
 ### Azure
 **[Current stage →](./docs/images/AKS_pods.md)**
@@ -223,7 +223,6 @@ This provides two complementary recovery mechanisms:
 - [x] Workload rescheduling
 - [x] Database backup and restore testing
 - [x] RTO definition
-- [x] RPO definition
 - [ ] Automated backup health monitoring
 
 ### 📖 Documentation & Presentation
@@ -258,6 +257,6 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [ ] Multi-Cloud interconnect
 - [ ] Multi-Cloud security model
 - [ ] Multi-Cloud reliability model
-- [ ] PostgreSQL extension
+- [x] PostgreSQL extension
 - [ ] Redis/Valkey extension
-- [ ] Database replication
+- [x] Database replication
