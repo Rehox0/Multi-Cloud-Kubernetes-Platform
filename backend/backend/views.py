@@ -67,6 +67,8 @@ def metrics(request):
         content_type=CONTENT_TYPE_LATEST
     )
 
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
 def events(request):
     if request.method == "GET":
         events = Event.objects.order_by("-created_at")
@@ -86,12 +88,7 @@ def events(request):
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
 def create_event(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
-
     data = json.loads(request.body)
 
     event = Event.objects.create(
