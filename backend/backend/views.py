@@ -4,6 +4,7 @@ import json
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from backend.core.models import Event
 from backend.core.metrics import (
@@ -86,6 +87,7 @@ def events(request):
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
 @csrf_exempt
+@require_http_methods(["GET", "POST"])
 def create_event(request):
     if request.method != "POST":
         return JsonResponse({"error": "Method not allowed"}, status=405)
