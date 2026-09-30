@@ -98,6 +98,24 @@
             <button onclick="fetchData('payments')">💳 Payments API</button>
             <button class="health" onclick="fetchData('health')">❤️ Health Check</button>
         </div>
+
+        <div class="event-form"> 
+            <h3>Create Event</h3> 
+            <input 
+                type="text" 
+                id="eventType" 
+                placeholder="Event type, e.g. purchase" 
+            > 
+
+            <input 
+                type="number" 
+                id="eventValue" 
+                placeholder="Value" 
+                step="0.01" 
+            >
+
+            <button onclick="saveEvent()">💾 Save Event</button> 
+        </div>
         
         <pre id="result">Press a button to fetch data from the backend (Django)...</pre>
     </div>
@@ -105,7 +123,7 @@
     <script> 
         async function fetchData(endpoint) {
             const resultBlock = document.getElementById('result');
-            resultBlock.classList.remove('error'); 
+
             resultBlock.style.color = '#d4d4d4'; 
             resultBlock.innerText = 'Loading data...'; 
 
@@ -113,7 +131,7 @@
                 const response = await fetch(`/api/${endpoint}`); 
                 if (!response.ok) { 
                     throw new Error( 
-                        `Backend returned HTTP ${response.status} ${response.statusText}` 
+                        data.error || `HTTP ${response.status} ${response.statusText}`
                     ); 
                 } 
                 
@@ -125,14 +143,68 @@
             } catch (error) { 
                 console.error('Backend request failed:', error);
                 
-                resultBlock.classList.add('error'); 
+                resultBlock.style.color = '#e74c3c';
                 resultBlock.innerText = 
                     `❌ Backend error\n\n` + 
                     `Endpoint: /api/${endpoint}\n` + 
                     `Error: ${error.message}\n\n` + 
                     `The backend may be unavailable.`; 
             } 
-        } 
+        }
+
+        async function saveEvent() {
+            const resultBlock = document.getElementById('result');
+
+            const eventType = document.getElementById('eventType').value.trim();
+            const eventValue = document.getElementById('eventValue').value;
+
+            if (!eventType || !eventValue) {
+                resultBlock.style.color = '#e74c3c';
+                resultBlock.innerText = '❌ Please enter event type and value.';
+                return;
+            }
+
+            resultBlock.style.color = '#d4d4d4';
+            resultBlock.innerText = 'Saving event...';
+
+            try {
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event_type: eventType,
+                        value: parseFloat(eventValue)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || `HTTP ${response.status} ${response.statusText}`
+                    );
+                }
+
+                resultBlock.style.color = '#27ae60';
+                resultBlock.innerText =
+                    `✓ Event saved successfully\n\n` +
+                    `ID: ${data.id}\n` +
+                    `Type: ${data.event_type}\n` +
+                    `Value: ${data.value}`;
+
+                document.getElementById('eventType').value = '';
+                document.getElementById('eventValue').value = '';
+
+            } catch (error) {
+                console.error('Event creation failed:', error);
+                resultBlock.style.color = '#e74c3c';
+                resultBlock.innerText =
+                    `❌ Failed to save event\n\n` +
+                    `Error: ${error.message}`;
+            }
+        }
     </script>
 </body>
 </html>

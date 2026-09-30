@@ -97,9 +97,26 @@ aws ssm start-session \
 ---
  
 # ☁️ Azure Deployment
+### Alertmanager webhook
+set discord webhook url:
+```
+read -s DISCORD_WEBHOOK_URL
+```
+paste url, enter, then:
+```
+az keyvault secret set \
+  --vault-name Multi-Cloud-ProjectKV \
+  --name discord-alertmanager-webhook \
+  --value "$DISCORD_WEBHOOK_URL"
+
+unset DISCORD_WEBHOOK_URL
+```
+
 
 <!-- SSH to jumpbox -->
-ssh azureadmin@<IP_JUMPBOX>
+IP_JUMPBOX=$(az vm list-ip-addresses --resource-group Multi-Cloud-Project-rg --name Multi-Cloud-Project-jumpbox --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" -o tsv)
+
+ssh azureadmin@$IP_JUMPBOX
 
 
 ### 1. Deploy the GitOps root app
@@ -110,7 +127,7 @@ kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-ap
 
 ### 2. Access the ArgoCD UI
 ```bash
-ssh -L 8080:127.0.0.1:8080 azureadmin@<azure-vm-ip> "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+ssh -L 8080:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 ```
 Get the initial admin password:
 ```bash
@@ -119,24 +136,16 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ### 3. Access the Grafana UI
 ```bash
-ssh -L 3000:127.0.0.1:3000 azureadmin@<azure-vm-ip> \
-  "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
-```
-Generate the password:
-```
-PASSWORD=$(openssl rand -base64 32)
-
-az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
-  --name grafana-admin-password \
-  --value "$PASSWORD"
-
-unset PASSWORD
+ssh -L 3000:127.0.0.1:3000 azureadmin@$IP_JUMPBOX "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
 ```
 Get the admin password:
 ```
 kubectl -n monitoring get secret eso-grafana-secret -o jsonpath="{.data.grafana-admin-password}" | base64 --decode; echo
 ```
+
+### Application test
+ssh -L 5000:<IP_GATEWAY>> azureadmin@<IP_JUMPBOX>
+
 
 
 ### 4. Approve the Front Door Private Link connection
@@ -158,18 +167,11 @@ az network private-link-service connection update \
   --description "Approved Azure Front Door Premium Private Link connection"
 ```
 
-
-### Alertmanager webhook
-set discord webhook url:
-```
-read -s DISCORD_WEBHOOK_URL
-```
-paste url, enter, then:
-```
-az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
-  --name discord-alertmanager-webhook \
-  --value "$DISCORD_WEBHOOK_URL"
-
-unset DISCORD_WEBHOOK_URL
-```
+## CMD:
+set = IP_JUMPBOX=xxxxxx.xxxx.xxx.xxxx
+ssh azureadmin@%IP_JUMPBOX%
+ssh -L 8080:127.0.0.1:8080 azureadmin@%IP_JUMPBOX% "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+ssh -L 3000:127.0.0.1:3000 azureadmin@%IP_JUMPBOX% "kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 --address 127.0.0.1"
+kubectl -n monitoring get secret eso-grafana-secret -o jsonpath="{.data.grafana-admin-password}" | base64 --decode; echo
+ssh -L 5000:<IP_GATEWAY>> azureadmin@%IP_JUMPBOX%

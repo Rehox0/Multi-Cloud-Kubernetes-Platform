@@ -22,3 +22,8 @@ variable "common_tags" {
   type    = map(string)
   default = {}
 }
+
+variable "grafana_admin_user" {
+  type        = string
+  description = "Grafana admin user"
+}

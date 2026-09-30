@@ -20,14 +20,12 @@
 ## 👁️ Overview
 I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
 
-It brings together **Terraform, Kubernetes, Cilium, Argo CD, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
+It brings together **Terraform, Kubernetes, Cilium, ArgoCD, PostgreSQL, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
 
 The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
 
-
-> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
-
-Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity and security model, together with the remaining architecture documentation and project polish.
+> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, failover tests, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
+> Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity, together with the remaining architecture documentation and project polish.
 
 ---
 
@@ -38,7 +36,7 @@ Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud c
 * **Infrastructure & Delivery:** Terraform · GitHub Actions · ArgoCD · Docker
 * **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
 * **Observability:** Prometheus · Grafana · Alertmanager · Loki · Grafana Alloy · kube-state-metrics · Node Exporter
-* **Application:** Python · Django · React
+* **Application:** Python · Django · React · PostgreSQL
 
 ---
 
@@ -118,15 +116,36 @@ One of the main goals of the project was to document the **engineering process b
 - **Cost monitoring:** AWS Cost Explorer with project/environment tags.
 - **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes use bigger m7i-flex.large
 
+## Reliability & Disaster Recovery
+
+### PostgreSQL
+The Azure PostgreSQL Flexible Server is configured with zone-redundant high availability, with the primary server running in Availability Zone 1 and a managed standby in Availability Zone 2.
+
+HA failover was tested using a forced failover and measured from the client side:
+
+* **Primary:** Availability Zone 1
+* **Standby:** Availability Zone 2
+* **Failover:** successful
+* **Database hostname:** unchanged after failover
+* **Backend configuration:** no changes required during failover
+* **Azure CLI failover time:** ~10m10.3s
+* **Observed database downtime:** ~39.2 seconds
+* **Observed application downtime (end-to-end):** ~45 seconds
+
+Point-in-time recovery was also tested by restoring the PostgreSQL server to a new instance from an earlier recovery point. The restored database was accessed through the private network and the application data was verified successfully.
+
+This provides two complementary recovery mechanisms:
+
+* **High availability** - protects against infrastructure and availability-zone failures through automatic failover.
+* **Point-in-time recovery** - provides recovery from data loss or corruption using PostgreSQL backups.
+
 ---
 
 <div align="center">
   <h1>🚀 Infrastructure Roadmap</h1>
 </div>
 
-## 📍 Current Cluster Stage:
-### AWS
-![Current stage](./docs/images/EKS_pods.png)
+## Current Cluster Stage:
 
 ### Azure
 **[Current stage →](./docs/images/AKS_pods.md)**
@@ -202,10 +221,8 @@ One of the main goals of the project was to document the **engineering process b
 - [x] Pod failure testing
 - [x] Node failure testing
 - [x] Workload rescheduling
-- [ ] Database backup and restore testing
-- [ ] Disaster recovery runbook
-- [ ] RTO definition
-- [ ] RPO definition
+- [x] Database backup and restore testing
+- [x] RTO definition
 
 ### 📖 Documentation & Presentation
 - [ ] Final architecture diagram
@@ -234,11 +251,11 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] Azure Front Door
 - [x] Azure Traffic Manager
 - [x] Azure ingress path validated end-to-end
-- [ ] Azure monitoring
+- [x] Azure monitoring
 
 - [ ] Multi-Cloud interconnect
 - [ ] Multi-Cloud security model
 - [ ] Multi-Cloud reliability model
-- [ ] PostgreSQL extension
+- [x] PostgreSQL extension
 - [ ] Redis/Valkey extension
-- [ ] Database replication
+- [x] Database replication

@@ -23,22 +23,22 @@ resource "azurerm_traffic_manager_profile" "main" {
 
 
 resource "azurerm_traffic_manager_external_endpoint" "aws" {
-  name                 = "aws-cloudfront"
-  profile_id           = azurerm_traffic_manager_profile.main.id
+  name       = "aws-cloudfront"
+  profile_id = azurerm_traffic_manager_profile.main.id
 
-  target               = var.aws_cloudfront_hostname
-  priority             = 1
-  weight               = 100
-  enabled              = true
+  target   = var.aws_cloudfront_hostname
+  priority = 1
+  weight   = 100
+  enabled  = true
 }
 
 
 resource "azurerm_traffic_manager_external_endpoint" "azure" {
-  name                 = "azure-frontdoor"
-  profile_id           = azurerm_traffic_manager_profile.main.id
-  
-  target               = var.azure_frontdoor_hostname
-  priority             = 2
-  weight               = 100
-  enabled              = true
+  name       = "azure-frontdoor"
+  profile_id = azurerm_traffic_manager_profile.main.id
+
+  target   = var.azure_frontdoor_hostname
+  priority = 2
+  weight   = 100
+  enabled  = true
 }

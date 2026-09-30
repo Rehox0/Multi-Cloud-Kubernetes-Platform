@@ -40,3 +40,13 @@ output "private_link_subnet_id" {
 #   description = "Subnet ID for Application Gateway Private Link"
 #   value       = azurerm_subnet.application_gateway_private_link.id
 # }
+
+output "postgresql_subnet_id" {
+  description = "ID of the delegated subnet for PostgreSQL Flexible Server"
+  value       = azurerm_subnet.postgresql.id
+}
+
+output "postgresql_private_dns_zone_id" {
+  description = "ID of the private DNS zone for PostgreSQL Flexible Server"
+  value       = azurerm_private_dns_zone.postgresql.id
+}

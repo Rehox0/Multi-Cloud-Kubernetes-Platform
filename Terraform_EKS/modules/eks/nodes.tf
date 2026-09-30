@@ -8,10 +8,10 @@ resource "aws_eks_node_group" "main" {
   instance_types = var.node_instance_types
 
   launch_template {
-      id      = aws_launch_template.nodes.id
-      version = aws_launch_template.nodes.latest_version
-    }
-  
+    id      = aws_launch_template.nodes.id
+    version = aws_launch_template.nodes.latest_version
+  }
+
   scaling_config {
     desired_size = var.node_desired_size
     min_size     = var.node_min_size

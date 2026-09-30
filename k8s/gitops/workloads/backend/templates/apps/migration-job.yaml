@@ -1,58 +1,48 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: {{ .Release.Name }}
+  generateName: {{ .Release.Name }}-migrate-
   namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}-migrate
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
         pod-security.kubernetes.io/warn: restricted
     spec:
+      restartPolicy: Never
+      priorityClassName: prio-high
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-      priorityClassName: prio-high
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-      containers:
-        - name: backend
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          ports:
-            - containerPort: {{ .Values.service.containerPort }}
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-          readinessProbe:
-            httpGet:
-              path: /api/ready
-              port: 8000
-            initialDelaySeconds: 5
-            periodSeconds: 10
 
-          livenessProbe:
-            httpGet:
-              path: /api/health
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 20
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          command:
+            - python
+            - manage.py
+            - migrate
+            - --noinput
+
           env:
             - name: DEBUG
               value: {{ .Values.env.debug | quote }}
 
             - name: ALLOWED_HOSTS
               value: {{ .Values.env.allowedHosts | quote }}
-              
+
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -88,6 +78,14 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: POSTGRES_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
 
           securityContext:
             runAsNonRoot: true

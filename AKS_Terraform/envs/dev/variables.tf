@@ -81,3 +81,15 @@ variable "aws_cloudfront_hostname" {
   type        = string
   default     = "aws-placeholder.invalid"
 }
+
+variable "postgresql_admin_login" {
+  description = "Administrator login for PostgreSQL Flexible Server"
+  type        = string
+  sensitive   = true
+}
+
+variable "grafana_admin_user" {
+  description = "Administrator login for Grafana"
+  type        = string
+  default     = "admin"
+}

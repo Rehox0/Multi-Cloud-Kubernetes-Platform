@@ -29,7 +29,7 @@ module "eks" {
   node_min_size        = 1
   node_max_size        = 4
   node_max_unavailable = 1
-  node_max_pods = 20
+  node_max_pods        = 20
   node_labels = {
     env = "staging"
   }

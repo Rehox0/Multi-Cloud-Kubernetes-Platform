@@ -1,9 +1,13 @@
 import time
+import json
 
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
-from core.metrics import (
+from backend.core.models import Event
+from backend.core.metrics import (
     VIDEO_REQUESTS,
     SHOP_REQUESTS,
     PAYMENT_REQUESTS,
@@ -62,3 +66,39 @@ def metrics(request):
         generate_latest(),
         content_type=CONTENT_TYPE_LATEST
     )
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def events(request):
+    if request.method == "GET":
+        events = Event.objects.order_by("-created_at")
+
+        return JsonResponse([
+            {
+                "id": event.id,
+                "event_type": event.event_type,
+                "value": event.value,
+                "created_at": event.created_at.isoformat(),
+            }
+            for event in events
+        ], safe=False)
+
+    if request.method == "POST":
+        return create_event(request)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+def create_event(request):
+    data = json.loads(request.body)
+
+    event = Event.objects.create(
+        event_type=data["event_type"],
+        value=data["value"],
+    )
+
+    return JsonResponse({
+        "id": event.id,
+        "event_type": event.event_type,
+        "value": event.value,
+    }, status=201)
+    

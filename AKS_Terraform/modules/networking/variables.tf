@@ -54,3 +54,8 @@ variable "jumpbox_network" {
 #   type        = string
 #   description = "Dedicated subnet for Application Gateway Private Link"
 # }
+
+variable "postgresql_subnet_cidr" {
+  description = "CIDR range for the PostgreSQL Flexible Server delegated subnet"
+  type        = string
+}
