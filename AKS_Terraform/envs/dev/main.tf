@@ -48,9 +48,14 @@ module "key_vault" {
   location            = azurerm_resource_group.main.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  user_keyvault_secrets_officer_role_assignment_id = module.identity.user_keyvault_secrets_officer_role_assignment_id
   grafana_admin_user  = var.grafana_admin_user
 
   common_tags = local.tags
+
+  depends_on = [
+    module.identity
+  ]
 }
 
 module "postgresql" {
