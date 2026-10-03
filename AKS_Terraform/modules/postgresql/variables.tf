@@ -48,7 +48,7 @@ variable "common_tags" {
 }
 
 variable "postgresql_port" {
-  type = string
+  type    = string
   default = 5432
 }
 

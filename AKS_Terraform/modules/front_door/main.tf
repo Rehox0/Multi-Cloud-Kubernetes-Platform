@@ -76,8 +76,8 @@ resource "azurerm_cdn_frontdoor_rule" "api_no_cache" {
 
   conditions {
     request_path {
-      operator      = "BeginsWith"
-      values        = ["/api/"]
+      operator = "BeginsWith"
+      values   = ["/api/"]
     }
   }
 
@@ -135,7 +135,7 @@ resource "azurerm_cdn_frontdoor_route" "main" {
 
 resource "azurerm_cdn_frontdoor_custom_domain" "app" {
 
-  name                     = "app-domain"
+  name = "app-domain"
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
