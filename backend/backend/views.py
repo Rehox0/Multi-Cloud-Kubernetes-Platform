@@ -1,5 +1,6 @@
 import time
 import json
+import os
 
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -57,7 +58,10 @@ def payments(request):
 
 def health(request):
     return JsonResponse({
-        "status": "ok"
+        "status": "ok",
+        "cloud": os.getenv("CLOUD_PROVIDER", "unknown"),
+        "region": os.getenv("CLOUD_REGION", "unknown"),
+        "platform": os.getenv("BACKEND_PLATFORM", "unknown"),
     })
 
 

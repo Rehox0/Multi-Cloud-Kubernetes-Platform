@@ -11,6 +11,9 @@ serviceAccount:
 env:
   debug: "True"
   allowedHosts: "*"
+  cloudProvider: "Azure"
+  cloudRegion: "germanywestcentral"
+  backendPlatform: "AKS"
 
 service:
   type: ClusterIP
