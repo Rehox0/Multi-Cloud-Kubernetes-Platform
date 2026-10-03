@@ -62,6 +62,39 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   ]
 }
 
+resource "azurerm_cdn_frontdoor_rule_set" "api_no_cache" {
+
+  name                     = "ApiNoCache"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+}
+
+resource "azurerm_cdn_frontdoor_rule" "api_no_cache" {
+  name                      = "BypassApiCache"
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.api_no_cache.id
+  order                     = 1
+  behaviour_on_match        = "Continue"
+
+  conditions {
+    request_path {
+      operator      = "BeginsWith"
+      values        = ["/api/"]
+    }
+  }
+
+  actions {
+    route_configuration_override {
+      caching {
+        behaviour = "Disabled"
+      }
+    }
+  }
+
+  depends_on = [
+    azurerm_cdn_frontdoor_origin_group.main,
+    azurerm_cdn_frontdoor_origin.main
+  ]
+}
+
 resource "azurerm_cdn_frontdoor_route" "main" {
   name                          = "${lower(replace(var.project_name, "-", ""))}-route"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.main.id
@@ -73,6 +106,10 @@ resource "azurerm_cdn_frontdoor_route" "main" {
 
   cdn_frontdoor_custom_domain_ids = [
     azurerm_cdn_frontdoor_custom_domain.app.id
+  ]
+
+  cdn_frontdoor_rule_set_ids = [
+    azurerm_cdn_frontdoor_rule_set.api_no_cache.id
   ]
 
   enabled = true

@@ -129,16 +129,24 @@
 
             try { 
                 const response = await fetch(`/api/${endpoint}`); 
+                const data = await response.json();
                 if (!response.ok) { 
                     throw new Error( 
                         data.error || `HTTP ${response.status} ${response.statusText}`
                     ); 
                 } 
-                
-                const data = await response.json();
 
-                resultBlock.style.color = '#9cdcfe'; 
-                resultBlock.innerText = JSON.stringify(data, null, 2);
+                if (endpoint === 'health') {
+                    resultBlock.style.color = '#d4d4d4';
+                    resultBlock.innerText =
+                        `✓ Backend Healthy\n\n` +
+                        `Cloud:     ${data.cloud}\n` +
+                        `Region:    ${data.region}\n` +
+                        `Platform:  ${data.platform}`;
+                } else {
+                    resultBlock.style.color = '#9cdcfe';
+                    resultBlock.innerText = JSON.stringify(data, null, 2);
+                }
 
             } catch (error) { 
                 console.error('Backend request failed:', error);
