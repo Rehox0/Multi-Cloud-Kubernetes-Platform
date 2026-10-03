@@ -21,12 +21,13 @@
 I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
 
 It brings together **Terraform, Kubernetes, Cilium, ArgoCD, PostgreSQL, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
-
 The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
 
-> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, failover tests, monitoring, centralized logging and alerting have been implemented and validated end-to-end.
+> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, failover tests, monitoring, centralized logging and alerting have been implemented and validated end-to-end.  
 > Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity, together with the remaining architecture documentation and project polish.
 
+> 🔒 **Current focus:** Preparing for the CKS (Certified Kubernetes Security Specialist) certification.  
+> The goal is to systematically harden the platform further (policies, runtime security, supply chain) based on CKS best practices.
 ---
 
 ## 🛠️ Tech Stack
