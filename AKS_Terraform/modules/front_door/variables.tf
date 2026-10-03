@@ -32,3 +32,8 @@ variable "location" {
 #   description = "Public IP address of Application Gateway"
 #   type        = string
 # }
+
+variable "host_name" {
+  description = "Host name of main domain"
+  type        = string
+}

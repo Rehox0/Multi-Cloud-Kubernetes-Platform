@@ -48,7 +48,8 @@ module "key_vault" {
   location            = azurerm_resource_group.main.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
-  grafana_admin_user  = var.grafana_admin_user
+  user_keyvault_secrets_officer_role_assignment_id = module.identity.user_keyvault_secrets_officer_role_assignment_id
+  grafana_admin_user                               = var.grafana_admin_user
 
   common_tags = local.tags
 }
@@ -195,8 +196,8 @@ module "front_door" {
   location            = azurerm_resource_group.main.location
 
   aks_node_resource_group = module.aks.node_resource_group
-
-  common_tags = local.tags
+  host_name               = "app.multi-cloud-kubernetes.cloud"
+  common_tags             = local.tags
 
   depends_on = [
     null_resource.wait_for_gateway_pls

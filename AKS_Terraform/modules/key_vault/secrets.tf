@@ -12,4 +12,8 @@ resource "terraform_data" "grafana_credentials" {
       KEY_VAULT_NAME = azurerm_key_vault.backend.name
     }
   }
+
+  triggers_replace = [
+    var.user_keyvault_secrets_officer_role_assignment_id
+  ]
 }

@@ -52,6 +52,15 @@ spec:
 
             - name: ALLOWED_HOSTS
               value: {{ .Values.env.allowedHosts | quote }}
+            
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.env.cloudProvider | quote }}
+
+            - name: CLOUD_REGION
+              value: {{ .Values.env.cloudRegion | quote }}
+
+            - name: BACKEND_PLATFORM
+              value: {{ .Values.env.backendPlatform | quote }}
               
             - name: SECRET_KEY
               valueFrom:

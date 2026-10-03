@@ -168,7 +168,7 @@ az network private-link-service connection update \
 ```
 
 ## CMD:
-set = IP_JUMPBOX=xxxxxx.xxxx.xxx.xxxx
+set IP_JUMPBOX=xxxxxx.xxxx.xxx.xxxx
 ssh azureadmin@%IP_JUMPBOX%
 ssh -L 8080:127.0.0.1:8080 azureadmin@%IP_JUMPBOX% "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo

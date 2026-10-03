@@ -39,7 +39,7 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main.id
 
   enabled                        = true
-  certificate_name_check_enabled = false
+  certificate_name_check_enabled = true
 
   host_name          = data.azurerm_private_link_service.gateway.alias
   origin_host_header = data.azurerm_private_link_service.gateway.alias
@@ -52,14 +52,46 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   weight   = 1000
 
   private_link {
-    request_message        = "Azure Front Door private connectivity to Cilium Gateway"
-    target_type            = "sites"
     location               = var.location
     private_link_target_id = data.azurerm_private_link_service.gateway.id
+    request_message        = "Azure Front Door private connectivity to Cilium Gateway"
   }
 
   depends_on = [
     data.azurerm_private_link_service.gateway
+  ]
+}
+
+resource "azurerm_cdn_frontdoor_rule_set" "api_no_cache" {
+
+  name                     = "ApiNoCache"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+}
+
+resource "azurerm_cdn_frontdoor_rule" "api_no_cache" {
+  name                      = "BypassApiCache"
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.api_no_cache.id
+  order                     = 1
+  behaviour_on_match        = "Continue"
+
+  conditions {
+    request_path {
+      operator = "BeginsWith"
+      values   = ["/api/"]
+    }
+  }
+
+  actions {
+    route_configuration_override {
+      caching {
+        behaviour = "Disabled"
+      }
+    }
+  }
+
+  depends_on = [
+    azurerm_cdn_frontdoor_origin_group.main,
+    azurerm_cdn_frontdoor_origin.main
   ]
 }
 
@@ -70,6 +102,14 @@ resource "azurerm_cdn_frontdoor_route" "main" {
 
   cdn_frontdoor_origin_ids = [
     azurerm_cdn_frontdoor_origin.main.id
+  ]
+
+  cdn_frontdoor_custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.app.id
+  ]
+
+  cdn_frontdoor_rule_set_ids = [
+    azurerm_cdn_frontdoor_rule_set.api_no_cache.id
   ]
 
   enabled = true
@@ -91,4 +131,19 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   depends_on = [
     azurerm_cdn_frontdoor_origin.main
   ]
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "app" {
+
+  name = "app-domain"
+
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  dns_zone_id = null
+
+  host_name = var.host_name
+
+  tls {
+    certificate_type = "ManagedCertificate"
+  }
 }

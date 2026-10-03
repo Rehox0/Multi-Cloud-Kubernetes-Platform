@@ -27,3 +27,8 @@ variable "grafana_admin_user" {
   type        = string
   description = "Grafana admin user"
 }
+
+variable "user_keyvault_secrets_officer_role_assignment_id" {
+  description = "Role assignment that grants user permission to write Key Vault secrets"
+  type        = string
+}

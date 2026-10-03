@@ -186,8 +186,8 @@
       },
       "targets": [
         {
-          "expr": "sum by (exported_endpoint) (rate(app_http_requests_total[5m]))",
-          "legendFormat": "{{exported_endpoint}}",
+          "expr": "sum by (endpoint) (rate(app_http_requests_total[5m]))",
+          "legendFormat": "{{endpoint}}",
           "refId": "A"
         }
       ],
