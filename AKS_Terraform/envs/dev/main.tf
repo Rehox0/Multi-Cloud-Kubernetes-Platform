@@ -52,10 +52,6 @@ module "key_vault" {
   grafana_admin_user  = var.grafana_admin_user
 
   common_tags = local.tags
-
-  depends_on = [
-    module.identity
-  ]
 }
 
 module "postgresql" {
@@ -200,7 +196,7 @@ module "front_door" {
   location            = azurerm_resource_group.main.location
 
   aks_node_resource_group = module.aks.node_resource_group
-
+  host_name             = "app.multi-cloud-kubernetes.cloud"
   common_tags = local.tags
 
   depends_on = [
