@@ -1,7 +1,7 @@
 replicaCount: 3
 
 image:
-  repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-frontend
+  repository: 563605821766.dkr.ecr.eu-central-1.amazonaws.com/multi-cloud-project-ecr-frontend
   tag: 40ab5e3a8abfa6eef61b6f5e41fd0506b255fb25
 
 service:

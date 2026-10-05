@@ -16,7 +16,7 @@ output "storage_account_id" {
 # ACR (AWS ECR)
 output "acr_login_server" {
   value       = azurerm_container_registry.acr.login_server
-  description = "The URL that can be used to log into the container registry (e.g. acrallegro.azurecr.io)"
+  description = "The URL that can be used to log into the container registry"
 }
 
 output "acr_id" {

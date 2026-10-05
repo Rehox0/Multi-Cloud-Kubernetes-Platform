@@ -68,18 +68,18 @@ resource "aws_dynamodb_table" "terraform_locks" {
 # NOTE: You need to pass secrets manually
 
 resource "aws_secretsmanager_secret" "secrets_dev" {
-  name = "allegro-app-secrets-dev"
+  name = "multi-cloud-project-dev"
   tags = { Environment = "dev", Project = var.project_name }
 }
 
-resource "aws_secretsmanager_secret" "secrets_prod" {
-  name = "allegro-app-secrets-prod"
-  tags = { Environment = "prod", Project = var.project_name }
-}
+# resource "aws_secretsmanager_secret" "secrets_prod" {
+#   name = "allegro-app-secrets-prod"
+#   tags = { Environment = "prod", Project = var.project_name }
+# }
 
 ########## Create ECR ##########
 resource "aws_ecr_repository" "frontend" {
-  name                 = "allegro-app-ecr-eks-frontend"
+  name                 = "multi-cloud-project-ecr-frontend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -90,7 +90,7 @@ resource "aws_ecr_repository" "frontend" {
 }
 
 resource "aws_ecr_repository" "backend" {
-  name                 = "allegro-app-ecr-eks-backend"
+  name                 = "multi-cloud-project-ecr-backend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

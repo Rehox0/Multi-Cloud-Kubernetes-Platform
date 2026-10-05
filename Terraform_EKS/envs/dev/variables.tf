@@ -20,7 +20,7 @@ variable "common_tags" {
 
 variable "secrets_name" {
   type    = string
-  default = "allegro-app-secrets-dev"
+  default = "multi-cloud-project-secrets-dev"
 }
 
 variable "cluster_version" {

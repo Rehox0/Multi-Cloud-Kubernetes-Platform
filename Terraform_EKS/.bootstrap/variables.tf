@@ -7,13 +7,13 @@ variable "project_name" {
 variable "aws_region" {
   description = "region for s3"
   type        = string
-  default     = "eu-north-1"
+  default     = "eu-central-1"
 }
 
 variable "state_bucket_name" {
   description = "Full s3 name for .tfstate"
   type        = string
-  default     = "allegro-analytics-eks-tfstate-2026"
+  default     = "multi-cloud-project-tfstate-2026"
 }
 
 variable "github_token" {
