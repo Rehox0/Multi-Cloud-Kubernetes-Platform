@@ -18,7 +18,7 @@ permissions:
 
 env:
   AWS_REGION: eu-central-1
-  ECR_REPOSITORY: multi-cloud-project-ecr-backend
+  ECR_REPOSITORY: multi-cloud-project-ecr-frontend
 
 jobs:
   frontend-ci:

@@ -81,8 +81,8 @@ variable "ecr_repository_names" {
   type = list(string)
 
   default = [
-    "portfolio-backend",
-    "portfolio-frontend"
+    "multi-cloud-project-ecr-backend",
+    "multi-cloud-project-ecr-frontend"
   ]
 }
 
