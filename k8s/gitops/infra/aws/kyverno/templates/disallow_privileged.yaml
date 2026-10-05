@@ -25,6 +25,6 @@ spec:
             deny:
               conditions:
                 any:
-                  - key: "{{ element.securityContext.privileged || false }}"
+                  - key: "{{`{{ element.securityContext.privileged || false }}`}}"
                     operator: Equals
                     value: true
