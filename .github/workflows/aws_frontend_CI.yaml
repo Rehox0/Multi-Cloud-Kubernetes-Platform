@@ -18,7 +18,7 @@ permissions:
 
 env:
   AWS_REGION: eu-central-1
-  ECR_REPOSITORY: portfolio-frontend
+  ECR_REPOSITORY: multi-cloud-project-ecr-backend
 
 jobs:
   frontend-ci:
@@ -119,7 +119,7 @@ jobs:
           import os
           import re
 
-          path = Path("k8s/gitops/workloads/frontend/values-dev.yaml")
+          path = Path("k8s/gitops/workloads/frontend/aws-values-dev.yaml")
 
           content = path.read_text()
 
@@ -142,7 +142,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add k8s/gitops/workloads/frontend/values-dev.yaml
+          git add k8s/gitops/workloads/frontend/aws-values-dev.yaml
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
