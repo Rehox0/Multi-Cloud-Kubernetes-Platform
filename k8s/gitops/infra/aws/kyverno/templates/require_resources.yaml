@@ -23,6 +23,7 @@ spec:
               namespaces:
                 - monitoring
                 - karpenter
+                - kyverno
 
       validate:
         message: "Containers must define CPU and memory requests and limits."
