@@ -18,8 +18,8 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: eu-north-1
-  ECR_REPOSITORY: portfolio-backend
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: multi-cloud-project-ecr-backend
 
 jobs:
   backend-ci:
@@ -164,7 +164,7 @@ jobs:
           import os
           import re
 
-          path = Path("k8s/gitops/workloads/backend/values-dev.yaml")
+          path = Path("k8s/gitops/workloads/backend/aws-values-dev.yaml")
 
           content = path.read_text()
 
@@ -182,14 +182,14 @@ jobs:
           path.write_text(content)
           PY
 
-          git diff -- k8s/gitops/workloads/backend/values-dev.yaml
+          git diff -- k8s/gitops/workloads/backend/aws-values-dev.yaml
 
       - name: Commit updated image tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add k8s/gitops/workloads/backend/values-dev.yaml
+          git add k8s/gitops/workloads/backend/aws-values-dev.yaml
 
           if git diff --cached --quiet; then
             echo "No changes to commit"

@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: aws-load-balancer-controller
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: aws-infra-project
 
@@ -13,15 +15,19 @@ spec:
 
     helm:
       values: |
+        installCRDs: true
+        
         clusterName: Multi-Cloud-Kubernetes-Platform-eks-cluster
         region: eu-central-1
         hostNetwork: true
+
+        enableServiceMutatingWebhook: true
 
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::134748917914:role/Multi-Cloud-Kubernetes-Platform-alb-controller-role
+            eks.amazonaws.com/role-arn: arn:aws:iam::563605821766:role/Multi-Cloud-Kubernetes-Platform-alb-controller-role
 
         podLabels:
           app: aws-load-balancer-controller

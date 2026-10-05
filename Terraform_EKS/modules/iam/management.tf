@@ -78,7 +78,7 @@ resource "aws_iam_role_policy" "management_terraform_backend" {
         Action = [
           "s3:ListBucket",
         ]
-        Resource = "arn:aws:s3:::allegro-analytics-eks-tfstate-2026"
+        Resource = "arn:aws:s3:::multi-cloud-project-tfstate-2026"
       },
       {
         Sid    = "TerraformStateObjectAccess"
@@ -88,7 +88,7 @@ resource "aws_iam_role_policy" "management_terraform_backend" {
           "s3:PutObject",
           "s3:DeleteObject",
         ]
-        Resource = "arn:aws:s3:::allegro-analytics-eks-tfstate-2026/envs/*/eks/terraform.tfstate"
+        Resource = "arn:aws:s3:::multi-cloud-project-tfstate-2026/envs/*/eks/terraform.tfstate"
       },
       {
         Sid    = "TerraformStateLockAccess"
@@ -100,7 +100,7 @@ resource "aws_iam_role_policy" "management_terraform_backend" {
           "dynamodb:DeleteItem",
           "dynamodb:UpdateItem",
         ]
-        Resource = "arn:aws:dynamodb:eu-north-1:*:table/terraform-state-lock"
+        Resource = "arn:aws:dynamodb:eu-central-1:*:table/terraform-state-lock"
       },
     ]
   })

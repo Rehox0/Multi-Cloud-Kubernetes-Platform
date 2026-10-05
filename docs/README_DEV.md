@@ -8,9 +8,9 @@ This project uses remote state stored in S3 with a lock in DynamoDB.
 
 **Infrastructure parameters:**
 - **Region:** `eu-central-1`
-- **Bucket Name:** `multicloud-kubernetes-platform-tfstate-2026`
+- **Bucket Name:** `multi-cloud-project-tfstate-2026`
 - **DynamoDB Table:** `terraform-state-lock`
-- **Secrets Manager:** `aws-infra-project-dev` (development), `aws-infra-project-prod` (production)
+- **Secrets Manager:** `multi-cloud-project-dev` (development)
 
 
 **The bucket name must match in two places:**

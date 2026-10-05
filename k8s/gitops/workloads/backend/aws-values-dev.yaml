@@ -1,8 +1,8 @@
 replicaCount: 4
 
 image:
-  repository: 134748917914.dkr.ecr.eu-north-1.amazonaws.com/portfolio-backend
-  tag: de444f02d2d6f0144924fb006825851a786e6d63
+  repository: 563605821766.dkr.ecr.eu-central-1.amazonaws.com/multi-cloud-project-ecr-backend
+  tag: bcd6e8159ecbb1b7c1db89c0f5d0893c2713d508
 
 serviceAccount:
   create: false
@@ -37,7 +37,7 @@ networkPolicy:
 
 externalSecret:
   refreshInterval: "1m"
-  remoteKey: "infra-project"
+  remoteKey: "multi-cloud-project-dev"
   targetName: "eso-backend-secret"
   secretStoreRef:
     name: "aws-secretsmanager"
@@ -45,7 +45,7 @@ externalSecret:
 
 provider:
   aws:
-    region: eu-north-1
+    region: eu-central-1
 
 backend:
   host: http://workload-backend-dev.backend-ns.svc.cluster.local

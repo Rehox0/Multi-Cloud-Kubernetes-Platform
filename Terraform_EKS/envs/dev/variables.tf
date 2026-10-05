@@ -20,7 +20,7 @@ variable "common_tags" {
 
 variable "secrets_name" {
   type    = string
-  default = "allegro-app-secrets-dev"
+  default = "multi-cloud-project-secrets-dev"
 }
 
 variable "cluster_version" {
@@ -81,8 +81,8 @@ variable "ecr_repository_names" {
   type = list(string)
 
   default = [
-    "portfolio-backend",
-    "portfolio-frontend"
+    "multi-cloud-project-ecr-backend",
+    "multi-cloud-project-ecr-frontend"
   ]
 }
 

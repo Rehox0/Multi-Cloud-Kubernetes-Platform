@@ -32,7 +32,7 @@ The project is intentionally built as a **learning and portfolio environment**, 
 
 ## 🛠️ Tech Stack
 * **AWS Cloud:** VPC · EKS · ECR · CloudFront · Network Load Balancer · Secrets Manager · IAM/IRSA
-* **Azure Cloud:** AKS · ACR · Front Door · Key Vault · Workload Identity
+* **Azure Cloud:** AKS · ACR · Front Door · Key Vault · Workload Identity · Traffic Manager
 * **Platform:** Kubernetes · Cilium · Gateway API · Karpenter · Helm
 * **Infrastructure & Delivery:** Terraform · GitHub Actions · ArgoCD · Docker
 * **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
@@ -48,7 +48,7 @@ Infrastructure is provisioned using **Terraform**, covering networking, compute,
 Current infrastructure footprint:
 
 * **110+ AWS resources**
-* **55+ Azure resources**
+* **65+ Azure resources**
 
 **Terraform state** is stored remotely in Amazon S3 with AES-256 encryption.
 

@@ -28,9 +28,9 @@ output "secrets_manager_arn_dev" {
 }
 
 #Secrets Prod
-output "secrets_manager_arn_prod" {
-  value = aws_secretsmanager_secret.secrets_prod.arn
-}
+# output "secrets_manager_arn_prod" {
+#   value = aws_secretsmanager_secret.secrets_prod.arn
+# }
 
 #GHA Roles
 output "github_actions_role_arn_dev" {
@@ -38,10 +38,10 @@ output "github_actions_role_arn_dev" {
   description = "IAM role ARN used by GitHub Actions for the dev environment"
 }
 
-output "github_actions_role_arn_prod" {
-  value       = aws_iam_role.github_actions_prod.arn
-  description = "IAM role ARN used by GitHub Actions for the prod environment"
-}
+# output "github_actions_role_arn_prod" {
+#   value       = aws_iam_role.github_actions_prod.arn
+#   description = "IAM role ARN used by GitHub Actions for the prod environment"
+# }
 
 output "github_oidc_provider_arn" {
   value       = aws_iam_openid_connect_provider.github.arn

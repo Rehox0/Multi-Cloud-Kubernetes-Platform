@@ -22,6 +22,8 @@ spec:
           - resources:
               namespaces:
                 - monitoring
+                - karpenter
+                - kyverno
 
       validate:
         message: "The 'app' label is required."

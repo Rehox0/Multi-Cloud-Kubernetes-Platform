@@ -22,6 +22,8 @@ spec:
           - resources:
               namespaces:
                 - monitoring
+                - karpenter
+                - kyverno
 
       validate:
         message: "Containers must define CPU and memory requests and limits."
@@ -30,15 +32,18 @@ spec:
             deny:
               conditions:
                 any:
-                  - key: "{{ element.resources.requests.cpu || '' }}"
+                  - key: "{{`{{ element.resources.requests.cpu || '' }}`}}"
                     operator: Equals
                     value: ""
-                  - key: "{{ element.resources.requests.memory || '' }}"
+
+                  - key: "{{`{{ element.resources.requests.memory || '' }}`}}"
                     operator: Equals
                     value: ""
-                  - key: "{{ element.resources.limits.cpu || '' }}"
+
+                  - key: "{{`{{ element.resources.limits.cpu || '' }}`}}"
                     operator: Equals
                     value: ""
-                  - key: "{{ element.resources.limits.memory || '' }}"
+
+                  - key: "{{`{{ element.resources.limits.memory || '' }}`}}"
                     operator: Equals
                     value: ""

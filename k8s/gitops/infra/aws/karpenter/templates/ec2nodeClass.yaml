@@ -5,7 +5,7 @@ metadata:
 spec:
   amiFamily: AL2023
   amiSelectorTerms:
-    - id: ami-0c11219423ce00ad3
+    - id: ami-0209976a6911967b9
 
   role: Multi-Cloud-Kubernetes-Platform-karpenter-node-role
 

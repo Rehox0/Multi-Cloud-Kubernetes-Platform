@@ -1,3 +1,3 @@
-data "aws_secretsmanager_secret" "infra_project" {
-  name = "infra-project"
+data "aws_secretsmanager_secret" "multi_cloud_project" {
+  name = "multi-cloud-project-dev"
 }
