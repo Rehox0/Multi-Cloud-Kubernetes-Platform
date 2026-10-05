@@ -10,9 +10,10 @@ spec:
     - 'https://charts.external-secrets.io'
     - 'https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git'
     - 'public.ecr.aws/karpenter'
-    - 'https://prometheus-community.github.io/helm-charts'
     - 'https://aws.github.io/eks-charts'
+    - 'https://prometheus-community.github.io/helm-charts'
     - 'https://grafana-community.github.io/helm-charts'
+    - 'https://grafana.github.io/helm-charts'
   destinations:
     - namespace: '*'
       server: '*'

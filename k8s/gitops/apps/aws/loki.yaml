@@ -1,20 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: eso-backend-secret
+  name: loki
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: aws-infra-project
 
   sources:
-    - repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
-      targetRevision: testing
-      path: k8s/gitops/infra/aws/eso
+    - repoURL: https://grafana-community.github.io/helm-charts
+      chart: loki
+      targetRevision: 18.13.5
       helm:
         valueFiles:
-          - $values/k8s/gitops/infra/aws/values.yaml
+          - $values/k8s/gitops/infra/aws/loki/values.yaml
 
     - repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
       targetRevision: testing
@@ -22,12 +20,12 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: external-secrets
+    namespace: loki
 
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
