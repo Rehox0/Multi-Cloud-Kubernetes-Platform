@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: 563605821766.dkr.ecr.eu-central-1.amazonaws.com/multi-cloud-project-ecr-frontend
-  tag: 40ab5e3a8abfa6eef61b6f5e41fd0506b255fb25
+  tag: bfbaf4559e2d2651657b46eca00d5307706e7299
 
 service:
   type: ClusterIP
