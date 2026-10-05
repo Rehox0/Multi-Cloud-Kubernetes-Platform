@@ -1,0 +1,6 @@
+apiVersion: v2
+name: aws-karpenter
+description: Helm Chart for AWS Karpenter
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
