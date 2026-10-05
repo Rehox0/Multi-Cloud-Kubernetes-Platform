@@ -2,7 +2,7 @@ replicaCount: 4
 
 image:
   repository: multicloudprojectacr.azurecr.io/backend
-  tag: d2f0724177d4a2f734deeb793009b7a8c15a3702
+  tag: ee701d031d85a6f24d71c378bf01a8873d143a22
 
 serviceAccount:
   create: false
