@@ -13,9 +13,13 @@ spec:
 
     helm:
       values: |
+        installCRDs: true
+        
         clusterName: Multi-Cloud-Kubernetes-Platform-eks-cluster
         region: eu-central-1
         hostNetwork: true
+
+        enableServiceMutatingWebhook: true
 
         serviceAccount:
           create: true
