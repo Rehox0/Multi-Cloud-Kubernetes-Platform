@@ -22,6 +22,7 @@ spec:
           - resources:
               namespaces:
                 - monitoring
+                - karpenter
 
       validate:
         message: "Containers must define CPU and memory requests and limits."

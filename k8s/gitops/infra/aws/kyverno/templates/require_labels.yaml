@@ -22,6 +22,7 @@ spec:
           - resources:
               namespaces:
                 - monitoring
+                - karpenter
 
       validate:
         message: "The 'app' label is required."
