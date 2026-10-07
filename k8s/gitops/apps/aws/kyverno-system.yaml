@@ -17,8 +17,8 @@ spec:
         admissionController:
           hostNetwork: true
           dnsPolicy: ClusterFirstWithHostNet
-          extraArgs:
-            controllerRuntimeMetricsAddress: ":8082"
+          controllerRuntimeMetrics:
+            bindAddress: ":8082"
         priorityClassName: prio-high
   destination:
     server: https://kubernetes.default.svc
