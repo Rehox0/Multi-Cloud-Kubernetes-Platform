@@ -19,7 +19,7 @@ spec:
           dnsPolicy: ClusterFirstWithHostNet
           extraArgs:
             controllerRuntimeMetricsAddress: ":8082"
-          priorityClassName: prio-high
+        priorityClassName: prio-high
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno
