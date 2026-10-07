@@ -14,11 +14,12 @@ spec:
     helm:
       values: |
         installCRDs: true
+        features:
+          controllerRuntimeMetrics:
+            bindAddress: ":8082"
         admissionController:
           hostNetwork: true
           dnsPolicy: ClusterFirstWithHostNet
-          controllerRuntimeMetrics:
-            bindAddress: ":8082"
         priorityClassName: prio-high
   destination:
     server: https://kubernetes.default.svc
