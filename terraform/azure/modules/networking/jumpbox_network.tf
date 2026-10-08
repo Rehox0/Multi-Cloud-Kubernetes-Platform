@@ -20,3 +20,12 @@ resource "azurerm_subnet" "jumpbox" {
     var.jumpbox_network.subnet_cidr
   ]
 }
+
+resource "azurerm_subnet" "gateway" {
+  name = "GatewaySubnet"
+
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.jumpbox.name
+
+  address_prefixes = ["10.10.254.0/27"]
+}

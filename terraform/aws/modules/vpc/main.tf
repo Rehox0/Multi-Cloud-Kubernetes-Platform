@@ -125,3 +125,11 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[count.index].id
 }
+
+resource "aws_route" "private_to_azure_postgresql" {
+  count = length(aws_route_table.private)
+
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = var.azure_destination_cidr_block
+  gateway_id             = aws_vpn_gateway.azure.id
+}

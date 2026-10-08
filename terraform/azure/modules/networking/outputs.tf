@@ -50,3 +50,11 @@ output "postgresql_private_dns_zone_id" {
   description = "ID of the private DNS zone for PostgreSQL Flexible Server"
   value       = azurerm_private_dns_zone.postgresql.id
 }
+
+output "vpn_gateway_public_ip_1" {
+  value = azurerm_public_ip.vpn_gateway_1.ip_address
+}
+
+output "vpn_gateway_public_ip_2" {
+  value = azurerm_public_ip.vpn_gateway_2.ip_address
+}

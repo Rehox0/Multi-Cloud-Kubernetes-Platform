@@ -59,3 +59,34 @@ variable "postgresql_subnet_cidr" {
   description = "CIDR range for the PostgreSQL Flexible Server delegated subnet"
   type        = string
 }
+
+variable "vpn_gateway_bgp_apipa_addresses" {
+  description = "APIPA addresses used by the Azure VPN Gateway for BGP peering"
+  type        = list(string)
+
+  validation {
+    condition     = length(var.vpn_gateway_bgp_apipa_addresses) == 4
+    error_message = "Exactly two BGP APIPA addresses must be provided."
+  }
+}
+
+variable "aws_vpn_tunnel_outside_ips" {
+  description = "Public IP addresses of AWS VPN tunnel endpoints"
+  type = object({
+    vpn_1_tunnel_1 = string
+    vpn_1_tunnel_2 = string
+    vpn_2_tunnel_1 = string
+    vpn_2_tunnel_2 = string
+  })
+}
+
+variable "aws_vpn_tunnel_psks" {
+  description = "Pre-shared keys for AWS VPN tunnels"
+  type = object({
+    vpn_1_tunnel_1 = string
+    vpn_1_tunnel_2 = string
+    vpn_2_tunnel_1 = string
+    vpn_2_tunnel_2 = string
+  })
+  sensitive = true
+}

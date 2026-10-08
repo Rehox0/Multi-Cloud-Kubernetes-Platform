@@ -32,3 +32,18 @@ variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
 }
+
+variable "azure_vpn_gateway_public_ip_1" {
+  description = "Public IP of the first Azure VPN Gateway instance"
+  type        = string
+}
+
+variable "azure_vpn_gateway_public_ip_2" {
+  description = "Public IP of the second Azure VPN Gateway instance"
+  type        = string
+}
+
+variable "azure_destination_cidr_block" {
+  description = "CIDR block for the Azure PostgreSQL subnet to route traffic to"
+  type        = string
+}

@@ -21,6 +21,27 @@ module "networking" {
 
   postgresql_subnet_cidr = "10.10.16.0/24"
 
+  vpn_gateway_bgp_apipa_addresses = [
+    "169.254.21.2",
+    "169.254.22.2",
+    "169.254.21.6",
+    "169.254.22.6"
+  ]
+
+  aws_vpn_tunnel_outside_ips = {
+    vpn_1_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_outside_ip
+    vpn_1_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_outside_ip
+    vpn_2_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_outside_ip
+    vpn_2_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_outside_ip
+  }
+
+  aws_vpn_tunnel_psks = {
+    vpn_1_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_psk
+    vpn_1_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_psk
+    vpn_2_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_psk
+    vpn_2_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_psk
+  }
+
   common_tags = local.tags
 }
 
