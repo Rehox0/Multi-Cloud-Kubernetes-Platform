@@ -17,7 +17,7 @@ resource "azurerm_federated_identity_credential" "eks_backend" {
 
   user_assigned_identity_id = module.identity.eks_backend_identity_id
 
-  issuer = "https://oidc.eks.eu-central-1.amazonaws.com/id/06E071A17E94A30ED24DA3511148DC88"
+  issuer = "https://oidc.eks.eu-central-1.amazonaws.com/id/156C5E1A9B08008264178A5BA281981A"
 
   subject = "system:serviceaccount:backend-ns:backend"
 

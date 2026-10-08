@@ -11,6 +11,9 @@ serviceAccount:
 env:
   debug: "True"
   allowedHosts: "*"
+  cloudProvider: "AWS"
+  cloudRegion: "eu-central-1"
+  backendPlatform: "EKS"
 
 service:
   type: ClusterIP
