@@ -15,6 +15,9 @@ spec:
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
         pod-security.kubernetes.io/warn: restricted
+        {{- if eq .Values.env.cloudProvider "aws" }}
+        azure.workload.identity/use: "true"
+        {{- end }}
     spec:
       securityContext:
         seccompProfile:
