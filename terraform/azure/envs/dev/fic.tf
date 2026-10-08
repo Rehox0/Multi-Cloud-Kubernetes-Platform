@@ -11,3 +11,17 @@ resource "azurerm_federated_identity_credential" "backend_eso" {
     "api://AzureADTokenExchange"
   ]
 }
+
+resource "azurerm_federated_identity_credential" "eks_backend" {
+  name = "eks-backend"
+
+  user_assigned_identity_id = module.identity.eks_backend_identity_id
+
+  issuer = "https://oidc.eks.eu-central-1.amazonaws.com/id/06E071A17E94A30ED24DA3511148DC88"
+
+  subject = "system:serviceaccount:backend-ns:backend"
+
+  audience = [
+    "api://AzureADTokenExchange"
+  ]
+}
