@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: azure-workload-identity
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: aws-infra-project
+
+  sources:
+    - repoURL: https://azure.github.io/azure-workload-identity/charts
+      chart: workload-identity-webhook
+      targetRevision: 1.6.1
+      helm:
+        valueFiles:
+          - $values/k8s/gitops/infra/aws/identity/azure-workload-identity.yaml
+
+    - repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
+      targetRevision: testing
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: azure-workload-identity-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
