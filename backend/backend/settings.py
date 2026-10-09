@@ -107,6 +107,17 @@ DATABASES = {
     }
 }
 
+"OPTIONS": {
+    "sslmode": "verify-full",
+    "sslrootcert": "/etc/ssl/certs/ca-certificates.crt",
+    "connect_timeout": 5,
+    **(
+        {"hostaddr": f",{POSTGRES_FALLBACK_IP}"}
+        if POSTGRES_FALLBACK_IP
+        else {}
+    ),
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
