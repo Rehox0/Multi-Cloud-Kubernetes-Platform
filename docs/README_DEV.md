@@ -97,6 +97,24 @@ aws ssm start-session \
 ---
  
 # ☁️ Azure Deployment
+
+### 1. Bootstrap remote state
+```bash
+cd .bootstrap/
+terraform apply
+```
+
+### 2. Deploy the dev environment
+```bash
+cd envs/dev/
+terraform apply
+```
+after successful `terraform apply` update run script:
+
+```
+./scripts/sync-backend-identity.sh
+```
+
 ### Alertmanager webhook
 set discord webhook url:
 ```

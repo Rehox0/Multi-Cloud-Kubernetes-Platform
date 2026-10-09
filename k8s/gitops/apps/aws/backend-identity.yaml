@@ -13,7 +13,7 @@ spec:
       path: k8s/gitops/infra/aws/identity
       helm:
         valueFiles:
-          - $values/k8s/gitops/infra/aws/values.yaml
+          - values.yaml
 
     - repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
       targetRevision: testing
