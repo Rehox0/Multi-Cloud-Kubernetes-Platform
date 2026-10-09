@@ -101,6 +101,12 @@ spec:
                   name: {{ .Values.externalSecret.targetName }}
                   key: POSTGRES_PASSWORD
 
+            - name: POSTGRES_FALLBACK_IP
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-fallback-secret
+                  key: POSTGRES_FALLBACK_IP
+
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false

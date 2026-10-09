@@ -76,14 +76,34 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+POSTGRES_HOST = os.environ.get(
+    "POSTGRES_HOST",
+    "multi-cloud-project-postgresql.postgres.database.azure.com",
+)
+
+POSTGRES_FALLBACK_IP = os.environ.get("POSTGRES_FALLBACK_IP", "").strip()
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default"),
         "USER": os.environ.get("POSTGRES_USER", "default"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "HOST": (
+            f"{POSTGRES_HOST},{POSTGRES_HOST}"
+            if POSTGRES_FALLBACK_IP
+            else POSTGRES_HOST
+        ),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "verify-full",
+            "connect_timeout": 5,
+            **(
+                {"hostaddr": f",{POSTGRES_FALLBACK_IP}"}
+                if POSTGRES_FALLBACK_IP
+                else {}
+            ),
+        },
     }
 }
 

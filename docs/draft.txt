@@ -1,13 +1,4 @@
-for cfg in \
-  kyverno-cel-exception-validating-webhook-cfg \
-  kyverno-cleanup-validating-webhook-cfg \
-  kyverno-exception-validating-webhook-cfg \
-  kyverno-global-context-validating-webhook-cfg \
-  kyverno-policy-validating-webhook-cfg \
-  kyverno-resource-validating-webhook-cfg \
-  kyverno-ttl-validating-webhook-cfg
-do
-  kubectl patch validatingwebhookconfiguration "$cfg" \
-    --type='json' \
-    -p='[{"op":"replace","path":"/webhooks/0/failurePolicy","value":"Ignore"}]'
-done
+Całkowity koszt minimalny (np. 1 inbound + 1 outbound + ruleset) wynosi ok. $362.50 / miesiąc
+dla dns resolver w azure - za drogo...
+
+
