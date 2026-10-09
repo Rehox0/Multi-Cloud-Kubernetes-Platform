@@ -97,6 +97,7 @@ DATABASES = {
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         "OPTIONS": {
             "sslmode": "verify-full",
+            "sslrootcert": "/etc/ssl/certs/ca-certificates.crt",
             "connect_timeout": 5,
             **(
                 {"hostaddr": f",{POSTGRES_FALLBACK_IP}"}
@@ -105,17 +106,6 @@ DATABASES = {
             ),
         },
     }
-}
-
-"OPTIONS": {
-    "sslmode": "verify-full",
-    "sslrootcert": "/etc/ssl/certs/ca-certificates.crt",
-    "connect_timeout": 5,
-    **(
-        {"hostaddr": f",{POSTGRES_FALLBACK_IP}"}
-        if POSTGRES_FALLBACK_IP
-        else {}
-    ),
 }
 
 
