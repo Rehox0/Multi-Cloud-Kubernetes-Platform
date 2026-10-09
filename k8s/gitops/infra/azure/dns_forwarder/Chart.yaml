@@ -1,0 +1,7 @@
+
+apiVersion: v2
+name: azure-dns-forwarder
+description: Helm Chart for Azure DNS Forwarder
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

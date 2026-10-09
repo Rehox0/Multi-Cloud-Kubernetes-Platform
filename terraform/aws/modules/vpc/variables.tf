@@ -47,3 +47,8 @@ variable "azure_destination_cidr_block" {
   description = "CIDR block for the Azure PostgreSQL subnet to route traffic to"
   type        = string
 }
+
+variable "azure_aks_destination_cidr_block" {
+  description = "CIDR of the Azure AKS VNet reachable through the site-to-site VPN"
+  type        = string
+}

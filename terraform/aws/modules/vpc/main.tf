@@ -91,15 +91,17 @@ resource "aws_route_table" "private" {
   count  = length(var.private_subnet_cidrs)
   vpc_id = aws_vpc.main.id
 
-  # Default route to NAT Gateway in the same AZ
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main[count.index].id
-  }
-
   tags = {
     Name = "${var.project_name}-private-rt-${count.index + 1}"
   }
+}
+
+resource "aws_route" "private_to_nat" {
+  count = length(aws_route_table.private)
+
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main[count.index].id
 }
 
 # Default Route Table
@@ -131,5 +133,13 @@ resource "aws_route" "private_to_azure_postgresql" {
 
   route_table_id         = aws_route_table.private[count.index].id
   destination_cidr_block = var.azure_destination_cidr_block
+  gateway_id             = aws_vpn_gateway.azure.id
+}
+
+resource "aws_route" "private_to_azure_aks" {
+  count = length(aws_route_table.private)
+
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = var.azure_aks_destination_cidr_block
   gateway_id             = aws_vpn_gateway.azure.id
 }
