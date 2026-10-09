@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/Rehox0/Multi-Cloud-Kubernetes-Platform.git
     targetRevision: testing
-    path: k8s/gitops/infra/azure/dns-forwarder
+    path: k8s/gitops/infra/azure/dns_forwarder
     helm:
       valueFiles:
         - azure-values-dev.yaml
