@@ -118,16 +118,13 @@ tenant_file = Path(os.environ["TENANT_ID_FILE"])
 
 def update_nested_client_id(path: Path, value: str) -> None:
     """
-    Update backend.workloadIdentity.clientId while preserving
-    unrelated values in the YAML file.
-
+    Update backend.clientId while preserving unrelated YAML values.
     Create the expected structure if the file does not exist.
     """
     if not path.exists():
         path.write_text(
             "backend:\n"
-            "  workloadIdentity:\n"
-            f'    clientId: "{value}"\n',
+            f'  clientId: "{value}"\n',
             encoding="utf-8",
         )
         print(f"Created {path}")
@@ -135,7 +132,6 @@ def update_nested_client_id(path: Path, value: str) -> None:
 
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
 
-    # Locate the top-level backend mapping.
     backend_index = next(
         (
             i for i, line in enumerate(lines)
@@ -150,15 +146,13 @@ def update_nested_client_id(path: Path, value: str) -> None:
 
         lines.extend([
             "backend:\n",
-            "  workloadIdentity:\n",
-            f'    clientId: "{value}"\n',
+            f'  clientId: "{value}"\n',
         ])
         path.write_text("".join(lines), encoding="utf-8")
-        print(f"Added backend.workloadIdentity.clientId to {path}")
+        print(f"Added backend.clientId to {path}")
         return
 
-    # Find the end of the backend block: the next non-empty,
-    # non-comment top-level key.
+    # Find the end of the backend block.
     backend_end = len(lines)
 
     for i in range(backend_index + 1, len(lines)):
@@ -169,51 +163,33 @@ def update_nested_client_id(path: Path, value: str) -> None:
                 backend_end = i
                 break
 
-    # Find workloadIdentity within the backend block.
-    workload_index = next(
-        (
-            i for i in range(backend_index + 1, backend_end)
-            if re.match(r"^  workloadIdentity\s*:\s*(?:#.*)?(?:\r?\n)?$", lines[i])
-        ),
-        None,
-    )
-
-    if workload_index is None:
-        lines.insert(
-            backend_end,
-            "  workloadIdentity:\n"
-            f'    clientId: "{value}"\n',
-        )
-        path.write_text("".join(lines), encoding="utf-8")
-        print(f"Added backend.workloadIdentity.clientId to {path}")
-        return
-
-    # Find the end of the workloadIdentity block.
-    workload_end = backend_end
-
-    for i in range(workload_index + 1, backend_end):
-        line = lines[i]
-
-        if line.strip() and not line.lstrip().startswith("#"):
-            if not line.startswith("    "):
-                workload_end = i
-                break
-
-    # Replace clientId if it exists in the expected block.
+    # Find clientId directly inside backend.
     client_index = next(
         (
-            i for i in range(workload_index + 1, workload_end)
-            if re.match(r"^    clientId\s*:", lines[i])
+            i for i in range(backend_index + 1, backend_end)
+            if re.match(r"^  clientId\s*:", lines[i])
         ),
         None,
     )
 
-    replacement = f'    clientId: "{value}"\n'
+    replacement = f'  clientId: "{value}"\n'
 
     if client_index is not None:
         lines[client_index] = replacement
     else:
-        lines.insert(workload_end, replacement)
+        # Insert directly under backend, before nested sections.
+        insert_index = backend_index + 1
+
+        while (
+            insert_index < backend_end
+            and (
+                not lines[insert_index].strip()
+                or lines[insert_index].lstrip().startswith("#")
+            )
+        ):
+            insert_index += 1
+
+        lines.insert(insert_index, replacement)
 
     path.write_text("".join(lines), encoding="utf-8")
     print(f"Updated {path}")
