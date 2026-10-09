@@ -25,6 +25,7 @@ spec:
                 - karpenter
                 - kyverno
                 - argocd
+                - external-secrets
 
       validate:
         message: "The 'app' label is required."
