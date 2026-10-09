@@ -7,8 +7,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   zone    = "1"
 
   high_availability {
-    mode                      = "ZoneRedundant"
-    standby_availability_zone = "2"
+    mode                      = "Disabled"
   }
 
   delegated_subnet_id           = var.subnet_id

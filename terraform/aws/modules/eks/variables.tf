@@ -39,17 +39,15 @@ variable "node_role_arn" {
 
 variable "node_capacity_type" {
   type    = string
-  default = "ON_DEMAND"
+  default = "SPOT"
 }
 
 variable "node_instance_types" {
   type    = list(string)
-  default = ["m7i-flex.large"]
 }
 
 variable "node_max_unavailable" {
   type    = number
-  default = 1
 }
 
 variable "node_labels" {

@@ -24,6 +24,7 @@ spec:
                 - monitoring
                 - karpenter
                 - kyverno
+                - argocd
 
       validate:
         message: "The 'app' label is required."
