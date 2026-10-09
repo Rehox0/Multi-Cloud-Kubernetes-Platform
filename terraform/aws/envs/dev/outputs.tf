@@ -6,6 +6,11 @@ output "eks_cluster_sg_id" {
   value = module.security_groups.eks_cluster_sg_id
 }
 
+output "eks_oidc_url" {
+  description = "OIDC issuer URL of the EKS cluster"
+  value       = module.eks.eks_oidc_url
+}
+
 output "endpoints_sg_id" {
   value = module.security_groups.endpoints_sg_id
 }

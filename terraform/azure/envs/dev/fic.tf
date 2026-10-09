@@ -17,7 +17,7 @@ resource "azurerm_federated_identity_credential" "eks_backend" {
 
   user_assigned_identity_id = module.identity.eks_backend_identity_id
 
-  issuer = "https://oidc.eks.eu-central-1.amazonaws.com/id/156C5E1A9B08008264178A5BA281981A"
+  issuer = data.terraform_remote_state.aws.outputs.eks_oidc_url
 
   subject = "system:serviceaccount:backend-ns:backend"
 

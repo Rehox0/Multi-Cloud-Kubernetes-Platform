@@ -1,0 +1,3 @@
+backend:
+  workloadIdentity:
+    clientId: "762ac562-1a81-45ad-9534-bbfaef8216aa"
