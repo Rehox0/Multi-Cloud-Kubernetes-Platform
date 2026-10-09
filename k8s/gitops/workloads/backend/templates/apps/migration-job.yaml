@@ -78,6 +78,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: POSTGRES_PASSWORD
+                  
+            - name: POSTGRES_FALLBACK_IP
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-fallback-secret
+                  key: POSTGRES_FALLBACK_IP
 
           resources:
             requests:
