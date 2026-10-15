@@ -14,6 +14,7 @@ IDENTITY_DIR="k8s/gitops/infra/aws/identity"
 
 CLIENT_ID_FILE="${IDENTITY_DIR}/values.yaml"
 TENANT_ID_FILE="${IDENTITY_DIR}/azure-workload-identity.yaml"
+CLUSTER_SECRET_STORE_FILE="k8s/gitops/infra/azure/external-secrets/cluster-secret-store.yaml"
 
 COMMIT_MESSAGE="chore(gitops): sync Azure workload identity IDs"
 
