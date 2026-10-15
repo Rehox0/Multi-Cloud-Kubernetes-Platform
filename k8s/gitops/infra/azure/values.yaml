@@ -7,4 +7,4 @@ spec:
     azurekv:
       authType: WorkloadIdentity
       vaultUrl: "https://Multi-Cloud-ProjectKV1.vault.azure.net"
-      tenantId: "25ff8005-af8a-4c5e-88d9-399d69f25b52"
+      tenantId: "b7233ea5-330b-4215-a536-3ebe0e72e5cb"

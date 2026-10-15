@@ -102,7 +102,7 @@ echo "Tenant ID: ${TENANT_ID}"
 
 mkdir -p "${IDENTITY_DIR}"
 
-export CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE
+export CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE CLUSTER_SECRET_STORE_FILE
 
 python3 <<'PYTHON'
 import os
@@ -115,7 +115,7 @@ tenant_id = os.environ["TENANT_ID"]
 
 client_file = Path(os.environ["CLIENT_ID_FILE"])
 tenant_file = Path(os.environ["TENANT_ID_FILE"])
-
+cluster_secret_store_file = Path(os.environ["CLUSTER_SECRET_STORE_FILE"])
 
 def update_nested_client_id(path: Path, value: str) -> None:
     """
@@ -226,8 +226,41 @@ def update_tenant_id(path: Path, value: str) -> None:
     print(f"Updated {path}")
 
 
+def update_cluster_secret_store_tenant(path: Path, value: str) -> None:
+    """
+    Update tenantId inside the ClusterSecretStore manifest.
+    """
+    if not path.exists():
+        raise FileNotFoundError(
+            f"ClusterSecretStore manifest not found: {path}"
+        )
+
+    text = path.read_text(encoding="utf-8")
+
+    pattern = re.compile(
+        r"^(\s*tenantId\s*:\s*)[\"']?[^\"'\n#]+[\"']?(\s*(?:#.*)?)$",
+        re.MULTILINE,
+    )
+
+    updated, count = pattern.subn(
+        lambda match: f'{match.group(1)}"{value}"{match.group(2)}',
+        text,
+    )
+
+    if count != 1:
+        raise RuntimeError(
+            f"Expected exactly one tenantId in {path}, found {count}. "
+            "No automatic modification was made."
+        )
+
+    path.write_text(updated, encoding="utf-8")
+    print(f"Updated {path}")
+
+
 update_nested_client_id(client_file, client_id)
 update_tenant_id(tenant_file, tenant_id)
+update_cluster_secret_store_tenant(cluster_secret_store_file, tenant_id)
+
 
 PYTHON
 
@@ -237,10 +270,10 @@ PYTHON
 
 echo
 echo "Changes in the identity values files:"
-git --no-pager diff -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}"
+git --no-pager diff -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
 
 # Include untracked files in the change check.
-CHANGES="$(git status --short -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}")"
+CHANGES="$(git status --short -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}")"
 
 if [[ -z "${CHANGES}" ]]; then
     echo
@@ -255,11 +288,11 @@ fi
 echo
 echo "Creating commit..."
 
-git add -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}"
+git add -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
 
 git commit --only \
     -m "${COMMIT_MESSAGE}" \
-    -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}"
+    -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
 
 echo
 echo "SUCCESS: Identity values synchronized and committed."
@@ -267,5 +300,6 @@ echo "Branch: ${CURRENT_BRANCH}"
 echo "Files:"
 echo "  - ${CLIENT_ID_FILE}"
 echo "  - ${TENANT_ID_FILE}"
+echo "  - ${CLUSTER_SECRET_STORE_FILE}"
 echo
 echo "No git push was performed."
