@@ -1,7 +1,7 @@
 replicaCount: 3
 
 image:
-  repository: multicloudprojectacr.azurecr.io/frontend
+  repository: multicloudprojectacr1.azurecr.io/frontend
   tag: 8964dfd1312ddd90b0c7017a6da4caa6bd0bcc03
 
 service:

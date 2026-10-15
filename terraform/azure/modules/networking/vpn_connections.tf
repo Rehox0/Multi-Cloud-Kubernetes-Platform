@@ -1,4 +1,6 @@
 resource "azurerm_local_network_gateway" "aws_vpn_1_tunnel_1" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-1-tunnel-1"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
@@ -16,6 +18,8 @@ resource "azurerm_local_network_gateway" "aws_vpn_1_tunnel_1" {
 }
 
 resource "azurerm_local_network_gateway" "aws_vpn_1_tunnel_2" {
+  count = var.enable_vpn_connections ? 1 : 0
+  
   name                = "${var.project_name}-aws-vpn-1-tunnel-2"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
@@ -33,6 +37,8 @@ resource "azurerm_local_network_gateway" "aws_vpn_1_tunnel_2" {
 }
 
 resource "azurerm_local_network_gateway" "aws_vpn_2_tunnel_1" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-2-tunnel-1"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
@@ -50,6 +56,8 @@ resource "azurerm_local_network_gateway" "aws_vpn_2_tunnel_1" {
 }
 
 resource "azurerm_local_network_gateway" "aws_vpn_2_tunnel_2" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-2-tunnel-2"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
@@ -67,13 +75,15 @@ resource "azurerm_local_network_gateway" "aws_vpn_2_tunnel_2" {
 }
 
 resource "azurerm_virtual_network_gateway_connection" "aws_vpn_1_tunnel_1" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-1-tunnel-1"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
 
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn.id
-  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_1_tunnel_1.id
+  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_1_tunnel_1[0].id
 
   bgp_enabled = true
 
@@ -85,13 +95,15 @@ resource "azurerm_virtual_network_gateway_connection" "aws_vpn_1_tunnel_1" {
 }
 
 resource "azurerm_virtual_network_gateway_connection" "aws_vpn_1_tunnel_2" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-1-tunnel-2"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
 
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn.id
-  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_1_tunnel_2.id
+  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_1_tunnel_2[0].id
 
   bgp_enabled = true
 
@@ -103,13 +115,15 @@ resource "azurerm_virtual_network_gateway_connection" "aws_vpn_1_tunnel_2" {
 }
 
 resource "azurerm_virtual_network_gateway_connection" "aws_vpn_2_tunnel_1" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   name                = "${var.project_name}-aws-vpn-2-tunnel-1"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
 
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn.id
-  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_2_tunnel_1.id
+  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_2_tunnel_1[0].id
 
   bgp_enabled = true
 
@@ -121,13 +135,15 @@ resource "azurerm_virtual_network_gateway_connection" "aws_vpn_2_tunnel_1" {
 }
 
 resource "azurerm_virtual_network_gateway_connection" "aws_vpn_2_tunnel_2" {
+  count = var.enable_vpn_connections ? 1 : 0
+  
   name                = "${var.project_name}-aws-vpn-2-tunnel-2"
   location            = var.jumpbox_network.location
   resource_group_name = var.resource_group_name
 
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn.id
-  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_2_tunnel_2.id
+  local_network_gateway_id   = azurerm_local_network_gateway.aws_vpn_2_tunnel_2[0].id
 
   bgp_enabled = true
 

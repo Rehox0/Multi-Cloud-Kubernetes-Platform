@@ -18,6 +18,11 @@ variable "common_tags" {
   }
 }
 
+variable "enable_vpn_connections" {
+  description = "Whether to create AWS VPN connections to Azure"
+  type        = bool
+}
+
 variable "secrets_name" {
   type    = string
   default = "multi-cloud-project-secrets-dev"

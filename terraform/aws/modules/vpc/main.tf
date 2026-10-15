@@ -129,17 +129,17 @@ resource "aws_route_table_association" "private" {
 }
 
 resource "aws_route" "private_to_azure_postgresql" {
-  count = length(aws_route_table.private)
+  count = var.enable_vpn_connections ? length(aws_route_table.private) : 0
 
   route_table_id         = aws_route_table.private[count.index].id
   destination_cidr_block = var.azure_destination_cidr_block
-  gateway_id             = aws_vpn_gateway.azure.id
+  gateway_id             = aws_vpn_gateway.azure[0].id
 }
 
 resource "aws_route" "private_to_azure_aks" {
-  count = length(aws_route_table.private)
+  count = var.enable_vpn_connections ? length(aws_route_table.private) : 0
 
   route_table_id         = aws_route_table.private[count.index].id
   destination_cidr_block = var.azure_aks_destination_cidr_block
-  gateway_id             = aws_vpn_gateway.azure.id
+  gateway_id             = aws_vpn_gateway.azure[0].id
 }

@@ -1,4 +1,6 @@
 resource "aws_vpn_gateway" "azure" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   vpc_id = aws_vpc.main.id
 
   amazon_side_asn = 64512
@@ -9,6 +11,8 @@ resource "aws_vpn_gateway" "azure" {
 }
 
 resource "aws_customer_gateway" "azure_1" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   bgp_asn    = 65515
   ip_address = var.azure_vpn_gateway_public_ip_1
   type       = "ipsec.1"
@@ -19,6 +23,8 @@ resource "aws_customer_gateway" "azure_1" {
 }
 
 resource "aws_customer_gateway" "azure_2" {
+  count = var.enable_vpn_connections ? 1 : 0
+
   bgp_asn    = 65515
   ip_address = var.azure_vpn_gateway_public_ip_2
   type       = "ipsec.1"
@@ -29,8 +35,10 @@ resource "aws_customer_gateway" "azure_2" {
 }
 
 resource "aws_vpn_connection" "azure_1" {
-  vpn_gateway_id      = aws_vpn_gateway.azure.id
-  customer_gateway_id = aws_customer_gateway.azure_1.id
+  count = var.enable_vpn_connections ? 1 : 0
+
+  vpn_gateway_id      = aws_vpn_gateway.azure[0].id
+  customer_gateway_id = aws_customer_gateway.azure_1[0].id
 
   type = "ipsec.1"
 
@@ -45,8 +53,10 @@ resource "aws_vpn_connection" "azure_1" {
 }
 
 resource "aws_vpn_connection" "azure_2" {
-  vpn_gateway_id      = aws_vpn_gateway.azure.id
-  customer_gateway_id = aws_customer_gateway.azure_2.id
+  count = var.enable_vpn_connections ? 1 : 0
+
+  vpn_gateway_id      = aws_vpn_gateway.azure[0].id
+  customer_gateway_id = aws_customer_gateway.azure_2[0].id
 
   type = "ipsec.1"
 

@@ -48,7 +48,7 @@ resource "azurerm_virtual_network_gateway" "vpn" {
     private_ip_address_allocation = "Dynamic"
     subnet_id                     = azurerm_subnet.gateway.id
   }
-  
+
   bgp_settings {
     asn = 65515
 

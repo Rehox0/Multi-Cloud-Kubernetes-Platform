@@ -13,13 +13,11 @@ variable "location" {
 variable "storage_container_name" {
   description = "Name of the Azure Storage Container to hold .tfstate"
   type        = string
-  default     = "multicloudproject2026"
 }
 
 variable "state_storage_account_name" {
   description = "Base name for the Azure Storage Account holding .tfstate"
   type        = string
-  default     = "tfstate2026aks"
 }
 
 variable "github_token" {

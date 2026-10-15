@@ -90,3 +90,8 @@ variable "aws_vpn_tunnel_psks" {
   })
   sensitive = true
 }
+
+variable "enable_vpn_connections" {
+  description = "Whether to create VPN customer gateways and connections. Type (false) for initial deployment"
+  type        = bool
+}

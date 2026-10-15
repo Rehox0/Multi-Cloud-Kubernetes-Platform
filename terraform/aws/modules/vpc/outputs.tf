@@ -11,41 +11,41 @@ output "private_route_table_ids" {
 }
 
 output "vpn_gateway_id" {
-  value = aws_vpn_gateway.azure.id
+  value       = try(aws_vpn_gateway.azure[0].id, null)
 }
 
 output "azure_vpn_1_tunnel1_psk" {
-  value     = aws_vpn_connection.azure_1.tunnel1_preshared_key
+  value     = try(aws_vpn_connection.azure_1[0].tunnel1_preshared_key, null)
   sensitive = true
 }
 
 output "azure_vpn_1_tunnel2_psk" {
-  value     = aws_vpn_connection.azure_1.tunnel2_preshared_key
+  value     = try(aws_vpn_connection.azure_1[0].tunnel2_preshared_key, null)
   sensitive = true
 }
 
 output "azure_vpn_2_tunnel1_psk" {
-  value     = aws_vpn_connection.azure_2.tunnel1_preshared_key
+  value     = try(aws_vpn_connection.azure_2[0].tunnel1_preshared_key, null)
   sensitive = true
 }
 
 output "azure_vpn_2_tunnel2_psk" {
-  value     = aws_vpn_connection.azure_2.tunnel2_preshared_key
+  value     = try(aws_vpn_connection.azure_2[0].tunnel2_preshared_key, null)
   sensitive = true
 }
 
 output "azure_vpn_1_tunnel1_outside_ip" {
-  value = aws_vpn_connection.azure_1.tunnel1_address
+  value = try(aws_vpn_connection.azure_1[0].tunnel1_address, null)
 }
 
 output "azure_vpn_1_tunnel2_outside_ip" {
-  value = aws_vpn_connection.azure_1.tunnel2_address
+  value = try(aws_vpn_connection.azure_1[0].tunnel2_address, null)
 }
 
 output "azure_vpn_2_tunnel1_outside_ip" {
-  value = aws_vpn_connection.azure_2.tunnel1_address
+  value = try(aws_vpn_connection.azure_2[0].tunnel1_address, null)
 }
 
 output "azure_vpn_2_tunnel2_outside_ip" {
-  value = aws_vpn_connection.azure_2.tunnel2_address
+  value = try(aws_vpn_connection.azure_2[0].tunnel2_address, null)
 }

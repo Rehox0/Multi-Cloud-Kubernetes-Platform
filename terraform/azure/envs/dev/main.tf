@@ -28,18 +28,20 @@ module "networking" {
     "169.254.22.6"
   ]
 
+  enable_vpn_connections = var.enable_vpn_connections
+  
   aws_vpn_tunnel_outside_ips = {
-    vpn_1_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_outside_ip
-    vpn_1_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_outside_ip
-    vpn_2_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_outside_ip
-    vpn_2_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_outside_ip
+    vpn_1_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_outside_ip, null) : null
+    vpn_1_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_outside_ip, null) : null
+    vpn_2_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_outside_ip, null) : null
+    vpn_2_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_outside_ip, null) : null
   }
 
   aws_vpn_tunnel_psks = {
-    vpn_1_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_psk
-    vpn_1_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_psk
-    vpn_2_tunnel_1 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_psk
-    vpn_2_tunnel_2 = data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_psk
+    vpn_1_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_psk, null) : null
+    vpn_1_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_psk, null) : null
+    vpn_2_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_psk, null) : null
+    vpn_2_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_psk, null) : null
   }
 
   common_tags = local.tags
@@ -138,7 +140,7 @@ module "loki_storage" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
-  storage_account_name = "multicloudlokidev"
+  storage_account_name = "multicloudlokidev1"
 
   aks_oidc_issuer_url = module.aks.oidc_issuer_url
 
@@ -189,8 +191,6 @@ module "jumpbox" {
   ]
 }
 
-
-
 # module "application_gateway" {
 #   source = "../../modules/application_gateway"
 
@@ -209,37 +209,38 @@ module "jumpbox" {
 #   ]
 # }
 
-module "front_door" {
-  source = "../../modules/front_door"
+### Turn off the front door and traffic manager modules for now, as they are not needed for the dev environment. They can be enabled later if needed.
+# module "front_door" {
+#   source = "../../modules/front_door"
 
-  project_name        = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+#   project_name        = var.project_name
+#   resource_group_name = azurerm_resource_group.main.name
+#   location            = azurerm_resource_group.main.location
 
-  aks_node_resource_group = module.aks.node_resource_group
-  host_name               = "app.multi-cloud-kubernetes.cloud"
-  common_tags             = local.tags
+#   aks_node_resource_group = module.aks.node_resource_group
+#   host_name               = "app.multi-cloud-kubernetes.cloud"
+#   common_tags             = local.tags
 
-  depends_on = [
-    null_resource.wait_for_gateway_pls
-  ]
-}
+#   depends_on = [
+#     null_resource.wait_for_gateway_pls
+#   ]
+# }
 
-module "traffic_manager" {
-  source = "../../modules/traffic_manager"
+# module "traffic_manager" {
+#   source = "../../modules/traffic_manager"
 
-  project_name        = var.project_name
-  resource_group_name = azurerm_resource_group.main.name
+#   project_name        = var.project_name
+#   resource_group_name = azurerm_resource_group.main.name
 
-  aws_cloudfront_hostname = var.aws_cloudfront_hostname
+#   aws_cloudfront_hostname = var.aws_cloudfront_hostname
 
-  azure_frontdoor_hostname = module.front_door.endpoint_hostname
+#   azure_frontdoor_hostname = module.front_door.endpoint_hostname
 
-  health_probe_path = "/api/health"
+#   health_probe_path = "/api/health"
 
-  common_tags = local.tags
+#   common_tags = local.tags
 
-  depends_on = [
-    module.front_door
-  ]
-}
+#   depends_on = [
+#     module.front_door
+#   ]
+# }

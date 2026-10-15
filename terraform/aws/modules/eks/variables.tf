@@ -43,11 +43,11 @@ variable "node_capacity_type" {
 }
 
 variable "node_instance_types" {
-  type    = list(string)
+  type = list(string)
 }
 
 variable "node_max_unavailable" {
-  type    = number
+  type = number
 }
 
 variable "node_labels" {

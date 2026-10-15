@@ -8,10 +8,11 @@ module "vpc" {
   private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
   availability_zones   = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
 
+  enable_vpn_connections           = var.enable_vpn_connections
   azure_destination_cidr_block     = "10.10.16.0/24"
   azure_aks_destination_cidr_block = "10.20.0.0/16"
-  azure_vpn_gateway_public_ip_1    = data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_1
-  azure_vpn_gateway_public_ip_2    = data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_2
+  azure_vpn_gateway_public_ip_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_1, null) : null
+  azure_vpn_gateway_public_ip_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_2, null) : null
 
   cluster_name = local.cluster_name
   common_tags  = local.tags

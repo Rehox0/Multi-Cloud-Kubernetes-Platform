@@ -52,3 +52,8 @@ variable "azure_aks_destination_cidr_block" {
   description = "CIDR of the Azure AKS VNet reachable through the site-to-site VPN"
   type        = string
 }
+
+variable "enable_vpn_connections" {
+  description = "Whether to create VPN customer gateways and connections. Type (false) for initial deployment"
+  type        = bool
+}

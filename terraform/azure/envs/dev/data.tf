@@ -5,8 +5,8 @@ data "terraform_remote_state" "bootstrap" {
 
   config = {
     resource_group_name  = "Multi-Cloud-Project-bootstrap-rg"
-    storage_account_name = "tfstate2026aks"
-    container_name       = "multicloudproject2026"
+    storage_account_name = "tfstate2027aks"
+    container_name       = "multicloudproject2027"
     key                  = "envs/bootstrap/terraform.tfstate"
   }
 }

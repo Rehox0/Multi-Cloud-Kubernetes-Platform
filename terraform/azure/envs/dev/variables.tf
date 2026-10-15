@@ -16,6 +16,11 @@ variable "common_tags" {
   default     = {}
 }
 
+variable "enable_vpn_connections" {
+  description = "Whether to create VPN customer gateways and connections"
+  type        = bool
+}
+
 variable "cluster_version" {
   type        = string
   description = "AKS control plane version"
