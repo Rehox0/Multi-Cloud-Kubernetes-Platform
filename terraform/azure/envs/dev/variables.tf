@@ -87,6 +87,12 @@ variable "aws_cloudfront_hostname" {
   default     = "aws-placeholder.invalid"
 }
 
+variable "azure_frontdoor_hostname" {
+  description = "Azure Front Door hostname"
+  type        = string
+  default     = "azure-placeholder.invalid"
+}
+
 variable "postgresql_admin_login" {
   description = "Administrator login for PostgreSQL Flexible Server"
   type        = string

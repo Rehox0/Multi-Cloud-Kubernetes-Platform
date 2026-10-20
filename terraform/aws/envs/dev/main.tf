@@ -107,10 +107,10 @@ module "gateway_lb" {
   gateway_nlb_sg_id  = module.security_groups.gateway_nlb_sg_id
 }
 
-# module "cloudfront" {
-#   source = "../../modules/cloudfront"
+module "cloudfront" {
+  source = "../../modules/cloudfront"
 
-#   project_name         = var.project_name
-#   gateway_nlb_arn      = module.gateway_lb.nlb_arn
-#   gateway_nlb_dns_name = module.gateway_lb.nlb_dns_name
-# }
+  project_name         = var.project_name
+  gateway_nlb_arn      = module.gateway_lb.nlb_arn
+  gateway_nlb_dns_name = module.gateway_lb.nlb_dns_name
+}

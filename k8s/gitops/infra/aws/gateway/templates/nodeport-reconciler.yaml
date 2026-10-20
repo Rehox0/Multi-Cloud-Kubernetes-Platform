@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-nodeport-reconciler
+  namespace: gateway-ns
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: gateway-nodeport-reconciler
+
+  template:
+    metadata:
+      labels:
+        app: gateway-nodeport-reconciler
+
+    spec:
+      serviceAccountName: gateway-nodeport-reconciler
+
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: reconciler
+          image: {{ .Values.nodePortReconciler.image | quote }}
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              set -eu
+
+              NAMESPACE="gateway-ns"
+              SERVICE="cilium-gateway-main-gateway"
+              TARGET_PORT="{{ .Values.gateway.nodePort }}"
+              INTERVAL="{{ .Values.nodePortReconciler.intervalSeconds }}"
+
+              echo "Starting NodePort reconciler"
+              echo "Service: ${NAMESPACE}/${SERVICE}"
+              echo "Desired NodePort: ${TARGET_PORT}"
+
+              while true; do
+                if kubectl get service "${SERVICE}" \
+                    -n "${NAMESPACE}" >/dev/null 2>&1; then
+
+                  CURRENT_PORT="$(
+                    kubectl get service "${SERVICE}" \
+                      -n "${NAMESPACE}" \
+                      -o jsonpath='{.spec.ports[0].nodePort}' \
+                      2>/dev/null || true
+                  )"
+
+                  if [ "${CURRENT_PORT}" != "${TARGET_PORT}" ]; then
+                    echo "NodePort mismatch: current=${CURRENT_PORT}, desired=${TARGET_PORT}"
+
+                    if kubectl patch service "${SERVICE}" \
+                        -n "${NAMESPACE}" \
+                        --type=json \
+                        -p="[{\"op\":\"add\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${TARGET_PORT}}]"; then
+
+                      echo "NodePort successfully set to ${TARGET_PORT}"
+                    else
+                      echo "Unable to update NodePort. Will retry."
+                    fi
+                  fi
+                else
+                  echo "Waiting for ${NAMESPACE}/${SERVICE}"
+                fi
+
+                sleep "${INTERVAL}"
+              done
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi

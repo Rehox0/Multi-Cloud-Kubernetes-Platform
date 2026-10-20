@@ -209,7 +209,7 @@ module "jumpbox" {
 #   ]
 # }
 
-### Turn off the front door and traffic manager modules for now, as they are not needed for the dev environment. They can be enabled later if needed.
+## Turn off the front door and traffic manager modules for now, as they are not needed for the dev environment. They can be enabled later if needed.
 # module "front_door" {
 #   source = "../../modules/front_door"
 
@@ -226,21 +226,22 @@ module "jumpbox" {
 #   ]
 # }
 
-# module "traffic_manager" {
-#   source = "../../modules/traffic_manager"
+module "traffic_manager" {
+  source = "../../modules/traffic_manager"
 
-#   project_name        = var.project_name
-#   resource_group_name = azurerm_resource_group.main.name
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
 
-#   aws_cloudfront_hostname = var.aws_cloudfront_hostname
+  aws_cloudfront_hostname = var.aws_cloudfront_hostname
 
-#   azure_frontdoor_hostname = module.front_door.endpoint_hostname
+  # azure_frontdoor_hostname = module.front_door.endpoint_hostname
+  azure_frontdoor_hostname = var.azure_frontdoor_hostname
 
-#   health_probe_path = "/api/health"
+  health_probe_path = "/api/health"
 
-#   common_tags = local.tags
+  common_tags = local.tags
 
-#   depends_on = [
-#     module.front_door
-#   ]
-# }
+  # depends_on = [
+  #   module.front_door
+  # ]
+}

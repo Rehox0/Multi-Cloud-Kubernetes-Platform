@@ -2,3 +2,33 @@ Całkowity koszt minimalny (np. 1 inbound + 1 outbound + ruleset) wynosi ok. $36
 dla dns resolver w azure - za drogo...
 
 
+```
+                       USERS
+                         |
+                         v
+                Azure Traffic Manager
+                    (DNS routing)
+                         |
+                 +-------+-------+
+                 |               |
+                 v               v
+            AWS CloudFront   Azure Front Door
+                 |               |
+                 v               v
+              EKS Frontend    AKS Frontend
+                 |               |
+                 +-------+-------+
+                         |
+                 Backend routing
+                         |
+                +--------+--------+
+                |                 |
+                v                 v
+           EKS Backend       AKS Backend
+                |                 |
+                +--------+--------+
+                         |
+                         v
+                 Azure PostgreSQL
+                    (private)
+```

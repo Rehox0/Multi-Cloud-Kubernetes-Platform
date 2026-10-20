@@ -20,6 +20,7 @@ variable "aws_cloudfront_hostname" {
 variable "azure_frontdoor_hostname" {
   description = "Azure Front Door endpoint hostname"
   type        = string
+  default     = "azure-placeholder.invalid"
 }
 
 

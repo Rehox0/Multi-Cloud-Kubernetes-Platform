@@ -50,3 +50,8 @@ output "azure_vpn_2_tunnel1_outside_ip" {
 output "azure_vpn_2_tunnel2_outside_ip" {
   value = module.vpc.azure_vpn_2_tunnel2_outside_ip
 }
+
+output "cloudfront_domain_name" {
+  description = "CloudFront distribution domain name"
+  value       = module.cloudfront.distribution_domain_name
+}

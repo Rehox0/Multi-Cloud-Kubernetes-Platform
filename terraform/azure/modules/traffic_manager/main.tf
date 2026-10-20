@@ -1,10 +1,10 @@
 resource "azurerm_traffic_manager_profile" "main" {
   name                   = "${var.project_name}-traffic-manager"
   resource_group_name    = var.resource_group_name
-  traffic_routing_method = "Priority"
+  traffic_routing_method = "Weighted"
 
   dns_config {
-    relative_name = lower(replace("${var.project_name}tm", "-", ""))
+    relative_name = lower(replace("${var.project_name}tm1", "-", ""))
     ttl           = 30
   }
 
