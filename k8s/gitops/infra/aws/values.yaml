@@ -6,5 +6,5 @@ gateway:
   nodePort: 31738
 
 nodePortReconciler:
-  image: bitnami/kubectl:1.35.0
+  image: bitnami/kubectl:latest
   intervalSeconds: 10
