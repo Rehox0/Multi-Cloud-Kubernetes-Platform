@@ -70,6 +70,11 @@ TENANT_ID="$(
         output -raw azure_tenant_id
 )"
 
+AKS_CLIENT_ID="$(
+    terraform -chdir="${TERRAFORM_DIR}" \
+        output -raw aks_identity_client_id
+)"
+
 if [[ -z "${CLIENT_ID}" ]]; then
     echo "ERROR: eks_backend_identity_client_id is empty." >&2
     exit 1
@@ -77,6 +82,11 @@ fi
 
 if [[ -z "${TENANT_ID}" ]]; then
     echo "ERROR: azure_tenant_id is empty." >&2
+    exit 1
+fi
+
+if [[ -z "${AKS_CLIENT_ID}" ]]; then
+    echo "ERROR: aks_identity_client_id is empty." >&2
     exit 1
 fi
 
@@ -93,8 +103,14 @@ if [[ ! "${TENANT_ID}" =~ ${UUID_REGEX} ]]; then
     exit 1
 fi
 
+if [[ ! "${AKS_CLIENT_ID}" =~ ${UUID_REGEX} ]]; then
+    echo "ERROR: AKS Client ID is not a valid UUID: ${AKS_CLIENT_ID}" >&2
+    exit 1
+fi
+
 echo "Client ID: ${CLIENT_ID}"
 echo "Tenant ID: ${TENANT_ID}"
+echo "AKS Client ID: ${AKS_CLIENT_ID}"
 
 # --------------------------------------------------
 # Update GitOps values
@@ -102,7 +118,7 @@ echo "Tenant ID: ${TENANT_ID}"
 
 mkdir -p "${IDENTITY_DIR}"
 
-export CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE AZURE_VALUES_FILE
+export CLIENT_ID AKS_CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE AZURE_VALUES_FILE
 
 python3 <<'PYTHON'
 import os
@@ -116,6 +132,7 @@ tenant_id = os.environ["TENANT_ID"]
 client_file = Path(os.environ["CLIENT_ID_FILE"])
 tenant_file = Path(os.environ["TENANT_ID_FILE"])
 azure_values_file = Path(os.environ["AZURE_VALUES_FILE"])
+aks_client_id = os.environ["AKS_CLIENT_ID"]
 
 def update_nested_client_id(path: Path, value: str) -> None:
     """
@@ -256,10 +273,72 @@ def update_cluster_secret_store_tenant(path: Path, value: str) -> None:
     path.write_text(updated, encoding="utf-8")
     print(f"Updated {path}")
 
+def update_azure_workload_identity_client_id(path: Path, value: str) -> None:
+    """
+    Update backend.workloadIdentity.clientId in Azure GitOps values.
+    Preserve all unrelated YAML values.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Azure values file not found: {path}")
+
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+
+    backend_index = next(
+        (
+            i for i, line in enumerate(lines)
+            if re.match(r"^backend\s*:\s*(?:#.*)?(?:\r?\n)?$", line)
+        ),
+        None,
+    )
+
+    if backend_index is None:
+        raise RuntimeError(f"Missing top-level backend section in {path}")
+
+    backend_end = len(lines)
+    for i in range(backend_index + 1, len(lines)):
+        if lines[i].strip() and not lines[i][0].isspace() and not lines[i].lstrip().startswith("#"):
+            backend_end = i
+            break
+
+    workload_index = next(
+        (
+            i for i in range(backend_index + 1, backend_end)
+            if re.match(r"^  workloadIdentity\s*:", lines[i])
+        ),
+        None,
+    )
+
+    if workload_index is None:
+        raise RuntimeError(f"Missing backend.workloadIdentity section in {path}")
+
+    workload_end = backend_end
+    for i in range(workload_index + 1, backend_end):
+        if lines[i].strip() and not lines[i][0].isspace() and not lines[i].lstrip().startswith("#"):
+            workload_end = i
+            break
+
+    client_index = next(
+        (
+            i for i in range(workload_index + 1, workload_end)
+            if re.match(r"^    clientId\s*:", lines[i])
+        ),
+        None,
+    )
+
+    if client_index is None:
+        raise RuntimeError(
+            f"Missing backend.workloadIdentity.clientId in {path}"
+        )
+
+    lines[client_index] = f'    clientId: "{value}"\n'
+    path.write_text("".join(lines), encoding="utf-8")
+    print(f"Updated backend.workloadIdentity.clientId in {path}")
+
 
 update_nested_client_id(client_file, client_id)
 update_tenant_id(tenant_file, tenant_id)
 update_cluster_secret_store_tenant(azure_values_file, tenant_id)
+update_azure_workload_identity_client_id(azure_values_file, aks_client_id)
 
 
 PYTHON

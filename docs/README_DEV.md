@@ -126,7 +126,7 @@ read -s DISCORD_WEBHOOK_URL
 paste url, enter, then:
 ```
 az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
+  --vault-name Multi-Cloud-ProjectKV1 \
   --name discord-alertmanager-webhook \
   --value "$DISCORD_WEBHOOK_URL"
 
@@ -148,11 +148,11 @@ kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-ap
 
 ### 2. Access the ArgoCD UI
 ```bash
-ssh -L 8080:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+ssh -L 8088:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 ```
 Get the initial admin password:
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
 ```
 
 ### 3. Access the Grafana UI
