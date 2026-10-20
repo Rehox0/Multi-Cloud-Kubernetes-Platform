@@ -20,7 +20,7 @@ This project uses remote state stored in AWS S3 and Azure blob storage.
 
 # Initial Deployment
 
-**Prepare AWS and Azure:** boostrap -> architecture with `enable_vpn_connections = false` -> AWS `enable_vpn_connections = true` -> Azure `enable_vpn_connections = true`
+**Prepare AWS and Azure:** boostrap -> AWS&AZURE `enable_vpn_connections = false` -> AWS `enable_vpn_connections = true` -> Azure `enable_vpn_connections = true`
 
 ---
  

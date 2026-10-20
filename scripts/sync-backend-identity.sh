@@ -14,7 +14,7 @@ IDENTITY_DIR="k8s/gitops/infra/aws/identity"
 
 CLIENT_ID_FILE="${IDENTITY_DIR}/values.yaml"
 TENANT_ID_FILE="${IDENTITY_DIR}/azure-workload-identity.yaml"
-CLUSTER_SECRET_STORE_FILE="k8s/gitops/infra/azure/external-secrets/cluster-secret-store.yaml"
+AZURE_VALUES_FILE="k8s/gitops/infra/azure/values.yaml"
 
 COMMIT_MESSAGE="chore(gitops): sync Azure workload identity IDs"
 
@@ -102,7 +102,7 @@ echo "Tenant ID: ${TENANT_ID}"
 
 mkdir -p "${IDENTITY_DIR}"
 
-export CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE CLUSTER_SECRET_STORE_FILE
+export CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE AZURE_VALUES_FILE
 
 python3 <<'PYTHON'
 import os
@@ -115,7 +115,7 @@ tenant_id = os.environ["TENANT_ID"]
 
 client_file = Path(os.environ["CLIENT_ID_FILE"])
 tenant_file = Path(os.environ["TENANT_ID_FILE"])
-cluster_secret_store_file = Path(os.environ["CLUSTER_SECRET_STORE_FILE"])
+azure_values_file = Path(os.environ["AZURE_VALUES_FILE"])
 
 def update_nested_client_id(path: Path, value: str) -> None:
     """
@@ -259,7 +259,7 @@ def update_cluster_secret_store_tenant(path: Path, value: str) -> None:
 
 update_nested_client_id(client_file, client_id)
 update_tenant_id(tenant_file, tenant_id)
-update_cluster_secret_store_tenant(cluster_secret_store_file, tenant_id)
+update_cluster_secret_store_tenant(azure_values_file, tenant_id)
 
 
 PYTHON
@@ -270,10 +270,10 @@ PYTHON
 
 echo
 echo "Changes in the identity values files:"
-git --no-pager diff -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
+git --no-pager diff -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
 
 # Include untracked files in the change check.
-CHANGES="$(git status --short -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}")"
+CHANGES="$(git status --short -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}")"
 
 if [[ -z "${CHANGES}" ]]; then
     echo
@@ -288,11 +288,11 @@ fi
 echo
 echo "Creating commit..."
 
-git add -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
+git add -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
 
 git commit --only \
     -m "${COMMIT_MESSAGE}" \
-    -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${CLUSTER_SECRET_STORE_FILE}"
+    -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
 
 echo
 echo "SUCCESS: Identity values synchronized and committed."
@@ -300,6 +300,6 @@ echo "Branch: ${CURRENT_BRANCH}"
 echo "Files:"
 echo "  - ${CLIENT_ID_FILE}"
 echo "  - ${TENANT_ID_FILE}"
-echo "  - ${CLUSTER_SECRET_STORE_FILE}"
+echo "  - ${AZURE_VALUES_FILE}"
 echo
 echo "No git push was performed."
