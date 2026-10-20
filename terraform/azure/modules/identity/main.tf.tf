@@ -14,6 +14,12 @@ resource "azurerm_role_assignment" "backend_keyvault" {
   principal_id         = var.backend_identity_principal_id
 }
 
+resource "azurerm_role_assignment" "aks_keyvault_secrets_user" {
+  scope                = var.backend_keyvault_id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.aks.principal_id
+}
+
 resource "azurerm_role_assignment" "aks_private_dns" {
   scope                = var.aks_private_dns_zone_id
   role_definition_name = "Private DNS Zone Contributor"

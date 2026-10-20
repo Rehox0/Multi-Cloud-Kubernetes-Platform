@@ -106,6 +106,7 @@ spec:
                 secretKeyRef:
                   name: postgres-fallback-secret
                   key: POSTGRES_FALLBACK_IP
+                  optional: true
 
           securityContext:
             runAsNonRoot: true

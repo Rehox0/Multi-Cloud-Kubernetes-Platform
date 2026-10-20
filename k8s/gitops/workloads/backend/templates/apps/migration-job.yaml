@@ -84,6 +84,7 @@ spec:
                 secretKeyRef:
                   name: postgres-fallback-secret
                   key: POSTGRES_FALLBACK_IP
+                  optional: true
 
           resources:
             requests:

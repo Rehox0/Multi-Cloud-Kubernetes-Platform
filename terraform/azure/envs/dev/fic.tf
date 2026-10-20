@@ -25,3 +25,17 @@ resource "azurerm_federated_identity_credential" "eks_backend" {
     "api://AzureADTokenExchange"
   ]
 }
+
+resource "azurerm_federated_identity_credential" "aks_eso" {
+  name = "aks-eso"
+
+  user_assigned_identity_id = module.identity.aks_identity_id
+
+  issuer = module.aks.oidc_issuer_url
+
+  subject = "system:serviceaccount:backend-ns:backend"
+
+  audience = [
+    "api://AzureADTokenExchange"
+  ]
+}
