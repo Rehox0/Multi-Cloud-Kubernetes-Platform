@@ -45,6 +45,7 @@ externalSecret:
 networkPolicy:
   enabled: true
   frontendAppLabel: azure-workload-frontend-dev
+  remoteGatewayCIDR: 10.0.10.116/32
 
 backend:
   host: http://workload-backend-dev.backend-ns.svc.cluster.local

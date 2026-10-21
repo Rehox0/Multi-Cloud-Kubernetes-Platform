@@ -50,3 +50,9 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
+    - toCIDR:
+        - {{ .Values.networkPolicy.remoteGatewayCIDR | quote }}
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
