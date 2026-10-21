@@ -37,6 +37,7 @@ gateway:
 
 networkPolicy:
   enabled: true
+  frontendAppLabel: aws-workload-frontend-dev
 
 externalSecret:
   refreshInterval: "1m"

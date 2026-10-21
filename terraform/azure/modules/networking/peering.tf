@@ -8,6 +8,7 @@ resource "azurerm_virtual_network_peering" "aks_to_jumpbox" {
 
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+  use_remote_gateways          = true
 }
 
 resource "azurerm_virtual_network_peering" "jumpbox_to_aks" {
@@ -20,4 +21,5 @@ resource "azurerm_virtual_network_peering" "jumpbox_to_aks" {
 
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+  allow_gateway_transit        = true
 }

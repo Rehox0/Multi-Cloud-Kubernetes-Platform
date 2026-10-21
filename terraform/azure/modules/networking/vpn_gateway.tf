@@ -31,6 +31,7 @@ resource "azurerm_virtual_network_gateway" "vpn" {
 
   type     = "Vpn"
   vpn_type = "RouteBased"
+  bgp_enabled =  true
 
   active_active = true
   sku           = "VpnGw2AZ"

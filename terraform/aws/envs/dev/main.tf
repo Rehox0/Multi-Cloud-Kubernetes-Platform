@@ -11,8 +11,8 @@ module "vpc" {
   enable_vpn_connections           = var.enable_vpn_connections
   azure_destination_cidr_block     = "10.10.16.0/24"
   azure_aks_destination_cidr_block = "10.20.0.0/16"
-  azure_vpn_gateway_public_ip_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_1, null) : null
-  azure_vpn_gateway_public_ip_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_2, null) : null
+  azure_vpn_gateway_public_ip_1    = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_1, null) : null
+  azure_vpn_gateway_public_ip_2    = var.enable_vpn_connections ? try(data.terraform_remote_state.azure.outputs.vpn_gateway_public_ip_2, null) : null
 
   cluster_name = local.cluster_name
   common_tags  = local.tags

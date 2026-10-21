@@ -17,6 +17,17 @@ resource "aws_security_group_rule" "gateway_nlb_from_cloudfront" {
   security_group_id = aws_security_group.gateway_nlb.id
 }
 
+resource "aws_security_group_rule" "gateway_nlb_from_aks" {
+  type              = "ingress"
+  description       = "Allow AKS VNet to access the internal Gateway NLB over VPN"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["10.20.0.0/16"]
+
+  security_group_id = aws_security_group.gateway_nlb.id
+}
+
 resource "aws_security_group_rule" "gateway_nlb_egress_all" {
   type              = "egress"
   from_port         = 0

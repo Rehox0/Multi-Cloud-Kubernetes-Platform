@@ -226,9 +226,9 @@ This provides two complementary recovery mechanisms:
 - [x] RTO definition
 
 ### 📖 Documentation & Presentation
-- [ ] Final architecture diagram
 - [x] Design decisions and trade-offs
 - [x] Known limitations documented
+- [ ] Final architecture diagram
 - [ ] Short deployment demo
 - [ ] Final code cleanup
 
@@ -254,9 +254,7 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] Azure ingress path validated end-to-end
 - [x] Azure monitoring
 
-- [ ] Multi-Cloud interconnect
-- [ ] Multi-Cloud security model
-- [ ] Multi-Cloud reliability model
 - [x] PostgreSQL extension
-- [ ] Redis/Valkey extension
 - [x] Database replication
+- [x] Multi-Cloud interconnect
+- [ ] Multi-Cloud reliability model
