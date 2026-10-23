@@ -13,6 +13,7 @@ urlpatterns = [
 
     path("api/health", views.health),
     path("api/ready", views.health),
+    path("api/cross-cloud-health", views.cross_cloud_health),
 
     path("api/events", views.events),
 

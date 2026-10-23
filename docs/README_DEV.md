@@ -22,6 +22,12 @@ This project uses remote state stored in AWS S3 and Azure blob storage.
 
 **Prepare AWS and Azure:** boostrap -> AWS&AZURE `enable_vpn_connections = false` -> AWS `enable_vpn_connections = true` -> Azure `enable_vpn_connections = true`
 
+after successful `terraform apply` run script:
+
+```
+./scripts/sync-backend-identity.sh
+```
+
 ---
  
 # ☁️ AWS Deployment
@@ -58,7 +64,7 @@ kubectl rollout restart deployment -n argocd
 kubectl rollout restart statefulset -n argocd
 ```
 
-### 4. Access the ArgoCD UI
+### 3. Access the ArgoCD UI
 On the mgmt host:
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
@@ -74,7 +80,7 @@ Get the initial admin password:
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
 ```
-### 5. Access the Grafana UI
+### 4. Access the Grafana UI
 ```bash
 kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n monitoring
 ```
@@ -88,7 +94,7 @@ Get the admin password:
 ```bash
 kubectl get secret -n monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
 ```
-### 6. Access the Prometheus UI
+### 5. Access the Prometheus UI
 ```bash
 kubectl port-forward -n monitoring pod/prometheus-kube-prometheus-stack-prometheus-0 9090:9090
 ```
@@ -112,11 +118,7 @@ cd ~/Multi-Cloud-Kubernetes-Platform/terraform/azure/envs/dev
 terraform init
 terraform apply
 ```
-after successful `terraform apply` run script:
 
-```
-./scripts/sync-backend-identity.sh
-```
 
 ### Alertmanager webhook
 set discord webhook url:

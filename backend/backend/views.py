@@ -1,6 +1,8 @@
 import time
 import json
 import os
+import urllib.request
+import urllib.error
 
 from django.http import JsonResponse, HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -63,6 +65,79 @@ def health(request):
         "region": os.getenv("CLOUD_REGION", "unknown"),
         "platform": os.getenv("BACKEND_PLATFORM", "unknown"),
     })
+
+@require_http_methods(["GET"])
+def cross_cloud_health(request):
+    cloud = os.getenv("CLOUD_PROVIDER", "").strip().lower()
+
+    if cloud == "aws":
+        target_url = "http://10.20.4.7/api/health"
+        expected_cloud = "azure"
+        expected_platform = "AKS"
+
+    elif cloud == "azure":
+        target_url = "http://10.0.10.116/api/health"
+        expected_cloud = "aws"
+        expected_platform = "EKS"
+
+    else:
+        return JsonResponse({
+            "status": "error",
+            "error": f"Unsupported CLOUD_PROVIDER: {cloud or 'not configured'}",
+        }, status=500)
+
+    start = time.monotonic()
+
+    try:
+        req = urllib.request.Request(
+            target_url,
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+
+        with urllib.request.urlopen(req, timeout=5) as response:
+            remote_data = json.loads(response.read().decode("utf-8"))
+
+        latency_ms = round((time.monotonic() - start) * 1000, 2)
+
+        if remote_data.get("status") != "ok":
+            raise ValueError("Remote backend health status is not OK")
+
+        actual_cloud = str(remote_data.get("cloud", "")).strip().lower()
+        actual_platform = remote_data.get("platform", "")
+
+        if actual_cloud != expected_cloud:
+            return JsonResponse({
+                "status": "error",
+                "error": "Unexpected cloud provider returned by remote backend",
+                "expected_cloud": expected_cloud,
+                "actual_cloud": remote_data.get("cloud", "unknown"),
+            }, status=502)
+
+        return JsonResponse({
+            "status": "ok",
+            "target_cloud": remote_data.get("cloud", "unknown"),
+            "target_platform": actual_platform or expected_platform,
+            "region": remote_data.get("region", "unknown"),
+            "latency_ms": latency_ms,
+        })
+
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        OSError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as error:
+        latency_ms = round((time.monotonic() - start) * 1000, 2)
+
+        return JsonResponse({
+            "status": "unavailable",
+            "target_cloud": expected_cloud.upper(),
+            "target_platform": expected_platform,
+            "latency_ms": latency_ms,
+            "error": str(error),
+        }, status=503)
 
 
 def metrics(request):
