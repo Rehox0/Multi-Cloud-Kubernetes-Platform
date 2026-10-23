@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: multicloudprojectacr1.azurecr.io/frontend
-  tag: e6131c0cc2f6a999a94d2bc4133d2773f4616741
+  tag: 57795889b7afd20675db326783cc642f584fee94
 
 service:
   type: ClusterIP
