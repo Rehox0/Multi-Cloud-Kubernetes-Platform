@@ -56,3 +56,11 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
+              
+    # PostgreSQL (private Azure Flexible Server)
+    - toCIDR:
+        - "10.10.16.4/32"
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP

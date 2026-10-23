@@ -167,7 +167,7 @@ kubectl -n monitoring get secret eso-grafana-secret -o jsonpath="{.data.grafana-
 ```
 
 ### Application test
-ssh -L 5000:<IP_GATEWAY>> azureadmin@<IP_JUMPBOX>
+ssh -L 5000:<IP_GATEWAY> azureadmin@<IP_JUMPBOX>
 
 
 
