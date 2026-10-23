@@ -2,7 +2,7 @@ replicaCount: 4
 
 image:
   repository: 563605821766.dkr.ecr.eu-central-1.amazonaws.com/multi-cloud-project-ecr-backend
-  tag: 5e267a94d60f87329d66c426ad7061f9e02388ab
+  tag: 57795889b7afd20675db326783cc642f584fee94
 
 serviceAccount:
   create: false
