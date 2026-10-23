@@ -1,34 +1,34 @@
-na aws jest inne podejscie niz na azure.
-
-na azure key vault oraz sekrety same sie tworza.
-
-na aws trzeba to robic recznie(starsze podejscie)
+Całkowity koszt minimalny (np. 1 inbound + 1 outbound + ruleset) wynosi ok. $362.50 / miesiąc
+dla dns resolver w azure - za drogo...
 
 
-AWS VPC
-   │
-   ▼
-Transit Gateway
-   │
-   │ IPsec VPN
-   │
-Azure VPN Gateway
-   │
-   ▼
-Azure VNet
-
-
-lub
-
-
-AWS VPC
-   │
-AWS Site-to-Site VPN
-   │
-   │ Internet + IPsec
-   │
-Azure VPN Gateway
-   │
-Azure VNet
-
-
+```
+                       USERS
+                         |
+                         v
+                Azure Traffic Manager
+                    (DNS routing)
+                         |
+                 +-------+-------+
+                 |               |
+                 v               v
+            AWS CloudFront   Azure Front Door
+                 |               |
+                 v               v
+              EKS Frontend    AKS Frontend
+                 |               |
+                 +-------+-------+
+                         |
+                 Backend routing
+                         |
+                +--------+--------+
+                |                 |
+                v                 v
+           EKS Backend       AKS Backend
+                |                 |
+                +--------+--------+
+                         |
+                         v
+                 Azure PostgreSQL
+                    (private)
+```

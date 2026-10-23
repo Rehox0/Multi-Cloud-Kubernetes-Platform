@@ -6,14 +6,14 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app: workload-backend-dev
+      app: {{ .Release.Name | quote }}
 
   ingress:
     # Frontend
     - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: frontend-ns
-            app: workload-frontend-dev
+            app: {{ .Values.networkPolicy.frontendAppLabel | quote }}
       toPorts:
         - ports:
             - port: "8000"
@@ -49,4 +49,10 @@ spec:
             - port: "53"
               protocol: UDP
             - port: "53"
+              protocol: TCP
+    - toCIDR:
+        - {{ .Values.networkPolicy.remoteGatewayCIDR | quote }}
+      toPorts:
+        - ports:
+            - port: "80"
               protocol: TCP

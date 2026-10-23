@@ -1,8 +1,8 @@
 replicaCount: 4
 
 image:
-  repository: multicloudprojectacr.azurecr.io/backend
-  tag: f4b7f074e8a838043d3e598d5a05b9295379dc9d
+  repository: multicloudprojectacr1.azurecr.io/backend
+  tag: 1afd56d5a4e246d68cb5605405b0983524e395f9
 
 serviceAccount:
   create: false
@@ -36,7 +36,7 @@ gateway:
 
 externalSecret:
   refreshInterval: "1m"
-  remoteKey: "Multi-Cloud-ProjectKV"
+  remoteKey: "Multi-Cloud-ProjectKV1"
   targetName: "eso-backend-secret"
   secretStoreRef:
     name: "azure-keyvault"
@@ -44,6 +44,8 @@ externalSecret:
 
 networkPolicy:
   enabled: true
+  frontendAppLabel: azure-workload-frontend-dev
+  remoteGatewayCIDR: 10.0.10.116/32
 
 backend:
   host: http://workload-backend-dev.backend-ns.svc.cluster.local

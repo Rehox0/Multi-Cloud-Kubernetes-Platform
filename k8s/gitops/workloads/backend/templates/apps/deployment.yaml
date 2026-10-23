@@ -15,6 +15,9 @@ spec:
         pod-security.kubernetes.io/enforce: restricted
         pod-security.kubernetes.io/audit: restricted
         pod-security.kubernetes.io/warn: restricted
+        {{- if eq .Values.env.cloudProvider "aws" }}
+        azure.workload.identity/use: "true"
+        {{- end }}
     spec:
       securityContext:
         seccompProfile:
@@ -97,6 +100,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalSecret.targetName }}
                   key: POSTGRES_PASSWORD
+
+            - name: POSTGRES_FALLBACK_IP
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-fallback-secret
+                  key: POSTGRES_FALLBACK_IP
+                  optional: true
 
           securityContext:
             runAsNonRoot: true

@@ -14,6 +14,7 @@ spec:
     - 'https://prometheus-community.github.io/helm-charts'
     - 'https://grafana-community.github.io/helm-charts'
     - 'https://grafana.github.io/helm-charts'
+    - 'https://azure.github.io/azure-workload-identity/charts'
   destinations:
     - namespace: '*'
       server: '*'

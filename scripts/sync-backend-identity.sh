@@ -1,0 +1,384 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+# --------------------------------------------------
+# Configuration
+# --------------------------------------------------
+
+EXPECTED_BRANCH="testing"
+
+TERRAFORM_DIR="terraform/azure/envs/dev"
+
+IDENTITY_DIR="k8s/gitops/infra/aws/identity"
+
+CLIENT_ID_FILE="${IDENTITY_DIR}/values.yaml"
+TENANT_ID_FILE="${IDENTITY_DIR}/azure-workload-identity.yaml"
+AZURE_VALUES_FILE="k8s/gitops/infra/azure/values.yaml"
+
+COMMIT_MESSAGE="chore(gitops): sync Azure workload identity IDs"
+
+# --------------------------------------------------
+# Locate repository
+# --------------------------------------------------
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)"
+
+cd "${REPO_ROOT}"
+
+# --------------------------------------------------
+# Validate environment
+# --------------------------------------------------
+
+if ! command -v terraform >/dev/null 2>&1; then
+    echo "ERROR: terraform is not installed or is not in PATH." >&2
+    exit 1
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ERROR: python3 is not installed or is not in PATH." >&2
+    exit 1
+fi
+
+CURRENT_BRANCH="$(git branch --show-current)"
+
+if [[ "${CURRENT_BRANCH}" != "${EXPECTED_BRANCH}" ]]; then
+    echo "ERROR: Expected branch '${EXPECTED_BRANCH}', current branch is '${CURRENT_BRANCH}'." >&2
+    echo "Switch branches before running this script." >&2
+    exit 1
+fi
+
+if [[ ! -d "${TERRAFORM_DIR}" ]]; then
+    echo "ERROR: Terraform directory not found: ${TERRAFORM_DIR}" >&2
+    exit 1
+fi
+
+# --------------------------------------------------
+# Read Terraform outputs
+# --------------------------------------------------
+
+echo "Reading Terraform outputs..."
+
+CLIENT_ID="$(
+    terraform -chdir="${TERRAFORM_DIR}" \
+        output -raw eks_backend_identity_client_id
+)"
+
+TENANT_ID="$(
+    terraform -chdir="${TERRAFORM_DIR}" \
+        output -raw azure_tenant_id
+)"
+
+AKS_CLIENT_ID="$(
+    terraform -chdir="${TERRAFORM_DIR}" \
+        output -raw aks_identity_client_id
+)"
+
+if [[ -z "${CLIENT_ID}" ]]; then
+    echo "ERROR: eks_backend_identity_client_id is empty." >&2
+    exit 1
+fi
+
+if [[ -z "${TENANT_ID}" ]]; then
+    echo "ERROR: azure_tenant_id is empty." >&2
+    exit 1
+fi
+
+if [[ -z "${AKS_CLIENT_ID}" ]]; then
+    echo "ERROR: aks_identity_client_id is empty." >&2
+    exit 1
+fi
+
+# Basic validation: both values should be UUIDs.
+UUID_REGEX='^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$'
+
+if [[ ! "${CLIENT_ID}" =~ ${UUID_REGEX} ]]; then
+    echo "ERROR: Client ID is not a valid UUID: ${CLIENT_ID}" >&2
+    exit 1
+fi
+
+if [[ ! "${TENANT_ID}" =~ ${UUID_REGEX} ]]; then
+    echo "ERROR: Tenant ID is not a valid UUID: ${TENANT_ID}" >&2
+    exit 1
+fi
+
+if [[ ! "${AKS_CLIENT_ID}" =~ ${UUID_REGEX} ]]; then
+    echo "ERROR: AKS Client ID is not a valid UUID: ${AKS_CLIENT_ID}" >&2
+    exit 1
+fi
+
+echo "Client ID: ${CLIENT_ID}"
+echo "Tenant ID: ${TENANT_ID}"
+echo "AKS Client ID: ${AKS_CLIENT_ID}"
+
+# --------------------------------------------------
+# Update GitOps values
+# --------------------------------------------------
+
+mkdir -p "${IDENTITY_DIR}"
+
+export CLIENT_ID AKS_CLIENT_ID TENANT_ID CLIENT_ID_FILE TENANT_ID_FILE AZURE_VALUES_FILE
+
+python3 <<'PYTHON'
+import os
+import re
+from pathlib import Path
+
+
+client_id = os.environ["CLIENT_ID"]
+tenant_id = os.environ["TENANT_ID"]
+
+client_file = Path(os.environ["CLIENT_ID_FILE"])
+tenant_file = Path(os.environ["TENANT_ID_FILE"])
+azure_values_file = Path(os.environ["AZURE_VALUES_FILE"])
+aks_client_id = os.environ["AKS_CLIENT_ID"]
+
+def update_nested_client_id(path: Path, value: str) -> None:
+    """
+    Update backend.clientId while preserving unrelated YAML values.
+    Create the expected structure if the file does not exist.
+    """
+    if not path.exists():
+        path.write_text(
+            "backend:\n"
+            f'  clientId: "{value}"\n',
+            encoding="utf-8",
+        )
+        print(f"Created {path}")
+        return
+
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+
+    backend_index = next(
+        (
+            i for i, line in enumerate(lines)
+            if re.match(r"^backend\s*:\s*(?:#.*)?(?:\r?\n)?$", line)
+        ),
+        None,
+    )
+
+    if backend_index is None:
+        if lines and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+
+        lines.extend([
+            "backend:\n",
+            f'  clientId: "{value}"\n',
+        ])
+        path.write_text("".join(lines), encoding="utf-8")
+        print(f"Added backend.clientId to {path}")
+        return
+
+    # Find the end of the backend block.
+    backend_end = len(lines)
+
+    for i in range(backend_index + 1, len(lines)):
+        line = lines[i]
+
+        if line.strip() and not line.lstrip().startswith("#"):
+            if not line[0].isspace():
+                backend_end = i
+                break
+
+    # Find clientId directly inside backend.
+    client_index = next(
+        (
+            i for i in range(backend_index + 1, backend_end)
+            if re.match(r"^  clientId\s*:", lines[i])
+        ),
+        None,
+    )
+
+    replacement = f'  clientId: "{value}"\n'
+
+    if client_index is not None:
+        lines[client_index] = replacement
+    else:
+        # Insert directly under backend, before nested sections.
+        insert_index = backend_index + 1
+
+        while (
+            insert_index < backend_end
+            and (
+                not lines[insert_index].strip()
+                or lines[insert_index].lstrip().startswith("#")
+            )
+        ):
+            insert_index += 1
+
+        lines.insert(insert_index, replacement)
+
+    path.write_text("".join(lines), encoding="utf-8")
+    print(f"Updated {path}")
+
+
+def update_tenant_id(path: Path, value: str) -> None:
+    """
+    Update the top-level azureTenantID key expected by
+    the Azure Workload Identity webhook Helm chart.
+    """
+    if not path.exists():
+        path.write_text(
+            f'azureTenantID: "{value}"\n',
+            encoding="utf-8",
+        )
+        print(f"Created {path}")
+        return
+
+    text = path.read_text(encoding="utf-8")
+
+    pattern = re.compile(r"^azureTenantID\s*:.*$", re.MULTILINE)
+    replacement = f'azureTenantID: "{value}"'
+
+    if pattern.search(text):
+        text = pattern.sub(replacement, text, count=1)
+    else:
+        if text and not text.endswith("\n"):
+            text += "\n"
+
+        text += replacement + "\n"
+
+    path.write_text(text, encoding="utf-8")
+    print(f"Updated {path}")
+
+
+def update_cluster_secret_store_tenant(path: Path, value: str) -> None:
+    """
+    Update tenantId inside the ClusterSecretStore manifest.
+    """
+    if not path.exists():
+        raise FileNotFoundError(
+            f"ClusterSecretStore manifest not found: {path}"
+        )
+
+    text = path.read_text(encoding="utf-8")
+
+    pattern = re.compile(
+        r"^(\s*tenantId\s*:\s*)[\"']?[^\"'\n#]+[\"']?(\s*(?:#.*)?)$",
+        re.MULTILINE,
+    )
+
+    updated, count = pattern.subn(
+        lambda match: f'{match.group(1)}"{value}"{match.group(2)}',
+        text,
+    )
+
+    if count != 1:
+        raise RuntimeError(
+            f"Expected exactly one tenantId in {path}, found {count}. "
+            "No automatic modification was made."
+        )
+
+    path.write_text(updated, encoding="utf-8")
+    print(f"Updated {path}")
+
+def update_azure_workload_identity_client_id(path: Path, value: str) -> None:
+    """
+    Update backend.workloadIdentity.clientId in Azure GitOps values.
+    Preserve all unrelated YAML values.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Azure values file not found: {path}")
+
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+
+    backend_index = next(
+        (
+            i for i, line in enumerate(lines)
+            if re.match(r"^backend\s*:\s*(?:#.*)?(?:\r?\n)?$", line)
+        ),
+        None,
+    )
+
+    if backend_index is None:
+        raise RuntimeError(f"Missing top-level backend section in {path}")
+
+    backend_end = len(lines)
+    for i in range(backend_index + 1, len(lines)):
+        if lines[i].strip() and not lines[i][0].isspace() and not lines[i].lstrip().startswith("#"):
+            backend_end = i
+            break
+
+    workload_index = next(
+        (
+            i for i in range(backend_index + 1, backend_end)
+            if re.match(r"^  workloadIdentity\s*:", lines[i])
+        ),
+        None,
+    )
+
+    if workload_index is None:
+        raise RuntimeError(f"Missing backend.workloadIdentity section in {path}")
+
+    workload_end = backend_end
+    for i in range(workload_index + 1, backend_end):
+        if lines[i].strip() and not lines[i][0].isspace() and not lines[i].lstrip().startswith("#"):
+            workload_end = i
+            break
+
+    client_index = next(
+        (
+            i for i in range(workload_index + 1, workload_end)
+            if re.match(r"^    clientId\s*:", lines[i])
+        ),
+        None,
+    )
+
+    if client_index is None:
+        raise RuntimeError(
+            f"Missing backend.workloadIdentity.clientId in {path}"
+        )
+
+    lines[client_index] = f'    clientId: "{value}"\n'
+    path.write_text("".join(lines), encoding="utf-8")
+    print(f"Updated backend.workloadIdentity.clientId in {path}")
+
+
+update_nested_client_id(client_file, client_id)
+update_tenant_id(tenant_file, tenant_id)
+update_cluster_secret_store_tenant(azure_values_file, tenant_id)
+update_azure_workload_identity_client_id(azure_values_file, aks_client_id)
+
+
+PYTHON
+
+# --------------------------------------------------
+# Review changes
+# --------------------------------------------------
+
+echo
+echo "Changes in the identity values files:"
+git --no-pager diff -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
+
+# Include untracked files in the change check.
+CHANGES="$(git status --short -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}")"
+
+if [[ -z "${CHANGES}" ]]; then
+    echo
+    echo "No changes detected. Nothing to commit."
+    exit 0
+fi
+
+# --------------------------------------------------
+# Commit only the two target files
+# --------------------------------------------------
+
+echo
+echo "Creating commit..."
+
+git add -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
+
+git commit --only \
+    -m "${COMMIT_MESSAGE}" \
+    -- "${CLIENT_ID_FILE}" "${TENANT_ID_FILE}" "${AZURE_VALUES_FILE}"
+
+echo
+echo "SUCCESS: Identity values synchronized and committed."
+echo "Branch: ${CURRENT_BRANCH}"
+echo "Files:"
+echo "  - ${CLIENT_ID_FILE}"
+echo "  - ${TENANT_ID_FILE}"
+echo "  - ${AZURE_VALUES_FILE}"
+echo
+echo "No git push was performed."

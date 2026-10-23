@@ -4,7 +4,7 @@ metadata:
   name: kyverno-system
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: aws-infra-project
   source:
@@ -14,6 +14,9 @@ spec:
     helm:
       values: |
         installCRDs: true
+        features:
+          controllerRuntimeMetrics:
+            bindAddress: ":8082"
         admissionController:
           hostNetwork: true
           dnsPolicy: ClusterFirstWithHostNet

@@ -3,37 +3,41 @@ Operational runbook for bootstrapping, deploying, and accessing the platform on 
 
 ---
 
-## ⚠️ Remote State (S3 Backend)
-This project uses remote state stored in S3 with a lock in DynamoDB.
+## ⚠️ Remote State
+This project uses remote state stored in AWS S3 and Azure blob storage.
 
-**Infrastructure parameters:**
+**Infrastructure parameters for AWS:**
 - **Region:** `eu-central-1`
 - **Bucket Name:** `multi-cloud-project-tfstate-2026`
 - **DynamoDB Table:** `terraform-state-lock`
-- **Secrets Manager:** `multi-cloud-project-dev` (development)
 
+**Infrastructure parameters for Azure:**
+- **Region:** `germanywestcentral`
+- **Container Name:** `multicloudproject2027`
+- **Storage Account Name:** `tfstate2027aks`
 
-**The bucket name must match in two places:**
-1. `.bootstrap/variables.tf` → variable `state_bucket_name`
-2. `./backend.tf` → the `bucket` parameter in the `backend "s3"` block
+---
+
+# Initial Deployment
+
+**Prepare AWS and Azure:** boostrap -> AWS&AZURE `enable_vpn_connections = false` -> AWS `enable_vpn_connections = true` -> Azure `enable_vpn_connections = true`
 
 ---
  
 # ☁️ AWS Deployment
 
-### 1. Bootstrap remote state
+### 1. All steps
 ```bash
-cd .bootstrap/
+cd ~/Multi-Cloud-Kubernetes-Platform/terraform/aws/.bootstrap
+terraform init
+terraform apply
+
+cd ~/Multi-Cloud-Kubernetes-Platform/terraform/aws/envs/dev
+terraform init
 terraform apply
 ```
 
-### 2. Deploy the dev environment
-```bash
-cd envs/dev/
-terraform apply
-```
-
-### 3. Configure the management host
+### 2. Configure the management host
 SSM into the `mgmt-asg` EC2 instance, then run the following.
  
 **Remove the default AWS VPC CNI and restart core components** — required once Cilium is up; critical for a
@@ -97,6 +101,23 @@ aws ssm start-session \
 ---
  
 # ☁️ Azure Deployment
+
+### 1. Bootstrap remote state
+```bash
+cd ~/Multi-Cloud-Kubernetes-Platform/terraform/azure/.bootstrap
+terraform init
+terraform apply
+
+cd ~/Multi-Cloud-Kubernetes-Platform/terraform/azure/envs/dev
+terraform init
+terraform apply
+```
+after successful `terraform apply` run script:
+
+```
+./scripts/sync-backend-identity.sh
+```
+
 ### Alertmanager webhook
 set discord webhook url:
 ```
@@ -105,7 +126,7 @@ read -s DISCORD_WEBHOOK_URL
 paste url, enter, then:
 ```
 az keyvault secret set \
-  --vault-name Multi-Cloud-ProjectKV \
+  --vault-name Multi-Cloud-ProjectKV1 \
   --name discord-alertmanager-webhook \
   --value "$DISCORD_WEBHOOK_URL"
 
@@ -127,11 +148,11 @@ kubectl apply -f ~/Multi-Cloud-Kubernetes-Platform/k8s/gitops/root/azure-root-ap
 
 ### 2. Access the ArgoCD UI
 ```bash
-ssh -L 8080:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
+ssh -L 8088:127.0.0.1:8080 azureadmin@$IP_JUMPBOX "kubectl port-forward -n argocd svc/argocd-server 8080:443 --address 127.0.0.1"
 ```
 Get the initial admin password:
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
 ```
 
 ### 3. Access the Grafana UI

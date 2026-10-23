@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gateway-nodeport-reconciler
+  namespace: gateway-ns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gateway-nodeport-reconciler
+  namespace: gateway-ns
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    resourceNames:
+      - cilium-gateway-main-gateway
+    verbs:
+      - get
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gateway-nodeport-reconciler
+  namespace: gateway-ns
+subjects:
+  - kind: ServiceAccount
+    name: gateway-nodeport-reconciler
+    namespace: gateway-ns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gateway-nodeport-reconciler

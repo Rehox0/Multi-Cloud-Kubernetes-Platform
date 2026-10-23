@@ -24,6 +24,8 @@ spec:
                 - monitoring
                 - karpenter
                 - kyverno
+                - argocd
+                - external-secrets
 
       validate:
         message: "Containers must define CPU and memory requests and limits."

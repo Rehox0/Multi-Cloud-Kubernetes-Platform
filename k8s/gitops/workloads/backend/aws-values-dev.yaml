@@ -2,7 +2,7 @@ replicaCount: 4
 
 image:
   repository: 563605821766.dkr.ecr.eu-central-1.amazonaws.com/multi-cloud-project-ecr-backend
-  tag: bcd6e8159ecbb1b7c1db89c0f5d0893c2713d508
+  tag: 5e267a94d60f87329d66c426ad7061f9e02388ab
 
 serviceAccount:
   create: false
@@ -11,6 +11,9 @@ serviceAccount:
 env:
   debug: "True"
   allowedHosts: "*"
+  cloudProvider: "AWS"
+  cloudRegion: "eu-central-1"
+  backendPlatform: "EKS"
 
 service:
   type: ClusterIP
@@ -34,6 +37,8 @@ gateway:
 
 networkPolicy:
   enabled: true
+  frontendAppLabel: aws-workload-frontend-dev
+  remoteGatewayCIDR: 10.20.4.7/32
 
 externalSecret:
   refreshInterval: "1m"

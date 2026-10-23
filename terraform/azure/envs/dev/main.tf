@@ -1,0 +1,247 @@
+module "networking" {
+  source = "../../modules/networking"
+
+  project_name        = var.project_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  vnet_cidr                = "10.20.0.0/16"
+  aks_subnet_cidrs         = ["10.20.4.0/22", "10.20.8.0/22"]
+  private_link_subnet_cidr = "10.20.12.0/24"
+
+
+  # application_gateway_subnet_cidr = "10.20.13.0/24"
+  # application_gateway_private_link_subnet_cidr = "10.20.14.0/24"
+
+  jumpbox_network = {
+    location    = "polandcentral"
+    vnet_cidr   = "10.10.0.0/16"
+    subnet_cidr = "10.10.0.0/24"
+  }
+
+  postgresql_subnet_cidr = "10.10.16.0/24"
+
+  vpn_gateway_bgp_apipa_addresses = [
+    "169.254.21.2",
+    "169.254.22.2",
+    "169.254.21.6",
+    "169.254.22.6"
+  ]
+
+  enable_vpn_connections = var.enable_vpn_connections
+  
+  aws_vpn_tunnel_outside_ips = {
+    vpn_1_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_outside_ip, null) : null
+    vpn_1_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_outside_ip, null) : null
+    vpn_2_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_outside_ip, null) : null
+    vpn_2_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_outside_ip, null) : null
+  }
+
+  aws_vpn_tunnel_psks = {
+    vpn_1_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel1_psk, null) : null
+    vpn_1_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_1_tunnel2_psk, null) : null
+    vpn_2_tunnel_1 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel1_psk, null) : null
+    vpn_2_tunnel_2 = var.enable_vpn_connections ? try(data.terraform_remote_state.aws.outputs.azure_vpn_2_tunnel2_psk, null) : null
+  }
+
+  common_tags = local.tags
+}
+
+module "identity" {
+  source = "../../modules/identity"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  aks_private_dns_zone_id       = module.networking.aks_private_dns_zone_id
+  aks_vnet_id                   = module.networking.aks_vnet_id
+  backend_keyvault_id           = module.key_vault.id
+  backend_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.backend_identity_principal_id
+
+  user_object_id = var.user_object_id
+  common_tags    = local.tags
+}
+
+module "key_vault" {
+  source = "../../modules/key_vault"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+
+  user_keyvault_secrets_officer_role_assignment_id = module.identity.user_keyvault_secrets_officer_role_assignment_id
+  grafana_admin_user                               = var.grafana_admin_user
+
+  common_tags = local.tags
+}
+
+module "postgresql" {
+  source = "../../modules/postgresql"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = "polandcentral"
+
+  subnet_id           = module.networking.postgresql_subnet_id
+  private_dns_zone_id = module.networking.postgresql_private_dns_zone_id
+  key_vault_id        = module.key_vault.id
+  key_vault_name      = module.key_vault.name
+
+  postgresql_admin_login    = var.postgresql_admin_login
+  postgresql_admin_password = module.key_vault.postgresql_admin_password
+
+  storage_mb            = 32768
+  sku_name              = "GP_Standard_D2ds_v5"
+  backup_retention_days = 7
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.networking,
+    module.identity,
+    module.key_vault
+  ]
+}
+
+module "aks" {
+  source = "../../modules/aks"
+
+  project_name = var.project_name
+  cluster_name = local.cluster_name
+
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  subnet_id           = module.networking.aks_subnets[0]
+  private_dns_zone_id = module.networking.aks_private_dns_zone_id
+  identity_id         = module.identity.aks_identity_id
+
+  kubernetes_version = var.cluster_version
+
+  node_vm_size = "Standard_D2s_v7"
+
+  node_min_size = 2
+  node_max_size = 2
+
+  node_labels = {
+    env = "dev"
+  }
+  common_tags = local.tags
+
+  depends_on = [module.networking]
+}
+
+module "loki_storage" {
+  source = "../../modules/loki_storage"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  storage_account_name = "multicloudlokidev1"
+
+  aks_oidc_issuer_url = module.aks.oidc_issuer_url
+
+  kubernetes_namespace       = "loki"
+  kubernetes_service_account = "loki"
+
+  loki_identity_id           = data.terraform_remote_state.bootstrap.outputs.loki_identity_id
+  loki_identity_principal_id = data.terraform_remote_state.bootstrap.outputs.loki_identity_principal_id
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+module "jumpbox" {
+  source = "../../modules/jumpbox"
+
+  project_name = var.project_name
+  location     = "polandcentral"
+
+  resource_group_name        = azurerm_resource_group.main.name
+  subnet_id                  = module.networking.jumpbox_subnet_id
+  aks_node_resource_group_id = module.aks.node_resource_group_id
+  aks_cluster_id             = module.aks.cluster_id
+
+  vm_size         = "Standard_D2als_v6"
+  priority        = "Spot"
+  eviction_policy = "Deallocate"
+  max_bid_price   = -1
+
+  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
+  admin_username  = "azureadmin"
+  admin_source_ip = var.admin_source_ip
+
+  kubectl_version   = var.kubectl_version
+  kubectl_sha256    = var.kubectl_sha256
+  kubelogin_version = var.kubelogin_version
+  kubelogin_sha256  = var.kubelogin_sha256
+  helm_version      = var.helm_version
+  helm_sha256       = var.helm_sha256
+
+  common_tags = local.tags
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+# module "application_gateway" {
+#   source = "../../modules/application_gateway"
+
+#   project_name        = var.project_name
+#   resource_group_name = azurerm_resource_group.main.name
+#   location            = azurerm_resource_group.main.location
+
+#   application_gateway_subnet_id = module.networking.application_gateway_subnet_id
+#   application_gateway_private_link_subnet_id = module.networking.application_gateway_private_link_subnet_id
+
+#   common_tags = local.tags
+
+#   depends_on = [
+#     module.networking,
+#     module.aks
+#   ]
+# }
+
+## Turn off the front door and traffic manager modules for now, as they are not needed for the dev environment. They can be enabled later if needed.
+# module "front_door" {
+#   source = "../../modules/front_door"
+
+#   project_name        = var.project_name
+#   resource_group_name = azurerm_resource_group.main.name
+#   location            = azurerm_resource_group.main.location
+
+#   aks_node_resource_group = module.aks.node_resource_group
+#   host_name               = "app.multi-cloud-kubernetes.cloud"
+#   common_tags             = local.tags
+
+#   depends_on = [
+#     null_resource.wait_for_gateway_pls
+#   ]
+# }
+
+module "traffic_manager" {
+  source = "../../modules/traffic_manager"
+
+  project_name        = var.project_name
+  resource_group_name = azurerm_resource_group.main.name
+
+  aws_cloudfront_hostname = var.aws_cloudfront_hostname
+
+  # azure_frontdoor_hostname = module.front_door.endpoint_hostname
+  azure_frontdoor_hostname = var.azure_frontdoor_hostname
+
+  health_probe_path = "/api/health"
+
+  common_tags = local.tags
+
+  # depends_on = [
+  #   module.front_door
+  # ]
+}

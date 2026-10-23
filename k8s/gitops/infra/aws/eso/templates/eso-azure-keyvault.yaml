@@ -1,0 +1,13 @@
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: eso-azure-keyvault
+spec:
+  provider:
+    azurekv:
+      authType: WorkloadIdentity
+      tenantId: "b7233ea5-330b-4215-a536-3ebe0e72e5cb"
+      vaultUrl: "https://Multi-Cloud-ProjectKV1.vault.azure.net"
+      serviceAccountRef:
+        name: backend
+        namespace: backend-ns

@@ -3,14 +3,14 @@ name: AWS - Terraform Checks
 on:
   pull_request:
     paths:
-      - 'Terraform_EKS/**'
+      - 'terraform/aws/**'
       - '.github/workflows/aws_terraform_check.yaml'
   push:
     branches:
       - main
       - testing
     paths:
-      - 'Terraform_EKS/**'
+      - 'terraform/aws/**'
       - '.github/workflows/aws_terraform_check.yaml'
 
 permissions:
@@ -40,9 +40,9 @@ jobs:
       fail-fast: false
       matrix:
         env_dir:
-          - Terraform_EKS/envs/dev
-          - Terraform_EKS/envs/staging
-          - Terraform_EKS/envs/prod
+          - terraform/aws/envs/dev
+          - terraform/aws/envs/staging
+          - terraform/aws/envs/prod
 
     defaults:
       run:
@@ -92,5 +92,5 @@ jobs:
       - name: tfsec
         uses: aquasecurity/tfsec-action@v1.2.0
         with:
-          working_directory: Terraform_EKS
+          working_directory: terraform/aws
           tfsec_args: --force-all-dirs
