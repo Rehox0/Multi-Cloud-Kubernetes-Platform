@@ -257,4 +257,4 @@ The purpose is to explore what changes when the same platform concepts are intro
 - [x] PostgreSQL extension
 - [x] Database replication
 - [x] Multi-Cloud interconnect
-- [ ] Multi-Cloud reliability model
+- [x] Multi-Cloud reliability model
