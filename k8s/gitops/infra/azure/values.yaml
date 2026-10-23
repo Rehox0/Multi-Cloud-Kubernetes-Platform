@@ -1,6 +1,6 @@
 backend:
   workloadIdentity:
-    clientId: "3cfd853e-305e-4e73-b21f-82204e28f772"
+    clientId: "af377896-f9fa-433c-8c4b-b6696f20bc9a"
 
 spec:
   provider:
