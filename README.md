@@ -54,7 +54,7 @@ Current infrastructure footprint:
 
 **Terraform state** is stored remotely between AWS S3 and Azure Blob Storage.
 
-**![Simple architecture diagram →](./docs/images/architecture_1.png)
+![Simple architecture diagram →](./docs/images/architecture_1.png)
 
 ### Multi-cloud connectivity
 The AWS and Azure environments are connected through a site-to-site VPN with BGP routing. Connectivity between the two Kubernetes environments has been tested in both directions.
