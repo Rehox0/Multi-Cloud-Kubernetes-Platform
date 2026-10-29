@@ -183,13 +183,6 @@ This provides two complementary recovery mechanisms:
   <h1>🚀 Infrastructure Roadmap</h1>
 </div>
 
-## Current Cluster Stage:
-
-### Azure
-**[Current stage →](./docs/images/AKS_pods.md)**
-
----
-
 ## ✅ Progress Checklist
 
 ### ☁️ AWS
