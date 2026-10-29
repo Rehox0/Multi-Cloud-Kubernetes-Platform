@@ -17,17 +17,20 @@
 [![Bash](https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=fff)](#)
 
 
-## 👁️ Overview
-I built a **multi-cloud Kubernetes platform across AWS and Azure** to explore how a production-oriented platform can be automated, secured and operated across two cloud providers.
+## Overview
+I built this multi-cloud Kubernetes platform to explore how cloud infrastructure and application workloads can be provisioned, secured, deployed, monitored, and operated across **AWS and Microsoft Azure.**
 
-It brings together **Terraform, Kubernetes, Cilium, ArgoCD, PostgreSQL, GitHub Actions, Karpenter, Kyverno and Prometheus/Grafana, Alertmanager, Loki and Grafana Alloy** into one platform.
-The project is intentionally built as a **learning and portfolio environment**, rather than a production system serving real users.
+The platform brings together Terraform, EKS, AKS, Kubernetes, Cilium, Gateway API, Argo CD, GitHub Actions, Kyverno, Karpenter, PostgreSQL, and a Prometheus/Grafana-based observability stack.
 
-> 🚧 **Work in progress.** The core AWS and Azure infrastructure, Kubernetes platforms, GitOps workflows, ingress paths, failover tests, monitoring, centralized logging and alerting have been implemented and validated end-to-end.  
-> Remaining work focuses on finalizing the multi-cloud architecture, cross-cloud connectivity, together with the remaining architecture documentation and project polish.
+This is a **learning and portfolio environment,** not a production service for real users. The infrastructure and application paths have been implemented and tested iteratively, including cross-cloud connectivity between the AWS and Azure environments.
+
+## Project status
+
+The core implementation is complete. Current work is focused on repository cleanup rather than adding more infrastructure components.
 
 > 🔒 **Current focus:** Preparing for the CKS (Certified Kubernetes Security Specialist) certification.  
 > The goal is to systematically harden the platform further (policies, runtime security, supply chain) based on CKS best practices.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -47,12 +50,17 @@ Infrastructure is provisioned using **Terraform**, covering networking, compute,
 
 Current infrastructure footprint:
 
-* **110+ AWS resources**
-* **65+ Azure resources**
+* **135+ AWS resources**
+* **85+ Azure resources**
 
-**Terraform state** is stored remotely in Amazon S3 with AES-256 encryption.
+**Terraform state** is stored remotely between AWS S3 and Azure Blob Storage.
 
-The current AWS infrastructure uses a state scoped to `eu-central-1`.
+![Simple architecture diagram →](./docs/images/architecture_1.png)
+
+### Multi-cloud connectivity
+The AWS and Azure environments are connected through a site-to-site VPN with BGP routing. Connectivity between the two Kubernetes environments has been tested in both directions.
+
+The application exposes backend health information, allowing the active environment to be identified from the response. Connectivity tests and application health checks are distinct from public DNS or traffic-manager routing status.
 
 ### Architecture & Design Decisions
 
@@ -66,8 +74,8 @@ These decisions cover topics such as:
 - Multi-cloud secrets management
 - Azure ingress architecture
 
-> **📖 Detailed decisions and alternatives considered:**
-> **[Architecture & Design Decisions →](./docs/architecture_decisions.md)**
+> **📖 See:**
+> **[Architecture & Design Decisions](./docs/architecture_decisions.md) for mode detail.**
 
 ---
 
@@ -193,10 +201,7 @@ This provides two complementary recovery mechanisms:
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
-- [x] Kyverno policy expansion:
-- [x] Disallow privileged containers
-- [x] Enforce resource requests and limits
-- [x] Require mandatory labels
+- [x] Kyverno policy expansion
 
 ### 📊 Observability
 - [x] Prometheus
@@ -228,16 +233,11 @@ This provides two complementary recovery mechanisms:
 ### 📖 Documentation & Presentation
 - [x] Design decisions and trade-offs
 - [x] Known limitations documented
-- [ ] Final architecture diagram
-- [ ] Short deployment demo
-- [ ] Final code cleanup
+- [x] Troubleshooting
+- [x] Final architecture diagram
 
 
 ## 🌐 Phase 2 - Multi-Cloud Extension
-
-The Azure environment is an explicit **learning and demonstration extension.**
-
-The purpose is to explore what changes when the same platform concepts are introduced into a second cloud provider, and to make those trade-offs visible rather than hiding them behind a generic "multi-cloud" label.
 
 ### Azure
 - [x] Azure AKS
@@ -256,5 +256,6 @@ The purpose is to explore what changes when the same platform concepts are intro
 
 - [x] PostgreSQL extension
 - [x] Database replication
+
 - [x] Multi-Cloud interconnect
 - [x] Multi-Cloud reliability model

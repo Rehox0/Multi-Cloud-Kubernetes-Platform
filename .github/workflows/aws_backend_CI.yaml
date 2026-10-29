@@ -112,6 +112,10 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      
+    concurrency:
+      group: gitops-image-tag-${{ github.ref }}
+      cancel-in-progress: false
 
     steps:
       - name: Checkout
@@ -155,46 +159,66 @@ jobs:
           docker push \
             $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Update Helm image tag
+      - name: Update Helm image tag and push with retry
         env:
           IMAGE_TAG: ${{ github.sha }}
+          TARGET_BRANCH: ${{ github.ref_name }}
         run: |
-          python - <<'PY'
+          set -euo pipefail
+
+          FILE="k8s/gitops/workloads/backend/aws-values-dev.yaml"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for attempt in 1 2 3 4 5; do
+            echo "Attempt $attempt/5"
+
+            # Refresh the remote branch and start from its latest state.
+            git fetch origin "$TARGET_BRANCH"
+            git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+
+            # Apply this workflow's image tag to the latest version of the file.
+            python - <<'PY'
           from pathlib import Path
           import os
           import re
 
           path = Path("k8s/gitops/workloads/backend/aws-values-dev.yaml")
-
           content = path.read_text()
 
           content, count = re.subn(
-              r'(^\s*tag:\s*).*$',
-              rf'\g<1>{os.environ["IMAGE_TAG"]}',
+              r'^(\s*tag:\s*).*$',
+              lambda match: match.group(1) + os.environ["IMAGE_TAG"],
               content,
               count=1,
               flags=re.MULTILINE,
           )
 
           if count != 1:
-              raise RuntimeError("Could not find image.tag in values.yaml")
+              raise RuntimeError(f"Could not find image tag in {path}")
 
           path.write_text(content)
           PY
 
-          git diff -- k8s/gitops/workloads/backend/aws-values-dev.yaml
+            git add "$FILE"
 
-      - name: Commit updated image tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            if git diff --cached --quiet; then
+              echo "Image tag is already up to date."
+              exit 0
+            fi
 
-          git add k8s/gitops/workloads/backend/aws-values-dev.yaml
+            git commit -m "ci: update backend image to ${IMAGE_TAG}"
 
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
+            # If another workflow pushes first, retry from the new remote HEAD.
+            if git push origin "HEAD:${TARGET_BRANCH}"; then
+              echo "Image tag updated successfully."
+              exit 0
+            fi
 
-          git commit -m "ci: update backend image to ${{ github.sha }}"
-          git push
+            echo "Push failed; refreshing branch before retry..."
+            sleep "$attempt"
+          done
+
+          echo "Failed to push image tag after 5 attempts."
+          exit 1

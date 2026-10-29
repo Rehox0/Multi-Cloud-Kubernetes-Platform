@@ -68,6 +68,13 @@
         button.health:hover {
             background-color: #219150;
         }
+        button.cross-cloud {
+            background-color: #8e44ad;
+        }
+        button.cross-cloud:hover {
+            background-color: #732d91;
+        }
+
         pre {
             background-color: #1e1e1e;
             color: #9cdcfe;
@@ -97,6 +104,7 @@
             <button onclick="fetchData('shop')">🛒 Shop API</button>
             <button onclick="fetchData('payments')">💳 Payments API</button>
             <button class="health" onclick="fetchData('health')">❤️ Health Check</button>
+            <button class="cross-cloud" onclick="fetchData('cross-cloud-health')">🌐 Cross-Cloud Check</button>
         </div>
 
         <div class="event-form"> 
@@ -143,6 +151,19 @@
                         `Cloud:     ${data.cloud}\n` +
                         `Region:    ${data.region}\n` +
                         `Platform:  ${data.platform}`;
+
+                } else if (endpoint === 'cross-cloud-health') {
+                    if (data.status !== 'ok') {
+                        throw new Error(data.error || 'Remote backend is unavailable');
+                    }
+
+                    resultBlock.style.color = '#2ecc71';
+                    resultBlock.innerText =
+                        `✓ Cross-Cloud Check Passed\n\n` +
+                        `${data.target_cloud} / ${data.target_platform}: OK\n\n` +
+                        `Region: ${data.region || 'N/A'}\n` +
+                        `Status: ${data.status.toUpperCase()}`;
+
                 } else {
                     resultBlock.style.color = '#9cdcfe';
                     resultBlock.innerText = JSON.stringify(data, null, 2);
