@@ -120,12 +120,41 @@ One of the main goals of the project was to document the **engineering process b
 
 ## 💰 Cost Visibility
 
-- **Cost allocation:** Terraform applies Project, Environment and ManagedBy tags for AWS cost tracking.
+- **Cost allocation:** Terraform applies Project, Environment and ManagedBy tags for AWS & Azure cost tracking.
 - **Karpenter:** dynamic node provisioning reduces idle capacity; Spot can be used for fault-tolerant workloads.
 - **Cost monitoring:** AWS Cost Explorer with project/environment tags.
 - **Trade-offs:** Karpenter uses smaller instances t3.small, while core nodes use bigger m7i-flex.large
 
-## Reliability & Disaster Recovery
+## 🧪Reliability & Disaster Recovery
+
+### Multi-Cloud Reliability Model
+The platform runs **active-active** across AWS (EKS) and Azure (AKS).
+Azure Traffic Manager routes users to healthy environments based on
+endpoint health probes. If one environment fails its probes, traffic is
+served by the other one.
+
+| Scenario | Expected behaviour | Tested |
+|---|---|---|
+| Pod failure | Replicas reschedule, no user impact | ✅ |
+| Node failure | Workloads reschedule on remaining nodes | ✅ |
+| Database AZ failure | Zone-redundant HA failover, ~45 s app downtime | ✅ |
+| Entire AWS environment unavailable | Traffic Manager routes to Azure | ✅ |
+| Entire Azure environment unavailable | Traffic Manager routes to AWS; the AWS backend keeps using the DB via its last known IP | ✅ |
+| DB failover + DNS forwarder failure at the same time | Stale DB IP on AWS, Alertmanager critical → manual update | ❌ accepted risk |
+
+
+#### Data layer
+PostgreSQL runs in Azure `polandcentral`. The AWS backend connects over
+site-to-site VPN (~30 ms RTT). The DB IP is stored in Key Vault and updated
+after failover. AWS resolves the DB through a DNS forwarder in Azure and
+falls back to the stored IP if the forwarder is unavailable.
+
+#### Known limitations
+- Traffic Manager failover is DNS-based, so it depends on probe interval,
+  tolerated failures and DNS TTL; it is not instantaneous.
+- Cross-cloud latency (~30 ms per round trip) adds up for requests that
+  issue several sequential queries.
+
 
 ### PostgreSQL
 The Azure PostgreSQL Flexible Server is configured with zone-redundant high availability, with the primary server running in Availability Zone 1 and a managed standby in Availability Zone 2.
