@@ -223,7 +223,7 @@ This provides two complementary recovery mechanisms:
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
-- [x] Kyverno policy expansion
+- [ ] Hardening planned after CKS
 
 ### 📊 Observability
 - [x] Prometheus
