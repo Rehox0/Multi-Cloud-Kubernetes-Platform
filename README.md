@@ -26,9 +26,10 @@ This is a **learning and portfolio environment,** not a production service for r
 
 ## Project status
 
-The core implementation is complete. Current work is focused on final documentation, architecture presentation, and repository cleanup rather than adding more infrastructure components.
+The core implementation is complete. Current work is focused on repository cleanup rather than adding more infrastructure components.
 
-The project demonstrates cross-cloud connectivity between the EKS and AKS environments. Cross-cloud connectivity is tested separately from public traffic routing
+> 🔒 **Current focus:** Preparing for the CKS (Certified Kubernetes Security Specialist) certification.  
+> The goal is to systematically harden the platform further (policies, runtime security, supply chain) based on CKS best practices.
 
 ---
 
@@ -232,8 +233,8 @@ This provides two complementary recovery mechanisms:
 ### 📖 Documentation & Presentation
 - [x] Design decisions and trade-offs
 - [x] Known limitations documented
+- [x] Troubleshooting
 - [x] Final architecture diagram
-- [ ] Short deployment demo
 
 
 ## 🌐 Phase 2 - Multi-Cloud Extension
