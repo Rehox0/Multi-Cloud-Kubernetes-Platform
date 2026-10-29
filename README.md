@@ -49,10 +49,12 @@ Infrastructure is provisioned using **Terraform**, covering networking, compute,
 
 Current infrastructure footprint:
 
-* **115+ AWS resources**
-* **65+ Azure resources**
+* **135+ AWS resources**
+* **85+ Azure resources**
 
 **Terraform state** is stored remotely between AWS S3 and Azure Blob Storage.
+
+**![Simple architecture diagram →](./docs/images/architecture_1.png)
 
 ### Multi-cloud connectivity
 The AWS and Azure environments are connected through a site-to-site VPN with BGP routing. Connectivity between the two Kubernetes environments has been tested in both directions.
@@ -198,10 +200,7 @@ This provides two complementary recovery mechanisms:
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
-- [x] Kyverno policy expansion:
-- [x] Disallow privileged containers
-- [x] Enforce resource requests and limits
-- [x] Require mandatory labels
+- [x] Kyverno policy expansion
 
 ### 📊 Observability
 - [x] Prometheus
@@ -233,16 +232,11 @@ This provides two complementary recovery mechanisms:
 ### 📖 Documentation & Presentation
 - [x] Design decisions and trade-offs
 - [x] Known limitations documented
-- [ ] Final architecture diagram
+- [x] Final architecture diagram
 - [ ] Short deployment demo
-- [ ] Final code cleanup
 
 
 ## 🌐 Phase 2 - Multi-Cloud Extension
-
-The Azure environment is an explicit **learning and demonstration extension.**
-
-The purpose is to explore what changes when the same platform concepts are introduced into a second cloud provider, and to make those trade-offs visible rather than hiding them behind a generic "multi-cloud" label.
 
 ### Azure
 - [x] Azure AKS
@@ -261,5 +255,6 @@ The purpose is to explore what changes when the same platform concepts are intro
 
 - [x] PostgreSQL extension
 - [x] Database replication
+
 - [x] Multi-Cloud interconnect
 - [x] Multi-Cloud reliability model
