@@ -26,10 +26,9 @@ This is a **learning and portfolio environment,** not a production service for r
 
 ## Project status
 
-The core implementation is complete. Current work is focused on repository cleanup rather than adding more infrastructure components.
+The core implementation is complete. The platform has been deployed and tested across AWS and Azure, including multi-cluster connectivity, application-level failover, database high availability, GitOps delivery, and security controls.
 
-> 🔒 **Current focus:** Preparing for the CKS (Certified Kubernetes Security Specialist) certification.  
-> The goal is to systematically harden the platform further (policies, runtime security, supply chain) based on CKS best practices.
+The project is now in maintenance mode, with the focus shifted to documentation and final cleanup rather than adding further infrastructure components.
 
 ---
 
@@ -38,7 +37,7 @@ The core implementation is complete. Current work is focused on repository clean
 * **Azure Cloud:** AKS · ACR · Front Door · Key Vault · Workload Identity · Traffic Manager
 * **Platform:** Kubernetes · Cilium · Gateway API · Karpenter · Helm
 * **Infrastructure & Delivery:** Terraform · GitHub Actions · ArgoCD · Docker
-* **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards
+* **Security:** Kyverno · Trivy · External Secrets Operator · IAM · Workload Identity · NetworkPolicies · Cilium L3-L7 policies · Pod Security Standards · kube-bench
 * **Observability:** Prometheus · Grafana · Alertmanager · Loki · Grafana Alloy · kube-state-metrics · Node Exporter
 * **Application:** Python · Django · React · PostgreSQL
 
@@ -111,7 +110,7 @@ One of the main goals of the project was to document the **engineering process b
 
 - **Argo CD / cross-node communication:** switching Cilium from native routing to VXLAN tunneling resolved Pod-to-Pod communication across nodes.
 
-- **Github Actions OIDC:** GitHub Actions Could not assume role with OIDC. After renaming repo - token sub format changed to unusual format.
+- **GitHub Actions OIDC:** GitHub Actions could not assume role with OIDC. After renaming repo - token sub format changed to unusual format.
 
 > **📖 Detailed investigation, diagnostics, root causes and fixes:
 > **[Problems & Troubleshooting →](./docs/troubleshooting.md)****
@@ -180,10 +179,8 @@ This provides two complementary recovery mechanisms:
 ---
 
 <div align="center">
-  <h1>🚀 Infrastructure Roadmap</h1>
+  <h1>✅ Implementation Checklist</h1>
 </div>
-
-## ✅ Progress Checklist
 
 ### ☁️ AWS
 - [x] AWS VPC
@@ -223,7 +220,7 @@ This provides two complementary recovery mechanisms:
 - [x] Cilium Network Policies (L3-L7, namespace isolation)
 - [x] Pod Security Standards / restricted profile
 - [x] Image scanning in CI (e.g. Trivy)
-- [ ] Hardening planned after CKS
+- [x] Kubernetes CIS Benchmark assessment using kube-bench
 
 ### 📊 Observability
 - [x] Prometheus
